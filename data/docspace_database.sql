@@ -10,6 +10,8 @@ USE docspace;
 
 CREATE TABLE users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    google_id VARCHAR(150) UNIQUE,
+    avatar VARCHAR(100), 
     role ENUM('acheteur','vendeur','admin') NOT NULL,
     type_compte ENUM('particulier','professionnel') NOT NULL,
     nom VARCHAR(100) NOT NULL,
@@ -19,10 +21,12 @@ CREATE TABLE users (
     pays VARCHAR(50),
     devise VARCHAR(10),
     adresse TEXT,
+    two_factor_secret VARCHAR(100),
     verifie_kyc BOOLEAN DEFAULT FALSE,
     badge_verifie BOOLEAN DEFAULT FALSE,
     note_moyenne DECIMAL(2,1) DEFAULT 0,
     statut ENUM('actif','suspendu','supprime') DEFAULT 'actif',
+    two_factor_enable_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
