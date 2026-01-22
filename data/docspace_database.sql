@@ -1,19 +1,46 @@
-
 -- =====================================================
--- Base de données DocSpace
+-- Base de données DocSpace (PostgreSQL)
 -- Marketplace d’équipements médicaux d’occasion
--- Méthode : MERISE -> MLD -> MySQL
 -- =====================================================
 
-CREATE DATABASE IF NOT EXISTS docspace;
-USE docspace;
+-- Création de la base (à exécuter séparément si besoin)
+-- CREATE DATABASE docspace;
+
+-- =====================================================
+-- ENUMS
+-- =====================================================
+
+CREATE TYPE user_role AS ENUM ('acheteur', 'vendeur', 'admin');
+CREATE TYPE type_compte_enum AS ENUM ('particulier', 'professionnel');
+CREATE TYPE statut_user_enum AS ENUM ('actif', 'suspendu', 'supprime');
+
+CREATE TYPE type_document_enum AS ENUM ('cni', 'passeport');
+CREATE TYPE statut_kyc_enum AS ENUM ('en_attente', 'valide', 'refuse');
+
+CREATE TYPE etat_annonce_enum AS ENUM ('neuf', 'tres_bon', 'bon', 'acceptable');
+CREATE TYPE statut_annonce_enum AS ENUM ('active', 'vendue', 'suspendue');
+
+CREATE TYPE statut_commande_enum AS ENUM ('en_attente', 'expediee', 'livree', 'cloturee');
+
+CREATE TYPE moyen_paiement_enum AS ENUM ('stripe', 'paypal');
+CREATE TYPE statut_paiement_enum AS ENUM ('bloque', 'libere', 'rembourse');
+
+CREATE TYPE motif_litige_enum AS ENUM ('non_conforme', 'defectueux', 'perdu');
+CREATE TYPE statut_litige_enum AS ENUM ('ouvert', 'en_cours', 'resolu');
+
+CREATE TYPE notification_type_enum AS ENUM ('message', 'commande', 'litige', 'systeme');
+CREATE TYPE notification_canal_enum AS ENUM ('push', 'email', 'sms');
+
+-- =====================================================
+-- TABLE USERS
+-- =====================================================
 
 CREATE TABLE users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     google_id VARCHAR(150) UNIQUE,
-    avatar VARCHAR(100), 
-    role ENUM('acheteur','vendeur','admin') NOT NULL,
-    type_compte ENUM('particulier','professionnel') NOT NULL,
+    avatar VARCHAR(100),
+    role user_role NOT NULL,
+    type_compte type_compte_enum NOT NULL,
     nom VARCHAR(100) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     mot_de_passe VARCHAR(255) NOT NULL,
@@ -25,114 +52,150 @@ CREATE TABLE users (
     verifie_kyc BOOLEAN DEFAULT FALSE,
     badge_verifie BOOLEAN DEFAULT FALSE,
     note_moyenne DECIMAL(2,1) DEFAULT 0,
-    statut ENUM('actif','suspendu','supprime') DEFAULT 'actif',
-    two_factor_enable_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    statut statut_user_enum DEFAULT 'actif',
+    two_factor_enable_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- =====================================================
+-- KYC DOCUMENTS
+-- =====================================================
 
 CREATE TABLE kyc_documents (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    type_document ENUM('cni','passeport'),
+    type_document type_document_enum,
     fichier VARCHAR(255),
-    statut ENUM('en_attente','valide','refuse') DEFAULT 'en_attente',
-    date_validation DATETIME,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    statut statut_kyc_enum DEFAULT 'en_attente',
+    date_validation TIMESTAMP,
+    CONSTRAINT fk_kyc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+-- =====================================================
+-- ANNONCES
+-- =====================================================
+
 CREATE TABLE annonces (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     vendeur_id BIGINT NOT NULL,
     titre VARCHAR(200) NOT NULL,
     description TEXT,
     categorie VARCHAR(100),
-    etat ENUM('neuf','tres_bon','bon','acceptable'),
+    etat etat_annonce_enum,
     prix_vendeur DECIMAL(10,2) NOT NULL,
     frais_protection DECIMAL(10,2) GENERATED ALWAYS AS (prix_vendeur * 0.08) STORED,
     prix_total DECIMAL(10,2) GENERATED ALWAYS AS (prix_vendeur * 1.08) STORED,
     quantite INT DEFAULT 1,
     pays_expedition VARCHAR(50),
-    statut ENUM('active','vendue','suspendue') DEFAULT 'active',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (vendeur_id) REFERENCES users(id)
+    statut statut_annonce_enum DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_annonce_vendeur FOREIGN KEY (vendeur_id) REFERENCES users(id)
 );
 
+-- =====================================================
+-- IMAGES DES ANNONCES
+-- =====================================================
+
 CREATE TABLE annonce_images (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     annonce_id BIGINT NOT NULL,
     image_url VARCHAR(255),
     ordre INT,
-    FOREIGN KEY (annonce_id) REFERENCES annonces(id)
+    CONSTRAINT fk_image_annonce FOREIGN KEY (annonce_id) REFERENCES annonces(id) ON DELETE CASCADE
 );
 
+-- =====================================================
+-- COMMANDES
+-- =====================================================
+
 CREATE TABLE commandes (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     acheteur_id BIGINT NOT NULL,
     vendeur_id BIGINT NOT NULL,
     annonce_id BIGINT NOT NULL,
     quantite INT NOT NULL,
     montant DECIMAL(10,2) NOT NULL,
-    statut ENUM('en_attente','expediee','livree','cloturee') DEFAULT 'en_attente',
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (acheteur_id) REFERENCES users(id),
-    FOREIGN KEY (vendeur_id) REFERENCES users(id),
-    FOREIGN KEY (annonce_id) REFERENCES annonces(id)
+    statut statut_commande_enum DEFAULT 'en_attente',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_commande_acheteur FOREIGN KEY (acheteur_id) REFERENCES users(id),
+    CONSTRAINT fk_commande_vendeur FOREIGN KEY (vendeur_id) REFERENCES users(id),
+    CONSTRAINT fk_commande_annonce FOREIGN KEY (annonce_id) REFERENCES annonces(id)
 );
+
+-- =====================================================
+-- PAIEMENTS
+-- =====================================================
 
 CREATE TABLE paiements (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     commande_id BIGINT NOT NULL,
-    moyen ENUM('stripe','paypal'),
+    moyen moyen_paiement_enum,
     montant DECIMAL(10,2),
-    statut ENUM('bloque','libere','rembourse'),
-    date_paiement DATETIME,
-    FOREIGN KEY (commande_id) REFERENCES commandes(id)
+    statut statut_paiement_enum,
+    date_paiement TIMESTAMP,
+    CONSTRAINT fk_paiement_commande FOREIGN KEY (commande_id) REFERENCES commandes(id)
 );
+
+-- =====================================================
+-- LITIGES
+-- =====================================================
 
 CREATE TABLE litiges (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     commande_id BIGINT NOT NULL,
     acheteur_id BIGINT NOT NULL,
-    motif ENUM('non_conforme','defectueux','perdu'),
+    motif motif_litige_enum,
     preuves TEXT,
-    statut ENUM('ouvert','en_cours','resolu') DEFAULT 'ouvert',
-    date_signalement DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (commande_id) REFERENCES commandes(id),
-    FOREIGN KEY (acheteur_id) REFERENCES users(id)
+    statut statut_litige_enum DEFAULT 'ouvert',
+    date_signalement TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_litige_commande FOREIGN KEY (commande_id) REFERENCES commandes(id),
+    CONSTRAINT fk_litige_acheteur FOREIGN KEY (acheteur_id) REFERENCES users(id)
 );
 
+-- =====================================================
+-- AVIS
+-- =====================================================
+
 CREATE TABLE avis (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     commande_id BIGINT NOT NULL,
     vendeur_id BIGINT NOT NULL,
     note_vendeur INT CHECK (note_vendeur BETWEEN 1 AND 5),
     note_conformite INT CHECK (note_conformite BETWEEN 1 AND 5),
     commentaire TEXT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (commande_id) REFERENCES commandes(id),
-    FOREIGN KEY (vendeur_id) REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_avis_commande FOREIGN KEY (commande_id) REFERENCES commandes(id),
+    CONSTRAINT fk_avis_vendeur FOREIGN KEY (vendeur_id) REFERENCES users(id)
 );
 
+-- =====================================================
+-- MESSAGES
+-- =====================================================
+
 CREATE TABLE messages (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     expediteur_id BIGINT NOT NULL,
     recepteur_id BIGINT NOT NULL,
     annonce_id BIGINT,
     contenu TEXT,
     lu BOOLEAN DEFAULT FALSE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (expediteur_id) REFERENCES users(id),
-    FOREIGN KEY (recepteur_id) REFERENCES users(id),
-    FOREIGN KEY (annonce_id) REFERENCES annonces(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_message_expediteur FOREIGN KEY (expediteur_id) REFERENCES users(id),
+    CONSTRAINT fk_message_recepteur FOREIGN KEY (recepteur_id) REFERENCES users(id),
+    CONSTRAINT fk_message_annonce FOREIGN KEY (annonce_id) REFERENCES annonces(id)
 );
 
+-- =====================================================
+-- NOTIFICATIONS
+-- =====================================================
+
 CREATE TABLE notifications (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    type ENUM('message','commande','litige','systeme'),
-    canal ENUM('push','email','sms'),
+    type notification_type_enum,
+    canal notification_canal_enum,
     contenu TEXT,
     lu BOOLEAN DEFAULT FALSE,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
