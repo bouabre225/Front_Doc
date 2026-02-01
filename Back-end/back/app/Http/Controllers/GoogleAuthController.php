@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Services\Auth\GoogleAuthservice;
+use App\Services\Auth\GoogleAuthService;
 use Laravel\Socialite\Facades\Socialite;
 
 class GoogleAuthController extends Controller
