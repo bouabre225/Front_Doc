@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -11,15 +12,44 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Create ENUMs
+        DB::statement("CREATE TYPE user_role AS ENUM ('acheteur', 'vendeur', 'admin')");
+        DB::statement("CREATE TYPE type_compte_enum AS ENUM ('particulier', 'professionnel')");
+        DB::statement("CREATE TYPE statut_user_enum AS ENUM ('actif', 'suspendu', 'supprime')");
+        DB::statement("CREATE TYPE type_document_enum AS ENUM ('cni', 'passeport')");
+        DB::statement("CREATE TYPE statut_kyc_enum AS ENUM ('en_attente', 'valide', 'refuse')");
+        DB::statement("CREATE TYPE etat_annonce_enum AS ENUM ('neuf', 'tres_bon', 'bon', 'acceptable')");
+        DB::statement("CREATE TYPE statut_annonce_enum AS ENUM ('active', 'vendue', 'suspendue')");
+        DB::statement("CREATE TYPE statut_commande_enum AS ENUM ('en_attente', 'expediee', 'livree', 'cloturee')");
+        DB::statement("CREATE TYPE moyen_paiement_enum AS ENUM ('stripe', 'paypal')");
+        DB::statement("CREATE TYPE statut_paiement_enum AS ENUM ('bloque', 'libere', 'rembourse')");
+        DB::statement("CREATE TYPE motif_litige_enum AS ENUM ('non_conforme', 'defectueux', 'perdu')");
+        DB::statement("CREATE TYPE statut_litige_enum AS ENUM ('ouvert', 'en_cours', 'resolu')");
+        DB::statement("CREATE TYPE notification_type_enum AS ENUM ('message', 'commande', 'litige', 'systeme')");
+        DB::statement("CREATE TYPE notification_canal_enum AS ENUM ('push', 'email', 'sms')");
+
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+            $table->string('google_id', 150)->unique()->nullable();
+            $table->string('avatar', 100)->nullable();
+            $table->string('nom', 100);
+            $table->string('email', 150)->unique();
+            $table->string('mot_de_passe', 255);
+            $table->string('telephone', 20)->nullable();
+            $table->string('pays', 50)->nullable();
+            $table->string('devise', 10)->nullable();
+            $table->text('adresse')->nullable();
+            $table->string('two_factor_secret', 100)->nullable();
+            $table->boolean('verifie_kyc')->default(false);
+            $table->boolean('badge_verifie')->default(false);
+            $table->decimal('note_moyenne', 2, 1)->default(0);
+            $table->timestamp('two_factor_enable_at')->nullable();
+            $table->timestamp('created_at')->useCurrent();
         });
+        
+        DB::statement('ALTER TABLE users ADD COLUMN role user_role NOT NULL');
+        DB::statement('ALTER TABLE users ADD COLUMN type_compte type_compte_enum NOT NULL');
+        DB::statement('ALTER TABLE users ADD COLUMN statut statut_user_enum DEFAULT \'actif\'');
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
@@ -45,5 +75,20 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
+        
+        DB::statement("DROP TYPE IF EXISTS user_role CASCADE");
+        DB::statement("DROP TYPE IF EXISTS type_compte_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS statut_user_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS type_document_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS statut_kyc_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS etat_annonce_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS statut_annonce_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS statut_commande_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS moyen_paiement_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS statut_paiement_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS motif_litige_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS statut_litige_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS notification_type_enum CASCADE");
+        DB::statement("DROP TYPE IF EXISTS notification_canal_enum CASCADE");
     }
 };
