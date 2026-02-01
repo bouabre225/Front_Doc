@@ -62,6 +62,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function setMotDePasseAttribute($value)
+    {
+        $this->attributes['mot_de_passe'] = bcrypt($value);
+    }
+    
     public function kycDocuments()
     {
         return $this->hasMany(KycDocument::class);
