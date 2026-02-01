@@ -20,14 +20,22 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'google_id',
+        'avatar',
+        'role',
+        'type_compte',
+        'nom',
         'email',
-        'password',
-        'first_name',
-        'last_name',
-        'email_verified_at',
-        'disabled_at',
+        'mot_de_passe',
+        'telephone',
+        'pays',
+        'devise',
+        'adresse',
         'two_factor_secret',
-        'two_factor_enabled_at',
+        'verifie_kyc',
+        'badge_verifie',
+        'note_moyenne',
+        'statut'
     ];
 
     /**
@@ -36,7 +44,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'mot_de_passe',
         'two_factor_secret',
     ];
 
@@ -48,10 +56,9 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'disabled_at' => 'datetime',
-            'two_factor_enabled_at' => 'datetime',
+            'verifie_kyc' => 'boolean',
+            'badge_verifie' => 'boolean',
+            'note_moyenne' => 'decimal:1',
         ];
     }
 
@@ -62,31 +69,32 @@ class User extends Authenticatable
 
     public function annonces()
     {
-        return $this->hasMany(Annonce::class, 'seller_id');
+        return $this->hasMany(Annonce::class, 'vendeur_id');
     }
 
-    public function commandes()
+    public function commandesAcheteur()
     {
-        return $this->hasMany(Commande::class, 'buyer_id');
+        return $this->hasMany(Commande::class, 'acheteur_id');
     }
 
-    public function avisDonnes()
+    public function commandesVendeur()
     {
-        return $this->hasMany(Avis::class, 'reviewer_id');
-    }
-
-    public function avisRecus()
-    {
-        return $this->hasMany(Avis::class, 'seller_id');
+        return $this->hasMany(Commande::class, 'vendeur_id');
     }
 
     public function messagesEnvoyes()
     {
-        return $this->hasMany(Message::class, 'sender_id');
+        return $this->hasMany(Message::class, 'expediteur_id');
     }
 
     public function messagesRecus()
     {
-        return $this->hasMany(Message::class, 'receiver_id');
+        return $this->hasMany(Message::class, 'recepteur_id');
+    }
+
+    
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }

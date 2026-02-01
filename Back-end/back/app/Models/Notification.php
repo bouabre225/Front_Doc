@@ -12,12 +12,13 @@ class Notification extends Model
     protected $fillable = [
         'user_id',
         'type',
-        'content',
-        'is_read',
+        'canal',
+        'contenu',
+        'lu'
     ];
 
     protected $casts = [
-        'is_read' => 'boolean',
+        'lu' => 'boolean',
     ];
 
     public function user()

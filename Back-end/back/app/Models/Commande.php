@@ -10,27 +10,45 @@ class Commande extends Model
     use HasUuid;
     
     protected $fillable = [
-        'buyer_id',
-        'total_amount',
-        'status',
+        'acheteur_id',
+        'vendeur_id',
+        'annonce_id',
+        'quantite',
+        'montant',
+        'statut'
     ];
 
     protected $casts = [
-        'total_amount' => 'decimal:2',
+        'montant' => 'decimal:2',
     ];
 
-    public function buyer()
+    public function acheteur()
     {
-        return $this->belongsTo(User::class, 'buyer_id');
+        return $this->belongsTo(User::class, 'acheteur_id');
     }
 
-    public function items()
+    public function vendeur()
     {
-        return $this->hasMany(CommandeItem::class);
+        return $this->belongsTo(User::class, 'vendeur_id');
+    }
+
+    public function annonce()
+    {
+        return $this->belongsTo(Annonce::class);
     }
 
     public function paiement()
     {
         return $this->hasOne(Paiement::class);
+    }
+
+    public function litige()
+    {
+        return $this->hasOne(Litige::class);
+    }
+
+    public function avis()
+    {
+        return $this->hasOne(Avis::class);
     }
 }

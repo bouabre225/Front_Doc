@@ -11,16 +11,14 @@ class KycDocument extends Model
     
     protected $fillable = [
         'user_id',
-        'document_type',
-        'document_url',
-        'status',
-        'submitted_at',
-        'validated_at',
+        'type_document',
+        'fichier',
+        'statut',
+        'date_validation'
     ];
 
     protected $casts = [
-        'submitted_at' => 'datetime',
-        'validated_at' => 'datetime',
+        'date_validation' => 'datetime',
     ];
 
     public function user()

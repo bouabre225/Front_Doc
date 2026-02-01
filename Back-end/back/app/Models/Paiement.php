@@ -12,15 +12,15 @@ class Paiement extends Model
 
     protected $fillable = [
         'commande_id',
-        'amount',
-        'payment_method',
-        'status',
-        'paid_at',
+        'moyen',
+        'montant',
+        'statut',
+        'date_paiement'
     ];
 
     protected $casts = [
-        'amount' => 'decimal:2',
-        'paid_at' => 'datetime',
+        'montant' => 'decimal:2',
+        'date_paiement' => 'datetime',
     ];
 
     public function commande()

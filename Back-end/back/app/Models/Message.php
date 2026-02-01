@@ -10,18 +10,29 @@ class Message extends Model
     use HasUuid;
     
     protected $fillable = [
-        'sender_id',
-        'receiver_id',
-        'content',
+        'expediteur_id',
+        'recepteur_id',
+        'annonce_id',
+        'contenu',
+        'lu'
     ];
 
-    public function sender()
+    protected $casts = [
+        'lu' => 'boolean',
+    ];
+
+    public function expediteur()
     {
-        return $this->belongsTo(User::class, 'sender_id');
+        return $this->belongsTo(User::class, 'expediteur_id');
     }
 
-    public function receiver()
+    public function recepteur()
     {
-        return $this->belongsTo(User::class, 'receiver_id');
+        return $this->belongsTo(User::class, 'recepteur_id');
+    }
+
+    public function annonce()
+    {
+        return $this->belongsTo(Annonce::class);
     }
 }

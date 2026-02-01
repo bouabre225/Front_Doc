@@ -11,30 +11,33 @@ class Annonce extends Model
     
 
     protected $fillable = [
-        'seller_id',
-        'category_id',
-        'title',
+        'vendeur_id',
+        'titre',
         'description',
-        'price',
-        'status',
+        'categorie',
+        'etat',
+        'prix_vendeur',
+        'quantite',
+        'pays_expedition',
+        'statut'
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
+        'prix_vendeur' => 'decimal:2',
     ];
 
-    public function seller()
+    public function vendeur()
     {
-        return $this->belongsTo(User::class, 'seller_id');
+        return $this->belongsTo(User::class, 'vendeur_id');
     }
 
-    public function category()
+    public function images()
     {
-        return $this->belongsTo(Category::class);
+        return $this->hasMany(AnnonceImage::class);
     }
 
-    public function commandeItems()
+    public function commandes()
     {
-        return $this->hasMany(CommandeItem::class);
+        return $this->hasMany(Commande::class);
     }
 }

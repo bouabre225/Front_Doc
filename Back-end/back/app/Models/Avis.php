@@ -10,19 +10,20 @@ class Avis extends Model
     use HasUuid;
     
     protected $fillable = [
-        'reviewer_id',
-        'seller_id',
-        'rating',
-        'comment',
+        'commande_id',
+        'vendeur_id',
+        'note_vendeur',
+        'note_conformite',
+        'commentaire'
     ];
 
-    public function reviewer()
+    public function commande()
     {
-        return $this->belongsTo(User::class, 'reviewer_id');
+        return $this->belongsTo(Commande::class);
     }
 
-    public function seller()
+    public function vendeur()
     {
-        return $this->belongsTo(User::class, 'seller_id');
+        return $this->belongsTo(User::class, 'vendeur_id');
     }
 }
