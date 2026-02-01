@@ -21,6 +21,19 @@ Route::middleware('auth:sanctum')->prefix('2fa')->group(function () {
     Route::post('/disable', [TwoFactorController::class, 'disable']);
 });
 
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/admin/dashboard', fn () => 'Admin OK');
+});
+
+Route::middleware(['auth:sanctum', 'role:vendeur'])->group(function () {
+    Route::post('/annonces', );
+});
+
+Route::middleware(['auth:sanctum', 'role:acheteur,vendeur'])->group(function () {
+    Route::get('/commandes', );
+});
+
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
