@@ -22,7 +22,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'nom',
         'email',
         'password',
         'kycReference',
@@ -52,6 +52,19 @@ class User extends Authenticatable
     }
 
     public function kycDocuments(){
-        return $this->hasMany($this->kycDocument::Class);
+        return $this->hasMany($this->KycDocument::Class);
+    }
+
+    public function commandesAcheteur(){
+        return $this->hasMany(Commandes::Class, 'acheteur_id');
+    }
+
+    public function commandeVendeurs(){
+        return $this->hasMany(Commandes::Class, 'vendeur_id');
+    }
+
+    public function hasValidKyc(): bool
+    {
+        return $this->verifie_kyc === true;
     }
 }
