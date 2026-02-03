@@ -4,56 +4,80 @@ namespace App\Services;
 
 use App\Models\Commandes;
 use App\Models\Paiement;
-use App\Services\Paiement\FedaPayGateway;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class paiementService
 {
-    public function __construct(
-        private FedaPayGateway $gateway
-    ) {}
-
     public function createPayment(Commandes $commande)
     {
         return DB::transaction(function () use ($commande) {
-
-            $response = $this->gateway->createTransaction([
-                'amount' => $commande->montant,
-                'currency' => 'XOF',
-                'description' => 'Commande #'.$commande->id,
-                'callback_url' => route('fedapay.webhook'),
-                'metadata' => [
-                    'order_id' => $commande->id,
-                ]
-            ]);
+            $paymentUrl = $this->generateFedaPayUrl($commande);
 
             return Paiement::create([
                 'commande_id' => $commande->id,
                 'moyen' => 'fedapay',
                 'montant' => $commande->montant,
-                'statut' => 'bloque',
-                'provider_reference' => $response['id']
+                'statut' => 'en_attente',
+                'provider_reference' => $paymentUrl
             ]);
         });
     }
-    public function markAsPaid(Commandes $commande, string $provider, float $montant){
-        return DB::transaction(function () use ($commande, $provider, $montant){
-            if ($commande->paiement){
-                return $commande->paiement;
-            }
-            $paiement = Paiement::create([
-                'commande_id' => $commande->id,
-                'moyen' => $provider,
-                'montant' => $montant,
-                'statut' => 'bloque',
-                'date_paiement' => now(),
-            ]);
+    public function handleWebhookEvent(string $event, string $transactionId)
+    {
+        return DB::transaction(function () use ($event, $transactionId) {
+            $paiement = Paiement::where('provider_reference', 'LIKE', "%{$transactionId}%")
+                ->firstOrFail();
 
-            $commande->update([
-                'statut' => 'libere',
-            ]);
+            $commande = $paiement->commande;
+
+            switch ($event) {
+                case 'transaction.approved':
+                    $paiement->update([
+                        'statut' => 'bloque',
+                        'date_paiement' => now(),
+                    ]);
+
+                    $commande->update([
+                        'statut' => 'payee',
+                    ]);
+
+                    Log::info('Payment approved', [
+                        'transaction_id' => $transactionId,
+                        'commande_id' => $commande->id,
+                    ]);
+                    break;
+
+                case 'transaction.canceled':
+                    $paiement->update(['statut' => 'annule']);
+                    $commande->update(['statut' => 'annulee']);
+                    $commande->annonce->increment('quantite', $commande->quantite);
+
+                    Log::warning('Payment canceled', [
+                        'transaction_id' => $transactionId,
+                        'commande_id' => $commande->id,
+                    ]);
+                    break;
+
+                case 'transaction.failed':
+                    $paiement->update(['statut' => 'echoue']);
+
+                    Log::error('Payment failed', [
+                        'transaction_id' => $transactionId,
+                        'commande_id' => $commande->id,
+                    ]);
+                    break;
+
+                default:
+                    Log::warning('Unknown webhook event', ['event' => $event]);
+            }
 
             return $paiement;
         });
+    }
+
+    private function generateFedaPayUrl(Commandes $commande): string
+    {
+        return config('services.fedapay.base_url') . '/pay?amount=' . $commande->montant . '&order_id=' . $commande->id;
     }
 }

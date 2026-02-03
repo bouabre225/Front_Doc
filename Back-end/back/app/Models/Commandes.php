@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Commandes extends Model
 {
     protected $table = 'commandes';
+    
     protected $fillable = [
         'acheteur_id',
         'vendeur_id',
@@ -15,17 +16,32 @@ class Commandes extends Model
         'montant',
         'statut',
     ];
-    public function acheteur(){
+
+    protected $casts = [
+        'montant' => 'decimal:2',
+        'quantite' => 'integer',
+        'created_at' => 'datetime',
+    ];
+
+    public $timestamps = false;
+
+    public function acheteur()
+    {
         return $this->belongsTo(User::class, 'acheteur_id');
     }
-    public function vendeur(){
+
+    public function vendeur()
+    {
         return $this->belongsTo(User::class, 'vendeur_id');
     }
-    public function annonce(){
+
+    public function annonce()
+    {
         return $this->belongsTo(Annonce::class, 'annonce_id');
     }
-    public function paiement(){
-        return $this->hasOne(Paiement::class);
+
+    public function paiement()
+    {
+        return $this->hasOne(Paiement::class, 'commande_id');
     }
 }
-
