@@ -14,9 +14,18 @@ class Paiement extends Model
         'moyen',
         'statut',
         'date_paiement',
+        'provider_reference',
     ];
 
-    public function commande(){
-        return $this->belongsTo(Commandes::Class);
+    protected $casts = [
+        'montant' => 'decimal:2',
+        'date_paiement' => 'datetime',
+    ];
+
+    public $timestamps = false;
+
+    public function commande()
+    {
+        return $this->belongsTo(Commandes::class, 'commande_id');
     }
 }
