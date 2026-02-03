@@ -24,7 +24,7 @@ class User extends Authenticatable
     protected $fillable = [
         'nom',
         'email',
-        'password',
+        'mot_de_passe',
         'kycReference',
     ];
 
@@ -34,7 +34,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'mot_de_passe',
         'remember_token',
     ];
 
@@ -47,12 +47,12 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'mot_de_passe' => 'hashed',
         ];
     }
 
     public function kycDocuments(){
-        return $this->hasMany($this->KycDocument::Class);
+        return $this->hasMany(KycDocument::Class);
     }
 
     public function commandesAcheteur(){

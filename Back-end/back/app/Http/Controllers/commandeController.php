@@ -72,11 +72,14 @@ class commandeController extends Controller
     //methode for delete commande
     public function deleteCommande(string $commande_id)
     {
-        $commande = DB::table('commandes')->where('id', $commande_id)->update(['statut' => 'en_attente']);
+        $commande = DB::table('commandes')
+            ->where('id', $commande_id)
+            ->update([
+                'statut' => 'en_attente'
+            ]);
 
         return response()->json($commande);
     }
-
 
     //methode for update a commande
     public function updateCommande(string $commande_id)

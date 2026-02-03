@@ -15,4 +15,17 @@ class Commandes extends Model
         'montant',
         'statut',
     ];
+    public function acheteur(){
+        return $this->belongsTo(User::class, 'acheteur_id');
+    }
+    public function vendeur(){
+        return $this->belongsTo(User::class, 'vendeur_id');
+    }
+    public function annonce(){
+        return $this->belongsTo(Annonce::class, 'annonce_id');
+    }
+    public function paiement(){
+        return $this->hasOne(Paiement::class);
+    }
 }
+
