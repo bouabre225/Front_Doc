@@ -29,9 +29,4 @@ class adminController extends Controller
 
         return response()->json(['status' => true]);
     }
-
-    public function pending()
-    {
-
-    }
 }
