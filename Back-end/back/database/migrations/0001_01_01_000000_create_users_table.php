@@ -12,21 +12,90 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Create ENUMs
-        DB::statement("CREATE TYPE user_role AS ENUM ('acheteur', 'vendeur', 'admin')");
-        DB::statement("CREATE TYPE type_compte_enum AS ENUM ('particulier', 'professionnel')");
-        DB::statement("CREATE TYPE statut_user_enum AS ENUM ('actif', 'suspendu', 'supprime')");
-        DB::statement("CREATE TYPE type_document_enum AS ENUM ('cni', 'passeport')");
-        DB::statement("CREATE TYPE statut_kyc_enum AS ENUM ('en_attente', 'valide', 'refuse')");
-        DB::statement("CREATE TYPE etat_annonce_enum AS ENUM ('neuf', 'tres_bon', 'bon', 'acceptable')");
-        DB::statement("CREATE TYPE statut_annonce_enum AS ENUM ('active', 'vendue', 'suspendue')");
-        DB::statement("CREATE TYPE statut_commande_enum AS ENUM ('en_attente', 'expediee', 'livree', 'cloturee')");
-        DB::statement("CREATE TYPE moyen_paiement_enum AS ENUM ('stripe', 'paypal')");
-        DB::statement("CREATE TYPE statut_paiement_enum AS ENUM ('bloque', 'libere', 'rembourse')");
-        DB::statement("CREATE TYPE motif_litige_enum AS ENUM ('non_conforme', 'defectueux', 'perdu')");
-        DB::statement("CREATE TYPE statut_litige_enum AS ENUM ('ouvert', 'en_cours', 'resolu')");
-        DB::statement("CREATE TYPE notification_type_enum AS ENUM ('message', 'commande', 'litige', 'systeme')");
-        DB::statement("CREATE TYPE notification_canal_enum AS ENUM ('push', 'email', 'sms')");
+        // Create ENUMs if not exists
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE user_role AS ENUM ('acheteur', 'vendeur', 'admin');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE type_compte_enum AS ENUM ('particulier', 'professionnel');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE statut_user_enum AS ENUM ('actif', 'suspendu', 'supprime');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE type_document_enum AS ENUM ('cni', 'passeport');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE statut_kyc_enum AS ENUM ('en_attente', 'valide', 'refuse');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE etat_annonce_enum AS ENUM ('neuf', 'tres_bon', 'bon', 'acceptable');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE statut_annonce_enum AS ENUM ('active', 'vendue', 'suspendue');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE statut_commande_enum AS ENUM ('en_attente', 'expediee', 'livree', 'cloturee');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE moyen_paiement_enum AS ENUM ('stripe', 'paypal');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE statut_paiement_enum AS ENUM ('bloque', 'libere', 'rembourse');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE motif_litige_enum AS ENUM ('non_conforme', 'defectueux', 'perdu');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE statut_litige_enum AS ENUM ('ouvert', 'en_cours', 'resolu');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE notification_type_enum AS ENUM ('message', 'commande', 'litige', 'systeme');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
+        
+        DB::statement("DO $$ BEGIN
+            CREATE TYPE notification_canal_enum AS ENUM ('push', 'email', 'sms');
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;");
 
         Schema::create('users', function (Blueprint $table) {
             $table->id();

@@ -71,6 +71,21 @@ CREATE TABLE kyc_documents (
     CONSTRAINT fk_kyc_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE kyc_audits (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    admin_id BIGINT NOT NULL,
+    document_id BIGINT,
+    ancien_statut statut_kyc_enum,
+    nouveau_statut statut_kyc_enum,
+    commentaire TEXT,
+    ip_address VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_kyc_audit_user FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT fk_kyc_audit_admin FOREIGN KEY (admin_id) REFERENCES users(id),
+    CONSTRAINT fk_kyc_audit_document FOREIGN KEY (document_id) REFERENCES kyc_documents(id)
+);
+
 -- =====================================================
 -- ANNONCES
 -- =====================================================
