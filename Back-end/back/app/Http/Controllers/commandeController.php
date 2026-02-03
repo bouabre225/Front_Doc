@@ -2,33 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Annonce;
 use App\Models\Commandes;
 use App\Services\commandeService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class commandeController extends Controller
 {
-    /**
-     * @throws \Throwable
-     */
-    public function store(Request $request, commandeService $commandeService){
+    public function __construct(
+        private commandeService $commandeService
+    ) {}
 
-        $request->validate([
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
             'annonce_id' => 'required|exists:annonces,id',
             'quantite' => 'required|integer|min:1',
         ]);
 
-        $commande = $commandeService->createOrder($request->user(), $request->annonce_id, $request->quantite);
+        $commande = $this->commandeService->createOrder(
+            $request->user(),
+            $validated['annonce_id'],
+            $validated['quantite']
+        );
 
-        return response()->json($commande);
+        return response()->json([
+            'success' => true,
+            'message' => 'Commande créée avec succès',
+            'data' => $commande->load(['annonce:id,titre,prix_total', 'vendeur:id,nom'])
+        ], 201);
     }
 
-    //methode for get all commandes
-    /**
-     * Lister les commandes de l'utilisateur connecté
-     */
     public function index(Request $request)
     {
         $user = $request->user();
@@ -41,7 +44,7 @@ class commandeController extends Controller
             ->with([
                 'acheteur:id,nom,email',
                 'vendeur:id,nom,email',
-                'annonce:id,titre,prix_total,etat',
+                'annonce:id,titre,prix_total',
                 'paiement:id,commande_id,statut,montant',
             ])
             ->when($request->statut, function ($query, $statut) {
@@ -57,35 +60,44 @@ class commandeController extends Controller
             ->latest()
             ->paginate(20);
 
-        return response()->json($commandes);
+        return response()->json([
+            'success' => true,
+            'data' => $commandes
+        ]);
     }
-    //methode to get an unique commande
-    public function show(string $commande)
+
+    public function show(Commandes $commande)
     {
         $this->authorize('view', $commande);
 
-        return response()->json(
-            $commande->load(['acheteur', 'vendeur', 'annonce', 'paiement'])
-        );
+        return response()->json([
+            'success' => true,
+            'data' => $commande->load([
+                'acheteur:id,nom,email',
+                'vendeur:id,nom,email',
+                'annonce:id,titre,prix_total',
+                'paiement'
+            ])
+        ]);
     }
 
-    //methode for delete commande
-    public function deleteCommande(string $commande_id)
+    public function cancel(Commandes $commande)
     {
-        $commande = DB::table('commandes')
-            ->where('id', $commande_id)
-            ->update([
-                'statut' => 'en_attente'
-            ]);
+        $this->authorize('view', $commande);
 
-        return response()->json($commande);
+        if (!in_array($commande->statut, ['en_attente'])) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Impossible d\'annuler cette commande'
+            ], 400);
+        }
+
+        $commande->update(['statut' => 'annulee']);
+        $commande->annonce->increment('quantite', $commande->quantite);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Commande annulée avec succès'
+        ]);
     }
-
-    //methode for update a commande
-    public function updateCommande(string $commande_id)
-    {
-       // pas de logique claire dans ma tete
-        #TODO: comment on mettra la logique des mises a jours d'une commande
-    }
-
 }
