@@ -22,9 +22,9 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'nom',
         'email',
-        'password',
+        'mot_de_passe',
         'kycReference',
     ];
 
@@ -34,7 +34,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
-        'password',
+        'mot_de_passe',
         'remember_token',
     ];
 
@@ -47,11 +47,24 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'mot_de_passe' => 'hashed',
         ];
     }
 
     public function kycDocuments(){
-        return $this->hasMany($this->kycDocument::Class);
+        return $this->hasMany(KycDocument::Class);
+    }
+
+    public function commandesAcheteur(){
+        return $this->hasMany(Commandes::Class, 'acheteur_id');
+    }
+
+    public function commandeVendeurs(){
+        return $this->hasMany(Commandes::Class, 'vendeur_id');
+    }
+
+    public function hasValidKyc(): bool
+    {
+        return $this->verifie_kyc === true;
     }
 }
