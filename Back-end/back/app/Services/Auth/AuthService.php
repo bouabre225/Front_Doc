@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Auth;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
@@ -10,16 +10,72 @@ class AuthService
     /**
      * Register a new user
      */
-    public function register(array $data) : User
+    public function registerBuyer(array $data) : User
     {
+        //vérifie si l'email est déjà utilisé
+        if (User::where('email', $data['email'])->exists()) {
+            throw new \Exception('Email already used');
+        }
+
+
         //renvoi l'utilisateur créé
         return User::create([
             'nom' => $data['nom'],
             'email' => $data['email'],
             'mot_de_passe' => $data['password'],
+            'telephone' => $data['telephone'],
+            'adresse' => $data['adresse'],
             'role' => 'acheteur',
+            'statut' => 'actif',
             'type_compte' => 'particulier',
         ]);
+    }
+
+    /**
+     * Register a new seller
+     */
+    public function registerSeller(array $data) : User
+    {
+          //vérifie si l'email est déjà utilisé
+        if (User::where('email', $data['email'])->exists()) {
+            throw new \Exception('Email already used');
+        }
+
+        //renvoi l'utilisateur créé
+        return User::create([
+            'nom' => $data['nom'],
+            'email' => $data['email'],
+            'mot_de_passe' => $data['password'],
+            'telephone' => $data['telephone'],
+            'adresse' => $data['adresse'],
+            'role' => 'vendeur',
+            'statut' => 'suspendu',
+            'type_compte' => 'professionnel',
+        ]);
+    }
+
+
+    /**
+     * Login Admin
+     */
+    public function loginAdmin(string $email, string $password): array
+    {
+        //récupere l'utilisateur avec le role admin 
+        $user = User::where('email', $email)->where('role', 'admin')->firstOrFail();
+        
+        //verifie le mot de passe 
+        if (!Hash::check($password, $user->password)) throw new \Exception('Identifiants invalides');
+
+        //verifier le role
+        if($user->role !== 'admin') throw new \Exception('Compte pas autorisé');
+
+        //génerer le token de connexion
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return [
+            'user' => $user,
+            'token' => $token
+        ];
     }
 
     /**
@@ -40,10 +96,13 @@ class AuthService
             throw new \Exception('Compte suspendu');
         }
 
-        //retourne l'utilisateur et le token
+        $token = $user->createToken('auth_token')->plainTextToken;
+
         return [
             'user' => $user,
-            'token' => $user->createToken('auth_token')->plainTextToken
+            'token' => $token,
         ];
     }
+
+
 }
