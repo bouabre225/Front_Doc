@@ -10,19 +10,26 @@ trait HasUuid
     protected static function bootHasUuid()
     {
         static::creating(function ($model) {
-            if (!$model->getKey()) {
-                $model->{$model->getKeyName()} = (string) Str::uuid();
+            if (
+                property_exists($model, 'usesUuid') &&
+                $model->usesUuid === true &&
+                !$model->getKey()
+            ) {
+                $model->{$model->getKeyName()} = (string) \Illuminate\Support\Str::uuid();
             }
         });
     }
 
     public function getIncrementing()
     {
-        return false;
+        return !(property_exists($this, 'usesUuid') && $this->usesUuid === true);
     }
 
     public function getKeyType()
     {
-        return 'string';
+        return (property_exists($this, 'usesUuid') && $this->usesUuid === true)
+            ? 'string'
+            : 'int';
     }
 }
+
