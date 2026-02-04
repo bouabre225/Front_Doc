@@ -9,8 +9,10 @@ Route::get('/', function () {
     return response()->json(['message' => 'API is running']);
 });
 
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register/acheteur', [AuthController::class, 'registerBuyer']);
+Route::post('/register/vendeur', [AuthController::class, 'registerSeller']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/admin/login', [AuthController::class, 'loginAdmin']);
 
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect']);
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback']);
@@ -19,18 +21,6 @@ Route::middleware('auth:sanctum')->prefix('2fa')->group(function () {
     Route::post('/enable', [TwoFactorController::class, 'enable']);
     Route::post('/verify', [TwoFactorController::class, 'verify']);
     Route::post('/disable', [TwoFactorController::class, 'disable']);
-});
-
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', fn () => 'Admin OK');
-});
-
-Route::middleware(['auth:sanctum', 'role:vendeur'])->group(function () {
-    Route::post('/annonces', );
-});
-
-Route::middleware(['auth:sanctum', 'role:acheteur,vendeur'])->group(function () {
-    Route::get('/commandes', );
 });
 
 
