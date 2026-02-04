@@ -24,6 +24,6 @@ class GoogleAuthController extends Controller
     public function callback(GoogleAuthService $service)
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
-        return response()->json($service->handleGoogleUser($googleUser));
+        return redirect()->away(config('app.frontend_url')."/auth/callback?token=".$token);
     }
 }
