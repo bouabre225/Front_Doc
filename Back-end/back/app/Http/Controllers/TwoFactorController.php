@@ -5,17 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\EnableTwoFactorRequest;
 use App\Http\Requests\VerifyTwoFactorRequest;
-use App\Services\TwoFactorService;
+use App\Services\Auth\TwoFactorService;
 
 class TwoFactorController extends Controller
 {
     /**
      * Activer le 2FA pour l'utilisateur
      */
-    public function enable(
-        EnableTwoFactorRequest $request,
-        TwoFactorService $service
-    ) {
+    public function enable(EnableTwoFactorRequest $request, TwoFactorService $service) {
         $user = $request->user();
 
         $secret = $service->enable($user);
@@ -29,10 +26,7 @@ class TwoFactorController extends Controller
     /**
      * Vérifier le code 2FA
      */
-    public function verify(
-        VerifyTwoFactorRequest $request,
-        TwoFactorService $service
-    ) {
+    public function verify(VerifyTwoFactorRequest $request, TwoFactorService $service) {
         $user = $request->user();
 
         $isValid = $service->verify($user, $request->code);
