@@ -12,47 +12,68 @@ class TwoFactorController extends Controller
     /**
      * Activer le 2FA pour l'utilisateur
      */
-    public function enable(EnableTwoFactorRequest $request, TwoFactorService $service) {
+    public function enable(Request $request, TwoFactorService $service)
+    {
         $user = $request->user();
 
-        $secret = $service->enable($user);
+        if (!$user) {
+            return response()->json(['message' => 'Non authentifié.'], 401);
+        }
+
+        $payload = $service->generatePendingSecret($user);
 
         return response()->json([
-            'message' => '2FA activé',
-            'secret' => $secret, // à afficher en QR côté front
-        ]);
+            'message' => '2FA en attente de confirmation',
+            'secret' => $payload['secret'],       
+            'otpauth_url' => $payload['otpauth_url'],
+        ], 200);
     }
 
     /**
      * Vérifier le code 2FA
      */
-    public function verify(VerifyTwoFactorRequest $request, TwoFactorService $service) {
-        $user = $request->user();
+    public function verify(VerifyTwoFactorRequest $request, Request $rawRequest, TwoFactorService $service)
+    {
+        $user = $rawRequest->user();
 
-        $isValid = $service->verify($user, $request->code);
-
-        if (!$isValid) {
-            return response()->json([
-                'message' => 'Code 2FA invalide'
-            ], 422);
+        if (!$user) {
+            return response()->json(['message' => 'Non authentifié.'], 401);
         }
 
-        return response()->json([
-            'message' => '2FA vérifié avec succès'
-        ]);
+        try {
+            $service->confirmEnable($user, $request->validated()['code']);
+
+            return response()->json([
+                'message' => '2FA activé',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
+        }
     }
 
     /**
      * Désactiver le 2FA pour l'utilisateur
      */
-    public function disable(Request $request)
+    public function disable(VerifyTwoFactorRequest $request, Request $rawRequest, TwoFactorService $service)
     {
-        $request->user()->update([
-            'two_factor_secret' => null,
-        ]);
+        $user = $rawRequest->user();
 
-        return response()->json([
-            'message' => '2FA désactivé'
-        ]);
+        if (!$user) {
+            return response()->json(['message' => 'Non authentifié.'], 401);
+        }
+
+        try {
+            $service->disable($user, $request->validated()['code']);
+
+            return response()->json([
+                'message' => '2FA désactivé',
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 422);
+        }
     }
 }

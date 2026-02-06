@@ -23,8 +23,8 @@ class AuthService
             'nom' => $data['nom'],
             'email' => $data['email'],
             'mot_de_passe' => $data['password'],
-            'telephone' => $data['telephone'],
-            'adresse' => $data['adresse'],
+            'telephone' => $data['telephone'] ?? null,
+            'adresse' => $data['adresse'] ?? null,
             'role' => 'acheteur',
             'statut' => 'actif',
             'type_compte' => 'particulier',
@@ -41,68 +41,142 @@ class AuthService
             throw new \Exception('Email already used');
         }
 
+        // vendeur: si non fourni → professionnel par défaut
+        $typeCompte = $data['type_compte'] ?? 'professionnel';
+
+
         //renvoi l'utilisateur créé
         return User::create([
             'nom' => $data['nom'],
             'email' => $data['email'],
             'mot_de_passe' => $data['password'],
-            'telephone' => $data['telephone'],
-            'adresse' => $data['adresse'],
+            'telephone' => $data['telephone'] ?? null,
+            'adresse' => $data['adresse'] ?? null,
             'role' => 'vendeur',
-            'statut' => 'suspendu',
-            'type_compte' => 'professionnel',
+            'statut' => 'actif',
+            'type_compte' => $typeCompte,
+            'verifie_kyc' => false,
         ]);
     }
 
 
     /**
-     * Login Admin
+     * Login:
+     * - si user actif et pas de 2FA => retourne token
+     * - si 2FA activé => retourne challenge_id
      */
-    public function loginAdmin(string $email, string $password): array
+    public function login(string $email, string $password, ?string $deviceName = null): array
     {
-        //récupere l'utilisateur avec le role admin 
-        $user = User::where('email', $email)->where('role', 'admin')->firstOrFail();
-        
-        //verifie le mot de passe 
-        if (!Hash::check($password, $user->password)) throw new \Exception('Identifiants invalides');
+        $user = User::where('email', $email)->first();
 
-        //verifier le role
-        if($user->role !== 'admin') throw new \Exception('Compte pas autorisé');
+        if (!$user) {
+            throw new \Exception('Identifiants invalides');
+        }
 
-        //génerer le token de connexion
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return [
-            'user' => $user,
-            'token' => $token
-        ];
-    }
-
-    /**
-     * Login a user
-     */
-    public function login(string $email, string $password): array
-    {
-        //récupère l'utilisateur
-        $user = User::where('email', $email)->firstOrFail();
-
-        //vérifie le mot de passe
         if (!Hash::check($password, $user->mot_de_passe)) {
             throw new \Exception('Identifiants invalides');
         }
 
-        //vérifie le statut
-        if ($user->statut !== 'actif') {
-            throw new \Exception('Compte suspendu');
+        if (!$user->isActive()) {
+            // 423 Locked est propre pour un compte bloqué
+            throw new \RuntimeException('Compte suspendu', 423);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // 2FA activé -> challenge
+        if ($user->has2faEnabled()) {
+            $challengeId = (string) Str::uuid();
+
+            Cache::put(
+                "login_2fa_challenge:{$challengeId}",
+                ['user_id' => $user->id, 'device_name' => $deviceName],
+                now()->addMinutes(10)
+            );
+
+            return [
+                'requires_2fa' => true,
+                'challenge_id' => $challengeId,
+            ];
+        }
+
+        $token = $user->createToken($deviceName ?: 'auth_token')->plainTextToken;
+
+        return [
+            'requires_2fa' => false,
+            'user' => $user,
+            'token' => $token,
+        ];
+    }
+
+    /**
+     * Login admin:
+     * - si user actif et pas de 2FA => retourne token
+     * - si 2FA activé => retourne challenge_id
+     */
+    public function loginAdmin(string $email, string $password, ?string $deviceName = null): array
+    {
+        $user = User::where('email', $email)->first();
+
+        if (!$user || !Hash::check($password, $user->mot_de_passe)) {
+            throw new \Exception('Identifiants invalides');
+        }
+
+        if (!$user->isActive()) {
+            throw new \RuntimeException('Compte suspendu', 423);
+        }
+
+        if ($user->role !== 'admin') {
+            throw new \Exception('Accès réservé aux admins');
+        }
+
+        if (!$user->has2faEnabled()) {
+            // 403: interdit de se connecter en admin sans 2FA
+            throw new \RuntimeException('2FA obligatoire pour les admins. Active-le puis réessaie.', 403);
+        }
+
+        // Toujours challenge (pas de token direct)
+        return $this->create2faChallenge($user, $deviceName, true);
+    }
+
+    private function create2faChallenge(User $user, ?string $deviceName, bool $isAdmin): array
+    {
+        $challengeId = (string) Str::uuid();
+
+        Cache::put(
+            "login_2fa_challenge:{$challengeId}",
+            [
+                'user_id' => $user->id,
+                'device_name' => $deviceName,
+                'is_admin' => $isAdmin,
+            ],
+            now()->addMinutes(10)
+        );
+
+        return [
+            'requires_2fa' => true,
+            'challenge_id' => $challengeId,
+        ];
+    }
+
+
+    /**
+     * Finalise le login 2FA:
+     * - vérifie le code via TwoFactorService (appelé dans controller)
+     * - supprime challenge
+     * - délivre token
+     */
+    public function issueTokenAfter2fa(int $userId, ?string $deviceName = null): array
+    {
+        $user = User::findOrFail($userId);
+
+        if (!$user->isActive()) {
+            throw new \RuntimeException('Compte suspendu', 423);
+        }
+
+        $token = $user->createToken($deviceName ?: 'auth_token')->plainTextToken;
 
         return [
             'user' => $user,
             'token' => $token,
         ];
     }
-
-
 }

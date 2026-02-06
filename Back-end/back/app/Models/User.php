@@ -36,7 +36,8 @@ class User extends Authenticatable
         'verifie_kyc',
         'badge_verifie',
         'note_moyenne',
-        'statut'
+        'statut',
+        'two_factor_enable_at',
     ];
 
     /**
@@ -60,14 +61,40 @@ class User extends Authenticatable
             'verifie_kyc' => 'boolean',
             'badge_verifie' => 'boolean',
             'note_moyenne' => 'decimal:1',
+            'two_factor_enable_at' => 'datetime',
+            'created_at' => 'datetime',
+            'update_at' => 'datetime'
         ];
     }
 
+    /**
+     * Mutator hash auto le password
+     */
     public function setMotDePasseAttribute($value)
     {
+        /*if (is_string($value) && str_starts_with('$2y$')) {
+            $this->attributes['mot_de_passe'] = $value;
+            return;
+        }*/
+
         $this->attributes['mot_de_passe'] = bcrypt($value);
     }
-    
+
+    /**
+     * Statut
+     */
+    public function isActive() 
+    {
+        return $this->statut === 'active';
+    }
+
+    /**
+     * 
+     */
+    public function has2Enable() 
+    {
+        return !empty($this->two_factor_secret);
+    }
     public function kycDocuments()
     {
         return $this->hasMany(KycDocument::class);
