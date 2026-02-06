@@ -39,9 +39,7 @@ CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     google_id VARCHAR(150) UNIQUE,
     avatar VARCHAR(100),
-    role user_role NOT NULL,
-    type_compte type_compte_enum NOT NULL,
-    nom VARCHAR(100) NOT NULL,
+    role user_role NOT NULL DEFAULT 'acheteur',
     email VARCHAR(150) NOT NULL UNIQUE,
     mot_de_passe VARCHAR(255) NOT NULL,
     telephone VARCHAR(20),
@@ -55,6 +53,7 @@ CREATE TABLE users (
     statut statut_user_enum DEFAULT 'actif',
     two_factor_enable_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- =====================================================
@@ -81,6 +80,7 @@ CREATE TABLE kyc_audits (
     commentaire TEXT,
     ip_address VARCHAR(50),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_kyc_audit_user FOREIGN KEY (user_id) REFERENCES users(id),
     CONSTRAINT fk_kyc_audit_admin FOREIGN KEY (admin_id) REFERENCES users(id),
     CONSTRAINT fk_kyc_audit_document FOREIGN KEY (document_id) REFERENCES kyc_documents(id)
@@ -104,6 +104,7 @@ CREATE TABLE annonces (
     pays_expedition VARCHAR(50),
     statut statut_annonce_enum DEFAULT 'active',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_annonce_vendeur FOREIGN KEY (vendeur_id) REFERENCES users(id)
 );
 
@@ -132,6 +133,7 @@ CREATE TABLE commandes (
     montant DECIMAL(10,2) NOT NULL,
     statut statut_commande_enum DEFAULT 'en_attente',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_commande_acheteur FOREIGN KEY (acheteur_id) REFERENCES users(id),
     CONSTRAINT fk_commande_vendeur FOREIGN KEY (vendeur_id) REFERENCES users(id),
     CONSTRAINT fk_commande_annonce FOREIGN KEY (annonce_id) REFERENCES annonces(id)
@@ -179,6 +181,7 @@ CREATE TABLE avis (
     note_conformite INT CHECK (note_conformite BETWEEN 1 AND 5),
     commentaire TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_avis_commande FOREIGN KEY (commande_id) REFERENCES commandes(id),
     CONSTRAINT fk_avis_vendeur FOREIGN KEY (vendeur_id) REFERENCES users(id)
 );
@@ -195,6 +198,7 @@ CREATE TABLE messages (
     contenu TEXT,
     lu BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_message_expediteur FOREIGN KEY (expediteur_id) REFERENCES users(id),
     CONSTRAINT fk_message_recepteur FOREIGN KEY (recepteur_id) REFERENCES users(id),
     CONSTRAINT fk_message_annonce FOREIGN KEY (annonce_id) REFERENCES annonces(id)
@@ -212,5 +216,6 @@ CREATE TABLE notifications (
     contenu TEXT,
     lu BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users(id)
 );
