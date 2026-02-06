@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\MeController;
 
 Route::get('/', function () {
     return response()->json(['message' => 'API is running']);
@@ -39,5 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
+//Route /me
+Route::middleware('auth:sanctum')->get('/me', [MeController::class, '__invoke']);
 // Exemple routes protégées rôle (quand tu voudras)
 // Route::middleware(['auth:sanctum', 'role:admin'])->get('/admin/dashboard', fn() => 'Admin OK');
