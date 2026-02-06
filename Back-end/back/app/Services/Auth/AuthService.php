@@ -129,11 +129,20 @@ class AuthService
         }
 
         if (!$user->has2faEnabled()) {
-            // 403: interdit de se connecter en admin sans 2FA
-            throw new \RuntimeException('2FA obligatoire pour les admins. Active-le puis réessaie.', 403);
+            $bootstrapToken = $user->createToken(
+                $deviceName ?: 'admin_bootstrap',
+                ['2fa-bootstrap'] // ability UNIQUE
+            )->plainTextToken;
+
+            return [
+                'requires_2fa_setup' => true,
+                'message' => '2FA obligatoire pour les admins. Token bootstrap délivré uniquement pour activer 2FA.',
+                'token' => $bootstrapToken,
+                'user' => $user,
+            ];
         }
 
-        // Toujours challenge (pas de token direct)
+        // ✅ Si 2FA déjà activé: on force le flow normal (challenge)
         return $this->create2faChallenge($user, $deviceName, true);
     }
 

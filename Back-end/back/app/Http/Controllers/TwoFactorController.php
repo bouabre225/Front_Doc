@@ -43,9 +43,19 @@ class TwoFactorController extends Controller
         try {
             $service->confirmEnable($user, $request->validated()['code']);
 
+            // Si c'était un token bootstrap, on le détruit après activation
+            if ($user->tokenCan('2fa-bootstrap')) {
+                $rawRequest->user()->currentAccessToken()?->delete();
+
+                return response()->json([
+                    'message' => '2FA activé. Token bootstrap supprimé. Reconnecte-toi via /admin/login.',
+                ], 200);
+            }
+
             return response()->json([
                 'message' => '2FA activé',
             ], 200);
+
         } catch (\Exception $e) {
             return response()->json([
                 'message' => $e->getMessage(),
@@ -59,6 +69,10 @@ class TwoFactorController extends Controller
     public function disable(VerifyTwoFactorRequest $request, Request $rawRequest, TwoFactorService $service)
     {
         $user = $rawRequest->user();
+
+        if ($request->user()->tokenCan('2fa-bootstrap')) {
+            return response()->json(['message' => 'Action interdite avec un token bootstrap.'], 403);
+        }
 
         if (!$user) {
             return response()->json(['message' => 'Non authentifié.'], 401);
