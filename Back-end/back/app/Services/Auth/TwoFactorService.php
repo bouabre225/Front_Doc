@@ -3,13 +3,18 @@
 namespace App\Services\Auth;
 
 use App\Models\User;
+use PragmaRX\Google2FA\Google2FA;
+use Illuminate\Support\Facades\Cache;
 
 class TwoFactorService
 {
     /**
      * Contruct
      */
-    public function __construct(private Google2FA $google2fa){}
+    public function __construct(private Google2FA $google2fa)
+    {
+        $this->google2fa = $google2fa;
+    }
 
 
     /**
