@@ -15,7 +15,7 @@ class AnnonceImageController extends Controller
     {
         // Vérifier que c'est le propriétaire
         if ($annonce->vendeur_id !== Auth::id()) {
-            abort(403, 'Action non autorisée');
+            return response()->json(['message' => 'Action non autorisée'], 403);
         }
 
         $validated = $request->validate([
@@ -29,13 +29,16 @@ class AnnonceImageController extends Controller
         $ordre = $annonce->images()->max('ordre') + 1;
 
         // Créer l'enregistrement
-        AnnonceImage::create([
+        $image = AnnonceImage::create([
             'annonce_id' => $annonce->id,
             'image_url' => $path,
             'ordre' => $ordre
         ]);
 
-        return back()->with('success', 'Image ajoutée !');
+        return response()->json([
+            'message' => 'Image ajoutée',
+            'image' => $image
+        ], 201);
     }
 
     // Supprimer une image
@@ -43,7 +46,7 @@ class AnnonceImageController extends Controller
     {
         // Vérifier que c'est le propriétaire de l'annonce
         if ($image->annonce->vendeur_id !== Auth::id()) {
-            abort(403, 'Action non autorisée');
+            return response()->json(['message' => 'Action non autorisée'], 403);
         }
 
         // Supprimer le fichier du disque
@@ -54,7 +57,7 @@ class AnnonceImageController extends Controller
         // Supprimer l'enregistrement
         $image->delete();
 
-        return back()->with('success', 'Image supprimée !');
+        return response()->json(['message' => 'Image supprimée']);
     }
 
     // Réorganiser l'ordre des images
@@ -62,7 +65,7 @@ class AnnonceImageController extends Controller
     {
         // Vérifier que c'est le propriétaire
         if ($annonce->vendeur_id !== Auth::id()) {
-            abort(403, 'Action non autorisée');
+            return response()->json(['message' => 'Action non autorisée'], 403);
         }
 
         $validated = $request->validate([
@@ -76,6 +79,6 @@ class AnnonceImageController extends Controller
                 ->update(['ordre' => $imageData['ordre']]);
         }
 
-        return back()->with('success', 'Ordre des images mis à jour !');
+        return response()->json(['message' => 'Ordre des images mis à jour']);
     }
 }
