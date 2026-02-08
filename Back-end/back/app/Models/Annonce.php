@@ -24,6 +24,7 @@ class Annonce extends Model
 
     protected $casts = [
         'prix_vendeur' => 'decimal:2',
+        'quantite' => 'integer'
     ];
 
     public function vendeur()
