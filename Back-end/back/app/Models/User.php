@@ -85,13 +85,13 @@ class User extends Authenticatable
      */
     public function isActive() 
     {
-        return $this->statut === 'active';
+        return $this->statut === 'actif';
     }
 
     /**
      * 
      */
-    public function has2Enable() 
+    public function has2faEnabled() 
     {
         return !empty($this->two_factor_secret);
     }
