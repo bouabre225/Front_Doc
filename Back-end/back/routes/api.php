@@ -56,8 +56,8 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin/kyc')->group(fu
 });
 
 // Annonces vendeur : INTERDIT si KYC non validé
-Route::middleware(['auth:sanctum', 'role:vendeur', 'kyc'])->group(function () {
+/*Route::middleware(['auth:sanctum', 'role:vendeur', 'kyc'])->group(function () {
     Route::post('/annonces', [AnnonceController::class, 'store']);
-});
+});*/
 // Exemple routes protégées rôle (quand tu voudras)
 // Route::middleware(['auth:sanctum', 'role:admin'])->get('/admin/dashboard', fn() => 'Admin OK');
