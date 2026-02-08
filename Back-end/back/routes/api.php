@@ -42,5 +42,22 @@ Route::middleware('auth:sanctum')->group(function () {
 
 //Route /me
 Route::middleware('auth:sanctum')->get('/me', [MeController::class, '__invoke']);
+
+// KYC vendeur (accessible même si verifie_kyc=false)
+Route::middleware(['auth:sanctum', 'role:vendeur'])->prefix('kyc')->group(function () {
+    Route::post('/submit', [KycController::class, 'submit']);
+    Route::get('/status', [KycController::class, 'status']);
+});
+
+// KYC admin
+Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin/kyc')->group(function () {
+    Route::get('/pending', [AdminKycController::class, 'pending']);
+    Route::post('/{id}/decide', [AdminKycController::class, 'decide']);
+});
+
+// Annonces vendeur : INTERDIT si KYC non validé
+Route::middleware(['auth:sanctum', 'role:vendeur', 'kyc'])->group(function () {
+    Route::post('/annonces', [AnnonceController::class, 'store']);
+});
 // Exemple routes protégées rôle (quand tu voudras)
 // Route::middleware(['auth:sanctum', 'role:admin'])->get('/admin/dashboard', fn() => 'Admin OK');
