@@ -5,20 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\HasUuid;
 
-class KycDocument extends Model
+class Notification extends Model
 {
     use HasUuid;
     
     protected $fillable = [
         'user_id',
-        'type_document',
-        'fichier',
-        'statut',
-        'date_validation'
+        'type',
+        'canal',
+        'contenu',
+        'lu'
     ];
 
     protected $casts = [
-        'date_validation' => 'datetime',
+        'lu' => 'boolean',
     ];
 
     public function user()
