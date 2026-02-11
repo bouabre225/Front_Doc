@@ -27,7 +27,7 @@ class TwoFactorService
         Cache::put("2fa_pending_secret:{$user->id}", $secret, now()->addMinutes(10));
 
         // Pour QR code: otpauth://
-        $appName = config('app.name', 'DocSpace');
+        $appName = config('App.name', 'DocSpace');
         $otpauthUrl = $this->google2fa->getQRCodeUrl(
             $appName,
             $user->email,
@@ -77,7 +77,7 @@ class TwoFactorService
         return $this->google2fa->verifyKey($user->two_factor_secret, $code, 1);
     }
 
-    
+
     public function disable(User $user, string $code): void
     {
         if (!$user->two_factor_secret) {
