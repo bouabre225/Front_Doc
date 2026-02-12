@@ -18,79 +18,79 @@ return new class extends Migration
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE type_compte_enum AS ENUM ('particulier', 'professionnel');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE statut_user_enum AS ENUM ('actif', 'suspendu', 'supprime');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE type_document_enum AS ENUM ('cni', 'passeport');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE statut_kyc_enum AS ENUM ('en_attente', 'valide', 'refuse');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE etat_annonce_enum AS ENUM ('neuf', 'tres_bon', 'bon', 'acceptable');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE statut_annonce_enum AS ENUM ('active', 'vendue', 'suspendue');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE statut_commande_enum AS ENUM ('en_attente', 'expediee', 'livree', 'cloturee');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE moyen_paiement_enum AS ENUM ('stripe', 'paypal');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE statut_paiement_enum AS ENUM ('bloque', 'libere', 'rembourse');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE motif_litige_enum AS ENUM ('non_conforme', 'defectueux', 'perdu');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE statut_litige_enum AS ENUM ('ouvert', 'en_cours', 'resolu');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE notification_type_enum AS ENUM ('message', 'commande', 'litige', 'systeme');
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;");
-        
+
         DB::statement("DO $$ BEGIN
             CREATE TYPE notification_canal_enum AS ENUM ('push', 'email', 'sms');
         EXCEPTION
@@ -113,9 +113,10 @@ return new class extends Migration
             $table->boolean('badge_verifie')->default(false);
             $table->decimal('note_moyenne', 2, 1)->default(0);
             $table->timestamp('two_factor_enable_at')->nullable();
+            $table->timestamp('updated_at')->nullable();
             $table->timestamp('created_at')->useCurrent();
         });
-        
+
         DB::statement('ALTER TABLE users ADD COLUMN role user_role NOT NULL');
         DB::statement('ALTER TABLE users ADD COLUMN type_compte type_compte_enum NOT NULL');
         DB::statement('ALTER TABLE users ADD COLUMN statut statut_user_enum DEFAULT \'actif\'');
@@ -144,7 +145,7 @@ return new class extends Migration
         Schema::dropIfExists('users');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
-        
+
         DB::statement("DROP TYPE IF EXISTS user_role CASCADE");
         DB::statement("DROP TYPE IF EXISTS type_compte_enum CASCADE");
         DB::statement("DROP TYPE IF EXISTS statut_user_enum CASCADE");
