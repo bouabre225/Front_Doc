@@ -2,23 +2,22 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Concerns\HasUuid;
 
 class Message extends Model
 {
-    use HasUuid;
-    
+    use HasFactory;
+
+    public $timestamps = false;
+    const CREATED_AT = 'created_at';
+
     protected $fillable = [
-        'expediteur_id',
-        'recepteur_id',
-        'annonce_id',
-        'contenu',
-        'lu'
+        'expediteur_id', 'recepteur_id', 'annonce_id', 'contenu', 'lu'
     ];
 
     protected $casts = [
-        'lu' => 'boolean',
+        'lu' => 'boolean'
     ];
 
     public function expediteur()
@@ -29,6 +28,11 @@ class Message extends Model
     public function recepteur()
     {
         return $this->belongsTo(User::class, 'recepteur_id');
+    }
+
+    public function destinataire()
+    {
+        return $this->recepteur();
     }
 
     public function annonce()
