@@ -6,7 +6,7 @@ use App\Models\Commandes;
 use App\Services\commandeService;
 use Illuminate\Http\Request;
 
-class commandeController extends Controller
+class commandeController
 {
     public function __construct(
         private commandeService $commandeService
