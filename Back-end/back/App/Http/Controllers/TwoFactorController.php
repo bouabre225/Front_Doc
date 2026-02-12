@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests\EnableTwoFactorRequest;
 use App\Http\Requests\VerifyTwoFactorRequest;
 use App\Services\Auth\TwoFactorService;
+use Illuminate\Routing\Controller;
 
 class TwoFactorController extends Controller
 {
@@ -24,7 +25,7 @@ class TwoFactorController extends Controller
 
         return response()->json([
             'message' => '2FA en attente de confirmation',
-            'secret' => $payload['secret'],       
+            'secret' => $payload['secret'],
             'otpauth_url' => $payload['otpauth_url'],
         ], 200);
     }

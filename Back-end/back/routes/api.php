@@ -6,10 +6,14 @@ use App\Http\Controllers\commandeController;
 use App\Http\Controllers\KycController;
 use App\Http\Controllers\PaiementWebhookController;
 use App\Http\Controllers\admin\adminController;
+use App\Http\Controllers\AdminKycController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\commandeController;
 use App\Http\Controllers\GoogleAuthController;
-use App\Http\Controllers\TwoFactorController;
+use App\Http\Controllers\KycController;
 use App\Http\Controllers\MeController;
+use App\Http\Controllers\PaiementWebhookController;
+use App\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->prefix('kyc')->group(function () {
@@ -48,7 +52,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/', function () {
-    return response()->json(['message' => 'API is running']);
+    return response()->json(['status'=> 200, 'message' => 'API is running']);
 });
 
 // Auth
