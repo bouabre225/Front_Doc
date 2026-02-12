@@ -8,11 +8,8 @@ use App\Http\Controllers\PaiementWebhookController;
 use App\Http\Controllers\admin\adminController;
 use App\Http\Controllers\AdminKycController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\commandeController;
 use App\Http\Controllers\GoogleAuthController;
-use App\Http\Controllers\KycController;
 use App\Http\Controllers\MeController;
-use App\Http\Controllers\PaiementWebhookController;
 use App\Http\Controllers\TwoFactorController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,8 +36,8 @@ Route::post('/webhooks/fedapay', [PaiementWebhookController::class, 'handleWebho
     ->name('fedapay.webhook');
 
 Route::get('/annonces', [AnnonceController::class, 'index']);
-Route::get('/annonces/search', [AnnonceController::class, 'search']); 
-Route::get('/annonces/{annonce}', [AnnonceController::class, 'show']); 
+Route::get('/annonces/search', [AnnonceController::class, 'search']);
+Route::get('/annonces/{annonce}', [AnnonceController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/annonces', [AnnonceController::class, 'store']);
