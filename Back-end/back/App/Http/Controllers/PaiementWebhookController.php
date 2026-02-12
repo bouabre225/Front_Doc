@@ -7,7 +7,7 @@ use App\Services\paiementService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class PaiementWebhookController extends Controller
+class PaiementWebhookController
 {
     public function __construct(
         private paiementService $service
