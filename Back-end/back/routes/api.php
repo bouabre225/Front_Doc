@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\AnnonceController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\commandeController;
+use App\Http\Controllers\KycController;
+use App\Http\Controllers\PaiementWebhookController;
 use App\Http\Controllers\admin\adminController;
 use App\Http\Controllers\AdminKycController;
 use App\Http\Controllers\AuthController;
@@ -32,6 +37,19 @@ Route::middleware('auth:sanctum')->prefix('commandes')->group(function () {
 
 Route::post('/webhooks/fedapay', [PaiementWebhookController::class, 'handleWebhook'])
     ->name('fedapay.webhook');
+
+Route::get('/annonces', [AnnonceController::class, 'index']);
+Route::get('/annonces/search', [AnnonceController::class, 'search']); 
+Route::get('/annonces/{annonce}', [AnnonceController::class, 'show']); 
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/annonces', [AnnonceController::class, 'store']);
+    Route::put('/annonces/{annonce}', [AnnonceController::class, 'update']);
+    Route::delete('/annonces/{annonce}', [AnnonceController::class, 'destroy']);
+    Route::get('/messages', [MessageController::class, 'index']);
+    Route::get('/messages/{userId}', [MessageController::class, 'show']);
+    Route::post('/messages', [MessageController::class, 'store']);
+});
 
 Route::get('/', function () {
     return response()->json(['status'=> 200, 'message' => 'API is running']);
