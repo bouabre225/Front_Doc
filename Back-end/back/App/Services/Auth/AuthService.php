@@ -145,7 +145,7 @@ class AuthService
             ];
         }
 
-        // ✅ Si 2FA déjà activé: on force le flow normal (challenge)
+        //Si 2FA déjà activé: on force le flow normal (challenge)
         return $this->create2faChallenge($user, $deviceName, true);
     }
 
