@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Http\Requests\KycSubmitRequest;
 
-class KycController extends Controller
+class KycController
 {
     public function __construct(
         private KycService $kycService
@@ -20,7 +20,7 @@ class KycController extends Controller
         $documents = KycDocument::where('user_id', $request->user()->id)
             ->latest()
             ->get();
-        
+
         return response()->json([
             'success' => true,
             'data' => $documents
