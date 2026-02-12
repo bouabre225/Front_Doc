@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\admin\adminController;
+use App\Http\Controllers\AdminKycController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\commandeController;
 use App\Http\Controllers\GoogleAuthController;
@@ -33,7 +34,7 @@ Route::post('/webhooks/fedapay', [PaiementWebhookController::class, 'handleWebho
     ->name('fedapay.webhook');
 
 Route::get('/', function () {
-    return response()->json(['message' => 'API is running']);
+    return response()->json(['status'=> 200, 'message' => 'API is running']);
 });
 
 // Auth
