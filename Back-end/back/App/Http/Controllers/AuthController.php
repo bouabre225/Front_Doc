@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 
-class AuthController extends Controller
+class AuthController
 {
     /**
      * Register a new user
@@ -20,11 +20,11 @@ class AuthController extends Controller
     public function registerBuyer(RegisterBuyerRequest $request, AuthService $authService)
     {
         try {
-            //valider les données 
+            //valider les données
             $data = $request->validated();
             $user = $authService->registerBuyer($data);
-            
-            //retour de la reponse 
+
+            //retour de la reponse
             return response()->json([
                 'user' => $user,
                 'message' => 'User registered successfully',
@@ -36,7 +36,7 @@ class AuthController extends Controller
             ], 409);
         }
     }
-    
+
     /**
      * Register Seller
      */
@@ -45,11 +45,11 @@ class AuthController extends Controller
             //valider les donnees
             $data = $request->validated();
             $user = $authService->registerSeller($data);
-            //retour de la reponse 
+            //retour de la reponse
             return response()->json([
                 'user' => $user,
                 'message' => 'User registered successfully',
-            ], 201); 
+            ], 201);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -88,7 +88,7 @@ class AuthController extends Controller
                 'user' => $result['user'],
                 'token' => $result['token'],
             ], 200);
-        
+
         } catch (\RuntimeException $e) {
             // ex: compte suspendu
             $code = $e->getCode() ?: 423;
@@ -183,7 +183,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout 
+     * Logout
      */
     public function logout(Request $request)
     {
@@ -199,4 +199,3 @@ class AuthController extends Controller
         return response()->json(['message' => 'Déconnecté'], 200);
     }
 }
- 
