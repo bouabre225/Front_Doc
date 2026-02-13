@@ -7,11 +7,11 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "fedapay/fedapay-php": "^0.4.7",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.3",
         "laravel/socialite": "^5.24",
         "laravel/tinker": "^2.10.1",
-        "laravel/socialite": "^5.24",
         "pragmarx/google2fa": "^8.0",
         "pragmarx/google2fa-laravel": "^2.3",
         "spatie/laravel-permission": "^6.24"

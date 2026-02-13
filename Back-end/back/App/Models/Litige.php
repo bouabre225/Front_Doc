@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasUuid;
 
 class Litige extends Model
 {
+    use HasUuid;
     protected $fillable = [
         'commande_id',
         'acheteur_id',

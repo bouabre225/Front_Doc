@@ -7,29 +7,24 @@ use Illuminate\Support\Str;
 
 trait HasUuid
 {
-    protected static function bootHasUuid()
+    protected static function bootHasUuid(): void
     {
-        static::creating(function ($model) {
-            if (
-                property_exists($model, 'usesUuid') &&
-                $model->usesUuid === true &&
-                !$model->getKey()
-            ) {
-                $model->{$model->getKeyName()} = (string) \Illuminate\Support\Str::uuid();
+        static::creating(function (Model $model) {
+            if (empty($model->{$model->getKeyName()})) {
+                $model->{$model->getKeyName()} = (string) Str::uuid();
+
             }
         });
     }
 
-    public function getIncrementing()
+    public function getIncrementing(): bool
     {
-        return !(property_exists($this, 'usesUuid') && $this->usesUuid === true);
+        return false;
     }
 
-    public function getKeyType()
+    public function getKeyType(): string
     {
-        return (property_exists($this, 'usesUuid') && $this->usesUuid === true)
-            ? 'string'
-            : 'int';
+        return 'string';
     }
 }
 

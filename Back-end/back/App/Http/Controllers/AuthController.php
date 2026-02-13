@@ -91,7 +91,8 @@ class AuthController
 
         } catch (\RuntimeException $e) {
             // ex: compte suspendu
-            $code = $e->getCode() ?: 423;
+            $code = (int)$e->getCode();
+            $code = ($code >= 100 && $code < 600) ? $code : 423;
             return response()->json(['message' => $e->getMessage()], $code);
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 401);

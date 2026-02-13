@@ -9,20 +9,18 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-  public function up()
-{
-    Schema::create('avis', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->foreignId('annonce_id')->constrained()->onDelete('cascade');
-        $table->integer('note')->unsigned()->default(5); // 1-5 étoiles
-        $table->text('commentaire')->nullable();
-        $table->timestamps();
-        
-        // Un user ne peut laisser qu'un seul avis par annonce
-        $table->unique(['user_id', 'annonce_id']);
-    });
-}
+    public function up(): void
+    {
+        Schema::create('avis', function (Blueprint $table) {
+            $table->uuid('id')->primary();
+            $table->foreignUuid('commande_id')->constrained('commandes');
+            $table->foreignUuid('vendeur_id')->constrained('users');
+            $table->integer('note_vendeur')->unsigned()->default(5);
+            $table->integer('note_conformite')->unsigned()->default(5);
+            $table->text('commentaire')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+        });
+    }
     /**
      * Reverse the migrations.
      */

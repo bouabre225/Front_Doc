@@ -13,8 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('notifications', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->constrained('users');
             $table->text('contenu')->nullable();
             $table->boolean('lu')->default(false);
             $table->timestamp('created_at')->useCurrent();
