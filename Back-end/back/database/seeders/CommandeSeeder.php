@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CommandeSeeder extends Seeder
 {
@@ -15,7 +16,9 @@ class CommandeSeeder extends Seeder
         $annonce = DB::table('annonces')->where('titre', 'Échographe portable Philips')->first();
 
         if ($annonce) {
+            $commandeId = Str::uuid();
             DB::table('commandes')->insert([
+                'id' => $commandeId,
                 'acheteur_id' => $acheteurId,
                 'vendeur_id' => $vendeurId,
                 'annonce_id' => $annonce->id,
@@ -23,19 +26,18 @@ class CommandeSeeder extends Seeder
                 'montant' => 5400.00,
                 'created_at' => now(),
             ]);
-
-            $commandeId = DB::getPdo()->lastInsertId();
             
-            DB::statement("UPDATE commandes SET statut = 'en_attente' WHERE id = {$commandeId}");
+            DB::statement("UPDATE commandes SET statut = 'en_attente' WHERE id = '{$commandeId}'");
 
+            $paiementId = Str::uuid();
             DB::table('paiements')->insert([
+                'id' => $paiementId,
                 'commande_id' => $commandeId,
                 'montant' => 5400.00,
                 'date_paiement' => now(),
             ]);
 
-            $paiementId = DB::getPdo()->lastInsertId();
-            DB::statement("UPDATE paiements SET moyen = 'stripe', statut = 'bloque' WHERE id = {$paiementId}");
+            DB::statement("UPDATE paiements SET moyen = 'stripe', statut = 'bloque' WHERE id = '{$paiementId}'");
         }
     }
 }

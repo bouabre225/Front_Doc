@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AnnonceSeeder extends Seeder
 {
@@ -14,6 +15,7 @@ class AnnonceSeeder extends Seeder
 
         DB::table('annonces')->insert([
             [
+                'id' => Str::uuid(),
                 'vendeur_id' => $vendeurId,
                 'titre' => 'Échographe portable Philips',
                 'description' => 'Échographe portable en excellent état, peu utilisé. Idéal pour cabinet médical.',
@@ -24,6 +26,7 @@ class AnnonceSeeder extends Seeder
                 'created_at' => now(),
             ],
             [
+                'id' => Str::uuid(),
                 'vendeur_id' => $vendeurId,
                 'titre' => 'Tensiomètre automatique',
                 'description' => 'Lot de 5 tensiomètres automatiques neufs.',
@@ -34,6 +37,7 @@ class AnnonceSeeder extends Seeder
                 'created_at' => now(),
             ],
             [
+                'id' => Str::uuid(),
                 'vendeur_id' => $vendeurId,
                 'titre' => 'Table d\'examen médical',
                 'description' => 'Table d\'examen ajustable en hauteur, très bon état.',

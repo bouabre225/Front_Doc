@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('annonce_images', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('annonce_id')->constrained('annonces')->onDelete('cascade');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('annonce_id')->constrained('annonces')->onDelete('cascade');
             $table->string('image_url', 255)->nullable();
             $table->integer('ordre')->nullable();
         });

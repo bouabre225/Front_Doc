@@ -12,8 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('messages', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('expediteur_id')->constrained('users');
+            $table->foreignUuid('recepteur_id')->constrained('users');
+            $table->foreignUuid('annonce_id')->nullable()->constrained('annonces');
+            $table->text('contenu')->nullable();
+            $table->boolean('lu')->default(false);
+            $table->timestamp('created_at')->useCurrent();
         });
     }
 

@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserSeeder extends Seeder
 {
@@ -13,6 +14,7 @@ class UserSeeder extends Seeder
     {
         DB::table('users')->insert([
             [
+                'id' => Str::uuid(),
                 'google_id' => null,
                 'avatar' => null,
                 'nom' => 'Admin User',
@@ -28,6 +30,7 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
             ],
             [
+                'id' => Str::uuid(),
                 'google_id' => null,
                 'avatar' => null,
                 'nom' => 'Vendeur Test',
@@ -43,6 +46,7 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
             ],
             [
+                'id' => Str::uuid(),
                 'google_id' => null,
                 'avatar' => null,
                 'nom' => 'Acheteur Test',
