@@ -6,21 +6,66 @@ use App\Models\Commandes;
 use App\Models\Paiement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use FedaPay\FedaPay;
+use FedaPay\Transaction;
 
 class paiementService
 {
+    public function __construct()
+    {
+        FedaPay::setApiKey(config('services.fedapay.secret'));
+        FedaPay::setEnvironment(config('services.fedapay.environment', 'sandbox'));
+    }
+
     public function createPayment(Commandes $commande)
     {
         return DB::transaction(function () use ($commande) {
-            $paymentUrl = $this->generateFedaPayUrl($commande);
+            try {
+                // Créer une transaction FedaPay
+                $transaction = Transaction::create([
+                    'description' => "Commande #{$commande->id}",
+                    'amount' => $commande->montant,
+                    'currency' => ['iso' => 'XOF'],
+                    'callback_url' => route('fedapay.webhook'),
+                    'customer' => [
+                        'firstname' => $commande->acheteur->nom,
+                        'lastname' => '',
+                        'email' => $commande->acheteur->email,
+                        'phone_number' => [
+                            'number' => $commande->acheteur->telephone,
+                            'country' => 'bj'
+                        ]
+                    ]
+                ]);
 
-            return Paiement::create([
-                'commande_id' => $commande->id,
-                'moyen' => 'fedapay',
-                'montant' => $commande->montant,
-                'statut' => 'en_attente',
-                'provider_reference' => $paymentUrl
-            ]);
+                // Générer le token de paiement
+                $token = $transaction->generateToken();
+
+                return Paiement::create([
+                    'commande_id' => $commande->id,
+                    'moyen' => 'fedapay',
+                    'montant' => $commande->montant,
+                    'statut' => 'en_attente',
+                    'provider_reference' => $transaction->id
+                ]);
+
+            } catch (\Exception $e) {
+                Log::error('FedaPay transaction creation failed', [
+                    'error' => $e->getMessage(),
+                    'commande_id' => $commande->id
+                ]);
+                
+                // Fallback vers URL simple
+                $paymentUrl = $this->generateFedaPayUrl($commande);
+
+                return Paiement::create([
+                    'commande_id' => $commande->id,
+                    'moyen' => 'fedapay',
+                    'montant' => $commande->montant,
+                    'statut' => 'en_attente',
+                    'provider_reference' => $paymentUrl
+                ]);
+            }
         });
     }
     public function handleWebhookEvent(string $event, string $transactionId)
