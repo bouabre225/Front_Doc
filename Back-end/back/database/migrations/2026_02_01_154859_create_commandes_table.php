@@ -13,10 +13,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('commandes', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('acheteur_id')->constrained('users');
-            $table->foreignId('vendeur_id')->constrained('users');
-            $table->foreignId('annonce_id')->constrained('annonces');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('acheteur_id')->constrained('users');
+            $table->foreignUuid('vendeur_id')->constrained('users');
+            $table->foreignUuid('annonce_id')->constrained('annonces');
             $table->integer('quantite');
             $table->decimal('montant', 10, 2);
             $table->timestamp('created_at')->useCurrent();
