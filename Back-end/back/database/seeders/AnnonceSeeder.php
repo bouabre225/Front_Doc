@@ -23,6 +23,8 @@ class AnnonceSeeder extends Seeder
                 'prix_vendeur' => 5000.00,
                 'quantite' => 1,
                 'pays_expedition' => 'France',
+                'etat' => 'tres_bon',
+                'statut' => 'active',
                 'created_at' => now(),
             ],
             [
@@ -34,6 +36,8 @@ class AnnonceSeeder extends Seeder
                 'prix_vendeur' => 250.00,
                 'quantite' => 5,
                 'pays_expedition' => 'France',
+                'etat' => 'tres_bon',
+                'statut' => 'active',
                 'created_at' => now(),
             ],
             [
@@ -45,13 +49,10 @@ class AnnonceSeeder extends Seeder
                 'prix_vendeur' => 800.00,
                 'quantite' => 2,
                 'pays_expedition' => 'France',
+                'etat' => 'tres_bon',
+                'statut' => 'active',
                 'created_at' => now(),
             ],
         ]);
-
-        $annonces = DB::table('annonces')->get();
-        foreach ($annonces as $annonce) {
-            DB::statement("UPDATE annonces SET etat = 'tres_bon', statut = 'active' WHERE id = {$annonce->id}");
-        }
     }
 }
