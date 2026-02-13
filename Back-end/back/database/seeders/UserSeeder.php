@@ -12,6 +12,9 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
+        // Clear existing users
+        DB::table('users')->truncate();
+
         DB::table('users')->insert([
             [
                 'id' => Str::uuid(),
