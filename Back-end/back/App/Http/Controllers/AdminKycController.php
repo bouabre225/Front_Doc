@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Requests\KycDecisionRequest;
 use App\Services\Auth\KycService;
+use App\Models\KycDocument;
 
-class AdminKycController extends Controller
+class AdminKycController
 {
     /**
      * GET /admin/kyc/pending
