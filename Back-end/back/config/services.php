@@ -15,7 +15,8 @@ return [
     */
 
     'fedapay' => [
-        'key' => env('FEDAPAY_SECRET'),
+        'secret' => env('FEDAPAY_SECRET'),
+        'environment' => env('FEDAPAY_ENVIRONMENT', 'sandbox'),
         'base_url' => env('FEDAPAY_BASE_URL', 'https://api.fedapay.com/v1'),
         'webhook_secret' => env('FEDAPAY_WEBHOOK_SECRET'),
     ],
