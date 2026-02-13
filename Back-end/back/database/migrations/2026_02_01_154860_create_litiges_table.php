@@ -13,9 +13,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('litiges', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('commande_id')->constrained('commandes');
-            $table->foreignId('acheteur_id')->constrained('users');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('commande_id')->constrained('commandes');
+            $table->foreignUuid('acheteur_id')->constrained('users');
             $table->text('preuves')->nullable();
             $table->timestamp('date_signalement')->useCurrent();
         });

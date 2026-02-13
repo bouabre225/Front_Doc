@@ -13,9 +13,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('paiements', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('commande_id')->constrained('commandes');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('commande_id')->constrained('commandes');
             $table->decimal('montant', 10, 2)->nullable();
+            $table->string('provider_reference')->nullable();
             $table->timestamp('date_paiement')->nullable();
         });
         

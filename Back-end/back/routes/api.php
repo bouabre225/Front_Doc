@@ -36,8 +36,8 @@ Route::post('/webhooks/fedapay', [PaiementWebhookController::class, 'handleWebho
     ->name('fedapay.webhook');
 
 Route::get('/annonces', [AnnonceController::class, 'index']);
-Route::get('/annonces/search', [AnnonceController::class, 'search']); 
-Route::get('/annonces/{annonce}', [AnnonceController::class, 'show']); 
+Route::get('/annonces/search', [AnnonceController::class, 'search']);
+Route::get('/annonces/{annonce}', [AnnonceController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/annonces', [AnnonceController::class, 'store']);

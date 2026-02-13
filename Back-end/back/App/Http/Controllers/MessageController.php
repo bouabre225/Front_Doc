@@ -21,7 +21,7 @@ class MessageController extends Controller
                 'users.email',
                 'users.avatar',
                 DB::raw('MAX(messages.created_at) as dernier_message'),
-                DB::raw('SUM(CASE WHEN messages.lu = false AND messages.recepteur_id = '.$userId.' THEN 1 ELSE 0 END) as non_lus')
+                DB::raw("SUM(CASE WHEN messages.lu = false AND messages.recepteur_id = '{$userId}' THEN 1 ELSE 0 END) as non_lus")
             )
             ->join('users', function($join) use ($userId) {
                 $join->on('users.id', '=', 'messages.expediteur_id')

@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\HasUuid;
 
 class Commandes extends Model
 {
+    use HasUuid;
     protected $table = 'commandes';
     
     protected $fillable = [

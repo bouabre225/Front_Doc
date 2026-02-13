@@ -13,8 +13,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('annonces', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('vendeur_id')->constrained('users');
+            $table->uuid('id')->primary();
+            $table->foreignUuid('vendeur_id')->constrained('users');
             $table->string('titre', 200);
             $table->text('description')->nullable();
             $table->string('categorie', 100)->nullable();
