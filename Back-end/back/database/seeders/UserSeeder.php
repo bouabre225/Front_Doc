@@ -24,6 +24,9 @@ class UserSeeder extends Seeder
                 'pays' => 'France',
                 'devise' => 'EUR',
                 'adresse' => '123 Rue de la Paix, Paris',
+                'role' => 'admin',
+                'type_compte' => 'professionnel',
+                'statut' => 'actif',
                 'verifie_kyc' => true,
                 'badge_verifie' => true,
                 'note_moyenne' => 5.0,
@@ -40,6 +43,9 @@ class UserSeeder extends Seeder
                 'pays' => 'France',
                 'devise' => 'EUR',
                 'adresse' => '456 Avenue des Champs, Lyon',
+                'role' => 'vendeur',
+                'type_compte' => 'professionnel',
+                'statut' => 'actif',
                 'verifie_kyc' => true,
                 'badge_verifie' => true,
                 'note_moyenne' => 4.5,
@@ -56,15 +62,14 @@ class UserSeeder extends Seeder
                 'pays' => 'Belgique',
                 'devise' => 'EUR',
                 'adresse' => '789 Boulevard Central, Bruxelles',
+                'role' => 'acheteur',
+                'type_compte' => 'particulier',
+                'statut' => 'actif',
                 'verifie_kyc' => false,
                 'badge_verifie' => false,
                 'note_moyenne' => 0,
                 'created_at' => now(),
             ],
         ]);
-
-        DB::statement("UPDATE users SET role = 'admin', type_compte = 'professionnel', statut = 'actif' WHERE email = 'admin@docspace.com'");
-        DB::statement("UPDATE users SET role = 'vendeur', type_compte = 'professionnel', statut = 'actif' WHERE email = 'vendeur@docspace.com'");
-        DB::statement("UPDATE users SET role = 'acheteur', type_compte = 'particulier', statut = 'actif' WHERE email = 'acheteur@docspace.com'");
     }
 }
