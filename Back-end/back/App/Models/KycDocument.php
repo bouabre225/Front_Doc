@@ -8,7 +8,7 @@ use App\Models\Concerns\HasUuid;
 class KycDocument extends Model
 {
     use HasUuid;
-    
+
     protected $fillable = [
         'user_id',
         'type_document',
