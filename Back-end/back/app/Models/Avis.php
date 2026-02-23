@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Concerns\HasUuid;
 
 class Avis extends Model
 {
-    use HasFactory, HasUuid;
+    use HasFactory;
 
     public $timestamps = false;
     const CREATED_AT = 'created_at';
@@ -19,7 +18,7 @@ class Avis extends Model
 
     public function commande()
     {
-        return $this->belongsTo(Commandes::class, 'commande_id');  // ← Avec le S
+        return $this->belongsTo(Commandes::class, 'commande_id');
     }
 
     public function vendeur()

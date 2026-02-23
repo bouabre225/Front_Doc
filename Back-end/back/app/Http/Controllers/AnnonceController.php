@@ -12,7 +12,7 @@ class AnnonceController extends Controller
     public function index()
     {
         $annonces = Annonce::where('statut', 'active')
-            ->with('vendeur', 'avis')
+            ->with('vendeur')
             ->latest('created_at')
             ->paginate(12);
         

@@ -20,13 +20,16 @@ class AuthService
             throw new \Exception('Email already used');
         }
 
+        // Récupérer le mot de passe (soit 'password' soit 'mot_de_passe')
+        $password = $data['password'] ?? $data['mot_de_passe'] ?? null;
 
         //renvoi l'utilisateur créé
         return User::create([
             'nom' => $data['nom'],
             'email' => $data['email'],
-            'mot_de_passe' => $data['password'],
+            'mot_de_passe' => $password,
             'telephone' => $data['telephone'] ?? null,
+            'pays' => $data['pays'] ?? 'France',
             'adresse' => $data['adresse'] ?? null,
             'role' => 'acheteur',
             'statut' => 'actif',
@@ -47,13 +50,16 @@ class AuthService
         // vendeur: si non fourni → professionnel par défaut
         $typeCompte = $data['type_compte'] ?? 'professionnel';
 
+        // Récupérer le mot de passe (soit 'password' soit 'mot_de_passe')
+        $password = $data['password'] ?? $data['mot_de_passe'] ?? null;
 
         //renvoi l'utilisateur créé
         return User::create([
             'nom' => $data['nom'],
             'email' => $data['email'],
-            'mot_de_passe' => $data['password'],
+            'mot_de_passe' => $password,
             'telephone' => $data['telephone'] ?? null,
+            'pays' => $data['pays'] ?? 'France',
             'adresse' => $data['adresse'] ?? null,
             'role' => 'vendeur',
             'statut' => 'actif',

@@ -24,9 +24,13 @@ class AuthController
             $data = $request->validated();
             $user = $authService->registerBuyer($data);
 
+            // Créer un token pour l'utilisateur
+            $token = $user->createToken('auth_token')->plainTextToken;
+
             //retour de la reponse
             return response()->json([
                 'user' => $user,
+                'token' => $token,
                 'message' => 'User registered successfully',
             ], 201);
 
@@ -45,9 +49,14 @@ class AuthController
             //valider les donnees
             $data = $request->validated();
             $user = $authService->registerSeller($data);
+
+            // Créer un token pour l'utilisateur
+            $token = $user->createToken('auth_token')->plainTextToken;
+
             //retour de la reponse
             return response()->json([
                 'user' => $user,
+                'token' => $token,
                 'message' => 'User registered successfully',
             ], 201);
 
@@ -70,7 +79,7 @@ class AuthController
 
             $result = $authService->login(
                 $data['email'],
-                $data['password'],
+                $data['mot_de_passe'],
                 $data['device_name'] ?? null
             );
 
@@ -110,7 +119,7 @@ class AuthController
 
             $result = $authService->loginAdmin(
                 $data['email'],
-                $data['password'],
+                $data['mot_de_passe'],
                 $data['device_name'] ?? null
             );
 

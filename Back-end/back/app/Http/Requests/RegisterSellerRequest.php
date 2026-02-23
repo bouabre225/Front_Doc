@@ -24,10 +24,33 @@ class RegisterSellerRequest extends FormRequest
         return [
             'nom' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
+            'mot_de_passe' => 'required|string|min:6',
             'telephone' => 'required|string|max:255',
-            'adresse' => 'required|string|max:255',
-            'type_compte' => 'nullabre|in:particulier,professionnel'
+            'adresse' => 'nullable|string|max:255',
+            'pays' => 'nullable|string|max:255',
+            'type_compte' => 'nullable|in:particulier,professionnel'
         ];
+    }
+
+    /**
+     * Get custom attributes for validator errors.
+     */
+    public function attributes(): array
+    {
+        return [
+            'mot_de_passe' => 'password',
+        ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('mot_de_passe')) {
+            $this->merge([
+                'password' => $this->mot_de_passe,
+            ]);
+        }
     }
 }

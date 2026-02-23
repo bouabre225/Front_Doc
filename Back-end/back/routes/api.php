@@ -19,11 +19,6 @@ Route::middleware('auth:sanctum')->prefix('kyc')->group(function () {
     Route::delete('/documents/{id}', [KycController::class, 'destroy']);
 });
 
-Route::middleware('auth:sanctum')->prefix('admin/kyc')->group(function () {
-    Route::get('/pending', [adminController::class, 'pending']);
-    Route::post('/documents/{document}/validate', [adminController::class, 'validateKyc']);
-});
-
 Route::middleware('auth:sanctum')->prefix('commandes')->group(function () {
     Route::get('/', [commandeController::class, 'index']);
     Route::post('/', [commandeController::class, 'store']);
@@ -95,6 +90,8 @@ Route::middleware(['auth:sanctum', 'role:vendeur'])->prefix('kyc')->group(functi
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('admin/kyc')->group(function () {
     Route::get('/pending', [AdminKycController::class, 'pending']);
     Route::post('/{id}/decide', [AdminKycController::class, 'decide']);
+    Route::post('/documents/{document}/validate', [adminController::class, 'validateKyc']);
+
 });
 
 // Annonces vendeur : INTERDIT si KYC non validé
