@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, UserCircle, Briefcase, Phone, ArrowLeft, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLang } from '../../context/LangContext';
 
 const Register = () => {
+  const { t } = useLang();
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Récupérer le type d'utilisateur depuis l'URL (?type=seller)
   const searchParams = new URLSearchParams(location.search);
   const initialUserType = searchParams.get('type') === 'seller' ? 'seller' : 'buyer';
   
@@ -34,18 +35,12 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    // Simulation d'inscription
     setTimeout(() => {
-      // TODO: Remplacer par vraie inscription avec Laravel
       localStorage.setItem('user', JSON.stringify({ 
         ...formData, 
         role: userType 
       }));
-      
       setLoading(false);
-      
-      // Si c'est un vendeur, rediriger vers la page de publication
       if (userType === 'seller') {
         navigate('/seller/publish');
       } else {
@@ -62,25 +57,21 @@ const Register = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Back to Home */}
         <Link to='/' className='inline-flex items-center gap-2 mb-6 text-gray-600 hover:text-[#1DBF73] transition-colors'>
           <ArrowLeft className='w-5 h-5' />
           <span className='font-medium'>Retour à l'accueil</span>
         </Link>
 
-        {/* Logo */}
         <div className='mb-8 text-center'>
-          <Link to='/' className='inline-flex items-center gap-2'>
-            <div className='w-12 h-12 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-xl flex items-center justify-center'>
-              <span className='text-2xl font-bold text-white'>D</span>
-            </div>
-            <span className='text-3xl font-bold bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent'>
-              DocSpace
-            </span>
+          <Link to='/' className='inline-flex items-center justify-center'>
+            <img 
+              src='/images/docspace.png' 
+              alt='DocSpace Logo'
+              className='object-contain w-auto h-20 mix-blend-multiply'
+            />
           </Link>
         </div>
 
-        {/* Badge */}
         <div className='mb-6 text-center'>
           <span className='inline-flex items-center gap-2 px-4 py-2 bg-[#09B1BA]/10 border border-[#09B1BA]/20 rounded-full text-sm font-medium text-[#09B1BA]'>
             <span className='w-2 h-2 bg-[#09B1BA] rounded-full animate-pulse'></span>
@@ -88,7 +79,6 @@ const Register = () => {
           </span>
         </div>
 
-        {/* Title */}
         <div className='mb-8 text-center'>
           <h1 className='mb-2 text-3xl font-bold text-gray-900'>
             Créer un compte
@@ -98,9 +88,7 @@ const Register = () => {
           </p>
         </div>
 
-        {/* Form Card */}
         <div className='p-8 bg-white border border-gray-100 shadow-xl rounded-2xl'>
-          {/* User Type Tabs */}
           <div className='flex gap-3 p-2 mb-6 bg-gray-100 rounded-xl'>
             <button
               type='button'
@@ -129,7 +117,6 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleSubmit}>
-            {/* Name */}
             <div className='mb-4'>
               <label className='block mb-2 text-sm font-semibold text-gray-700'>
                 Nom complet
@@ -148,7 +135,6 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Email */}
             <div className='mb-4'>
               <label className='block mb-2 text-sm font-semibold text-gray-700'>
                 Adresse email
@@ -167,28 +153,25 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Phone (for sellers) */}
-            {userType === 'seller' && (
-              <div className='mb-4'>
-                <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                  Téléphone
-                </label>
-                <div className='relative'>
-                  <Phone className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
-                  <input
-                    type='tel'
-                    name='phone'
-                    value={formData.phone}
-                    onChange={handleChange}
-                    placeholder='+229 XX XX XX XX'
-                    className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
-                    required
-                  />
-                </div>
+            {/* ✅ Téléphone pour acheteur ET vendeur */}
+            <div className='mb-4'>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>
+                Téléphone
+              </label>
+              <div className='relative'>
+                <Phone className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
+                <input
+                  type='tel'
+                  name='phone'
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder='+229 XX XX XX XX'
+                  className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
+                  required
+                />
               </div>
-            )}
+            </div>
 
-            {/* Specialty (for sellers) */}
             {userType === 'seller' && (
               <div className='mb-4'>
                 <label className='block mb-2 text-sm font-semibold text-gray-700'>
@@ -215,7 +198,6 @@ const Register = () => {
               </div>
             )}
 
-            {/* Password */}
             <div className='mb-5'>
               <label className='block mb-2 text-sm font-semibold text-gray-700'>
                 Mot de passe
@@ -241,38 +223,6 @@ const Register = () => {
               </div>
             </div>
 
-            {/* Terms Checkbox */}
-            <label className='flex items-start gap-3 mb-6 cursor-pointer group'>
-              <div className='relative mt-0.5'>
-                <input
-                  type='checkbox'
-                  name='acceptTerms'
-                  checked={formData.acceptTerms}
-                  onChange={handleChange}
-                  className='sr-only'
-                  required
-                />
-                <div className={`flex items-center justify-center w-5 h-5 border-2 rounded transition-all ${
-                  formData.acceptTerms 
-                    ? 'bg-[#1DBF73] border-[#1DBF73]' 
-                    : 'border-gray-300 group-hover:border-[#1DBF73]'
-                }`}>
-                  {formData.acceptTerms && <Check className='w-3 h-3 text-white' />}
-                </div>
-              </div>
-              <span className='text-sm text-gray-600'>
-                J'accepte les{' '}
-                <Link to='/terms' className='text-[#1DBF73] hover:underline font-medium'>
-                  conditions d'utilisation
-                </Link>
-                {' '}et la{' '}
-                <Link to='/privacy' className='text-[#1DBF73] hover:underline font-medium'>
-                  politique de confidentialité
-                </Link>
-              </span>
-            </label>
-
-            {/* Submit Button */}
             <motion.button
               type='submit'
               disabled={loading}
@@ -291,7 +241,6 @@ const Register = () => {
             </motion.button>
           </form>
 
-          {/* Login Link */}
           <div className='pt-6 mt-6 text-center border-t border-gray-200'>
             <p className='text-gray-600'>
               Déjà un compte ?{' '}

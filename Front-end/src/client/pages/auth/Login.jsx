@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLang } from '../../context/LangContext';
 
 const Login = () => {
+  const { t } = useLang();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -13,14 +15,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
-    // Simulation d'authentification
     setTimeout(() => {
-      // Simuler la connexion réussie
-      // TODO: Remplacer par vraie authentification avec Laravel
       localStorage.setItem('user', JSON.stringify({ email, role: 'seller' }));
       setLoading(false);
-      navigate('/'); // Rediriger vers l'accueil
+      navigate('/');
     }, 1500);
   };
 
@@ -40,13 +38,12 @@ const Login = () => {
 
         {/* Logo */}
         <div className='mb-8 text-center'>
-          <Link to='/' className='inline-flex items-center gap-2'>
-            <div className='w-12 h-12 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-xl flex items-center justify-center'>
-              <span className='text-2xl font-bold text-white'>D</span>
-            </div>
-            <span className='text-3xl font-bold bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent'>
-              DocSpace
-            </span>
+          <Link to='/' className='inline-flex items-center justify-center'>
+            <img 
+              src='/images/docspace.png' 
+              alt='DocSpace Logo'
+              className='object-contain w-auto h-20 mix-blend-multiply'
+            />
           </Link>
         </div>
 
