@@ -1,8 +1,10 @@
     import React from 'react';
     import { Link } from 'react-router-dom';
     import { Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
+import { useLang } from '../../context/LangContext';
 
     const Footer = () => {
+  const { t } = useLang();
     return (
         <footer className='bg-white border-t border-gray-200'>
         <div className='container mx-auto px-4 py-8'>

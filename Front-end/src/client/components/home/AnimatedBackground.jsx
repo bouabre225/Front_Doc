@@ -12,8 +12,10 @@ import {
   Droplet,
   Zap
 } from 'lucide-react';
+import { useLang } from '../../context/LangContext';
 
 const AnimatedBackground = () => {
+  const { t } = useLang();
   const equipments = [
     { icon: Stethoscope, delay: 0, x: 8, y: 15, size: 'w-16 h-16', duration: 6 },
     { icon: Activity, delay: 0.7, x: 85, y: 10, size: 'w-20 h-20', duration: 7 },
