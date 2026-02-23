@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import {  AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, Heart, Bell, Menu, X, User, ChevronDown } from 'lucide-react';
 import Button from '../common/Button';
 import { useLang } from '../../context/LangContext';
