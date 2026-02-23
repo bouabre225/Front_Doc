@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use Laravel\Sanctum\HasApiTokens;
+//use App\Models\Concerns\HasUuid;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
-
-    public mixed $email;
-    public mixed $id;
+    use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
     /**
      * The attributes that are mass assignable.
@@ -22,10 +22,23 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'google_id',
+        'avatar',
+        'role',
+        'type_compte',
         'nom',
         'email',
         'mot_de_passe',
-        'kycReference',
+        'telephone',
+        'pays',
+        'devise',
+        'adresse',
+        'two_factor_secret',
+        'verifie_kyc',
+        'badge_verifie',
+        'note_moyenne',
+        'statut',
+        'two_factor_enable_at',
     ];
 
     /**
@@ -35,7 +48,7 @@ class User extends Authenticatable
      */
     protected $hidden = [
         'mot_de_passe',
-        'remember_token',
+        'two_factor_secret',
     ];
 
     /**
@@ -46,25 +59,76 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'mot_de_passe' => 'hashed',
+            'verifie_kyc' => 'boolean',
+            'badge_verifie' => 'boolean',
+            'note_moyenne' => 'decimal:1',
+            'two_factor_enable_at' => 'datetime',
+            'created_at' => 'datetime',
+            'update_at' => 'datetime'
         ];
     }
 
-    public function kycDocuments(){
-        return $this->hasMany(KycDocument::Class);
-    }
-
-    public function commandesAcheteur(){
-        return $this->hasMany(Commandes::Class, 'acheteur_id');
-    }
-
-    public function commandeVendeurs(){
-        return $this->hasMany(Commandes::Class, 'vendeur_id');
-    }
-
-    public function hasValidKyc(): bool
+    /**
+     * Mutator hash auto le password
+     */
+    public function setMotDePasseAttribute($value)
     {
-        return $this->verifie_kyc === true;
+        /*if (is_string($value) && str_starts_with('$2y$')) {
+            $this->attributes['mot_de_passe'] = $value;
+            return;
+        }*/
+
+        $this->attributes['mot_de_passe'] = bcrypt($value);
+    }
+
+    /**
+     * Statut
+     */
+    public function isActive() 
+    {
+        return $this->statut === 'actif';
+    }
+
+    /**
+     * 
+     */
+    public function has2faEnabled() 
+    {
+        return !empty($this->two_factor_secret);
+    }
+    public function kycDocuments()
+    {
+        return $this->hasMany(KycDocument::class);
+    }
+
+    public function annonces()
+    {
+        return $this->hasMany(Annonce::class, 'vendeur_id');
+    }
+
+    public function commandesAcheteur()
+    {
+        return $this->hasMany(Commande::class, 'acheteur_id');
+    }
+
+    public function commandesVendeur()
+    {
+        return $this->hasMany(Commande::class, 'vendeur_id');
+    }
+
+    public function messagesEnvoyes()
+    {
+        return $this->hasMany(Message::class, 'expediteur_id');
+    }
+
+    public function messagesRecus()
+    {
+        return $this->hasMany(Message::class, 'recepteur_id');
+    }
+
+    
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }

@@ -7,6 +7,8 @@ use App\Services\KycService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+use App\Http\Requests\KycSubmitRequest;
+
 class KycController extends Controller
 {
     public function __construct(
@@ -64,5 +66,52 @@ class KycController extends Controller
             'success' => true,
             'message' => 'Document supprimé avec succès'
         ]);
+    }
+    /**
+     * POST /kyc/submit
+     * Vendeur soumet ou remplace son document KYC.
+     */
+    public function submit(KycSubmitRequest $request, KycService $service)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Non authentifié.'], 401);
+        }
+
+        if ($user->role !== 'vendeur') {
+            return response()->json(['message' => 'Réservé aux vendeurs.'], 403);
+        }
+
+        $doc = $service->submit($user, $request->validated());
+
+        return response()->json([
+            'message' => 'Document KYC soumis. En attente de validation.',
+            'kyc' => $doc,
+        ], 200);
+    }
+
+     /**
+     * GET /kyc/status
+     * Voir le statut KYC
+     */
+    public function status(Request $request)
+    {
+        $user = $request->user();
+
+        if (!$user) {
+            return response()->json(['message' => 'Non authentifié.'], 401);
+        }
+
+        if ($user->role !== 'vendeur') {
+            return response()->json(['message' => 'Réservé aux vendeurs.'], 403);
+        }
+
+        $doc = KycDocument::where('user_id', $user->id)->first();
+
+        return response()->json([
+            'verifie_kyc' => (bool) $user->verifie_kyc,
+            'kyc_document' => $doc,
+        ], 200);
     }
 }
