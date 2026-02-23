@@ -23,8 +23,20 @@ class loginRequest extends FormRequest
     {
         return [
             'email' => 'required|string|email|max:255|exists:users',
-            'password' => 'required|string|min:8',
+            'mot_de_passe' => 'required|string|min:6',
             'device_name' => 'nullable|string|max:100'
         ];
+    }
+
+    /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->has('mot_de_passe')) {
+            $this->merge([
+                'password' => $this->mot_de_passe,
+            ]);
+        }
     }
 }
