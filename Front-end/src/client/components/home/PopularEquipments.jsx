@@ -4,119 +4,70 @@ import { Star, MapPin, ArrowRight, Heart } from 'lucide-react';
 import Card from '../common/Card';
 import { Link } from 'react-router-dom';
 
-const PopularEquipments = () => {
 const equipments = [
   {
     id: 1,
-    name: 'Échographe Portable GE Vscan',
-    category: 'Imagerie',
-    price: '2,500,000',
-    originalPrice: '3,200,000',
-    image: 'https://images.pexels.com/photos/4386467/pexels-photo-4386467.jpeg?auto=compress&cs=tinysrgb&w=600',
+    name: 'Échographe GE Voluson E10',
+    category: 'Imagerie Médicale',
+    price: '45,000',
+    originalPrice: '55,000',
+    currency: 'EUR',
+    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=500',
     rating: 4.8,
     reviews: 124,
-    location: 'Cotonou',
-    condition: 'Excellent',
-    verified: true
-  },
-  {
-    id: 2,
-    name: 'Stéthoscope Littmann Cardiology IV',
-    category: 'Cardiologie',
-    price: '185,000',
-    originalPrice: '250,000',
-    image: 'https://images.pexels.com/photos/40568/medical-appointment-doctor-healthcare-40568.jpeg?auto=compress&cs=tinysrgb&w=600',
-    rating: 4.9,
-    reviews: 89,
-    location: 'Porto-Novo',
-    condition: 'Comme neuf',
-    verified: true
-  },
-  {
-    id: 3,
-    name: 'Tensiomètre Automatique Omron',
-    category: 'Monitoring',
-    price: '45,000',
-    originalPrice: '65,000',
-    image: 'https://images.pexels.com/photos/7659564/pexels-photo-7659564.jpeg?auto=compress&cs=tinysrgb&w=600',
-    rating: 4.7,
-    reviews: 156,
-    location: 'Parakou',
-    condition: 'Très bon état',
-    verified: true
-  },
-  {
-    id: 4,
-    name: 'Défibrillateur Philips HeartStart',
-    category: 'Urgence',
-    price: '1,800,000',
-    originalPrice: '2,500,000',
-    image: 'https://images.pexels.com/photos/236380/pexels-photo-236380.jpeg?auto=compress&cs=tinysrgb&w=600',
-    rating: 5.0,
-    reviews: 67,
-    location: 'Cotonou',
-    condition: 'Excellent',
-    verified: true
+    location: 'Cotonou, Bénin',
+    condition: 'Neuf',
+    verified: true,
   },
   {
     id: 5,
-    name: 'Microscope Binoculaire Professionnel',
-    category: 'Laboratoire',
-    price: '850,000',
-    originalPrice: '1,200,000',
-    image: 'https://images.pexels.com/photos/2280571/pexels-photo-2280571.jpeg?auto=compress&cs=tinysrgb&w=600',
+    name: 'Moniteur Patient 5 paramètres',
+    category: 'Monitoring',
+    price: '3,200',
+    originalPrice: '4,500',
+    currency: 'EUR',
+    image: 'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=500',
     rating: 4.6,
-    reviews: 92,
-    location: 'Abomey-Calavi',
-    condition: 'Bon état',
-    verified: true
+    reviews: 78,
+    location: 'Lomé, Togo',
+    condition: 'Occasion',
+    verified: true,
+  },
+  {
+    id: 11,
+    name: 'Scanner IRM Siemens',
+    category: 'Imagerie Médicale',
+    price: '125,000',
+    originalPrice: '180,000',
+    currency: 'EUR',
+    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=500',
+    rating: 4.9,
+    reviews: 15,
+    location: "Abidjan, Côte d'Ivoire",
+    condition: 'Reconditionné',
+    verified: true,
   },
   {
     id: 6,
-    name: 'Oxymètre de Pouls Professionnel',
-    category: 'Monitoring',
-    price: '35,000',
-    originalPrice: '50,000',
-    image: 'https://images.pexels.com/photos/3259625/pexels-photo-3259625.jpeg?auto=compress&cs=tinysrgb&w=600',
-    rating: 4.8,
-    reviews: 203,
-    location: 'Cotonou',
-    condition: 'Excellent',
-    verified: true
+    name: 'Défibrillateur automatique',
+    category: 'Urgence',
+    price: '1,800',
+    originalPrice: '2,400',
+    currency: 'USD',
+    image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=500',
+    rating: 5.0,
+    reviews: 45,
+    location: 'Douala, Cameroun',
+    condition: 'Neuf',
+    verified: true,
   },
-  {
-    id: 7,
-    name: 'Fauteuil Roulant Électrique Premium',
-    category: 'Mobilité',
-    price: '950,000',
-    originalPrice: '1,400,000',
-    image: 'https://images.pexels.com/photos/6647028/pexels-photo-6647028.jpeg?auto=compress&cs=tinysrgb&w=600',
-    rating: 4.9,
-    reviews: 78,
-    location: 'Porto-Novo',
-    condition: 'Comme neuf',
-    verified: true
-  },
-  {
-    id: 8,
-    name: 'Glucomètre Connecté OneTouch',
-    category: 'Diabétologie',
-    price: '28,000',
-    originalPrice: '42,000',
-    image: 'https://images.pexels.com/photos/3683099/pexels-photo-3683099.jpeg?auto=compress&cs=tinysrgb&w=600',
-    rating: 4.7,
-    reviews: 145,
-    location: 'Cotonou',
-    condition: 'Très bon état',
-    verified: true
-  }
 ];
 
+const PopularEquipments = () => {
   return (
     <section className='py-24 bg-gradient-to-b from-white to-gray-50'>
       <div className='container px-4 mx-auto'>
-        {/* Header */}
-        <motion.div 
+        <motion.div
           className='flex flex-col items-start justify-between gap-6 mb-16 md:flex-row md:items-center'
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -141,7 +92,6 @@ const equipments = [
           </Link>
         </motion.div>
 
-        {/* Equipment Grid */}
         <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4'>
           {equipments.map((equipment, index) => (
             <motion.div
@@ -153,15 +103,12 @@ const equipments = [
             >
               <Link to={`/equipment/${equipment.id}`}>
                 <Card hover={true} className='h-full overflow-hidden cursor-pointer group'>
-                  {/* Image */}
                   <div className='relative h-56 overflow-hidden'>
-                    <img 
-                      src={equipment.image} 
+                    <img
+                      src={equipment.image}
                       alt={equipment.name}
                       className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110'
                     />
-                    
-                    {/* Badges */}
                     <div className='absolute flex items-start justify-between top-3 left-3 right-3'>
                       <div className='bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-gray-700 shadow-md'>
                         {equipment.condition}
@@ -172,8 +119,6 @@ const equipments = [
                         </div>
                       )}
                     </div>
-
-                    {/* Favorite Button */}
                     <motion.button
                       whileHover={{ scale: 1.15 }}
                       whileTap={{ scale: 0.9 }}
@@ -184,19 +129,13 @@ const equipments = [
                     </motion.button>
                   </div>
 
-                  {/* Content */}
                   <div className='p-5'>
-                    {/* Category */}
                     <span className='inline-block text-xs font-bold text-[#09B1BA] uppercase tracking-wider bg-[#09B1BA]/10 px-2 py-1 rounded'>
                       {equipment.category}
                     </span>
-
-                    {/* Title */}
                     <h3 className='font-bold text-lg mt-3 mb-3 line-clamp-2 group-hover:text-[#1DBF73] transition-colors leading-tight'>
                       {equipment.name}
                     </h3>
-
-                    {/* Rating & Location */}
                     <div className='flex items-center justify-between mb-4'>
                       <div className='flex items-center gap-1.5'>
                         <Star className='w-4 h-4 text-yellow-400 fill-yellow-400' />
@@ -208,16 +147,14 @@ const equipments = [
                         <span className='font-medium'>{equipment.location}</span>
                       </div>
                     </div>
-
-                    {/* Price */}
                     <div className='flex items-end justify-between pt-4 border-t border-gray-100'>
                       <div>
                         <div className='mb-1 text-sm text-gray-400 line-through'>
-                          {equipment.originalPrice} FCFA
+                          {equipment.originalPrice} {equipment.currency}
                         </div>
                         <div className='text-2xl font-bold text-[#1DBF73] flex items-baseline gap-1'>
                           {equipment.price}
-                          <span className='text-sm font-medium text-gray-600'>FCFA</span>
+                          <span className='text-sm font-medium text-gray-600'>{equipment.currency}</span>
                         </div>
                       </div>
                       <motion.div
