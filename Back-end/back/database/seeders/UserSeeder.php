@@ -12,12 +12,12 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Clear existing users
-        DB::table('users')->truncate();
+        // Ne pas truncate car les contraintes de clés étrangères
+        DB::table('users')->delete();
 
-        DB::table('users')->insert([
+        $users = [
             [
-                'id' => Str::uuid(),
+                'id' => '94bed60e-1c94-4538-a98e-733ecda91606',
                 'google_id' => null,
                 'avatar' => null,
                 'nom' => 'Admin User',
@@ -36,7 +36,7 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
             ],
             [
-                'id' => Str::uuid(),
+                'id' => '94bed60e-2c94-4538-a98e-733ecda91607',
                 'google_id' => null,
                 'avatar' => null,
                 'nom' => 'Vendeur Test',
@@ -55,7 +55,7 @@ class UserSeeder extends Seeder
                 'created_at' => now(),
             ],
             [
-                'id' => Str::uuid(),
+                'id' => '94bed60e-3c94-4538-a98e-733ecda91608',
                 'google_id' => null,
                 'avatar' => null,
                 'nom' => 'Acheteur Test',
@@ -73,6 +73,10 @@ class UserSeeder extends Seeder
                 'note_moyenne' => 0,
                 'created_at' => now(),
             ],
-        ]);
+        ];
+
+        foreach ($users as $user) {
+            DB::table('users')->insert($user);
+        }
     }
 }
