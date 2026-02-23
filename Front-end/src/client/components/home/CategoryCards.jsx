@@ -2,8 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Card from '../common/Card';
+import { useLang } from '../../context/LangContext';
 
 const CategoryCards = () => {
+  const { t } = useLang();
   const categories = [
     { 
       slug: 'cardiologie',
@@ -16,7 +18,7 @@ const CategoryCards = () => {
       slug: 'neurologie',
       image: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=400&h=300&fit=crop',
       name: 'Neurologie', 
-      count: 189,
+      count: 189, 
       color: 'from-purple-500/80 to-indigo-500/80'
     },
     { 

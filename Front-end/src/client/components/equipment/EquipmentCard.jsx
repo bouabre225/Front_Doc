@@ -2,8 +2,10 @@
     import { motion } from 'framer-motion';
     import { Star, MapPin, Heart } from 'lucide-react';
     import Card from '../common/Card';
+import { useLang } from '../../context/LangContext';
 
     const EquipmentCard = ({ equipment }) => {
+  const { t } = useLang();
     return (
         <Card hover={true} className='group cursor-pointer'>
         {/* Image */}

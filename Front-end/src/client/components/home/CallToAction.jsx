@@ -1,24 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Upload } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useLang } from '../../context/LangContext';
 
 const CallToAction = () => {
-  const navigate = useNavigate();
-
-  const handlePublishClick = () => {
-    // Vérifier si l'utilisateur est connecté et est vendeur
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
-    if (user.role === 'seller') {
-      // Si c'est un vendeur connecté, rediriger vers la page de publication
-      navigate('/seller/publish');
-    } else {
-      // Sinon, rediriger vers l'inscription en tant que vendeur
-      navigate('/register?type=seller');
-    }
-  };
-
+  const { t } = useLang();
   return (
     <section className='py-20 bg-gradient-to-r from-[#09B1BA] to-[#1DBF73] relative overflow-hidden'>
       {/* Decorative shapes */}
@@ -38,23 +25,24 @@ const CallToAction = () => {
               Vous avez du matériel <br />à vendre ?
             </h2>
             <p className='mb-8 text-xl leading-relaxed text-white/90'>
-              Publiez votre annonce gratuitement et touchez des milliers d'acheteurs 
-              potentiels dans toute l'Afrique de l'Ouest.
+              Publiez votre annonce gratuitement et touchez des milliers d&apos;acheteurs 
+              potentiels dans toute l&apos;Afrique de l&apos;Ouest.
             </p>
 
-            <motion.button
-              onClick={handlePublishClick}
-              whileHover={{ scale: 1.05, x: 5 }}
-              whileTap={{ scale: 0.95 }}
-              className='flex items-center gap-3 px-8 py-4 bg-white text-[#1DBF73] rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all'
-            >
-              <Upload className='w-6 h-6' />
-              Publier une annonce gratuite
-              <ArrowRight className='w-6 h-6' />
-            </motion.button>
+            <Link to="/publish-equipment">
+              <motion.button
+                whileHover={{ scale: 1.05, x: 5 }}
+                whileTap={{ scale: 0.95 }}
+                className='flex items-center gap-3 px-8 py-4 bg-white text-[#1DBF73] rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all'
+              >
+                <Upload className='w-6 h-6' />
+                Publier une annonce gratuite
+                <ArrowRight className='w-6 h-6' />
+              </motion.button>
+            </Link>
           </motion.div>
 
-          {/* Right Content - Stats Cards with CORRECT Images */}
+          {/* Right Content - Stats Cards with Images */}
           <motion.div
             initial={{ opacity: 0, x: 50 }}
             whileInView={{ opacity: 1, x: 0 }}
