@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import {  AnimatePresence } from 'framer-motion';
 import { Search, ShoppingCart, Heart, Bell, Menu, X, User, ChevronDown } from 'lucide-react';
 import Button from '../common/Button';
 import { useLang } from '../../context/LangContext';
@@ -154,12 +154,13 @@ const Header = () => {
                   bg-gray-50 hover:bg-white text-sm transition-all duration-300'
               />
               <motion.button
-                type='submit'
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className='absolute right-1.5 top-1/2 transform -translate-y-1/2 px-3 py-1.5
-                  bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-full 
-                  hover:shadow-lg transition-all flex items-center gap-1.5 font-medium text-xs'
+                  type="submit"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 
+                  origin-center px-3 py-1.5
+                  bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] 
+                  text-white rounded-full
+                  transition-all flex items-center gap-1.5 
+                  font-medium text-xs"
               >
                 <Search className='w-3.5 h-3.5' />
                 <span>{t.search}</span>
