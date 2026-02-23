@@ -4,11 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Concerns\HasUuid;
 
 class Annonce extends Model
 {
-    use HasFactory, HasUuid;
+    use HasFactory;
 
     public $timestamps = false;
     const CREATED_AT = 'created_at';
@@ -37,7 +36,15 @@ class Annonce extends Model
 
     public function avis()
     {
-        return $this->hasMany(Avis::class);
+        // Les avis sont liés aux commandes, pas directement aux annonces
+        return $this->hasManyThrough(
+            Avis::class,
+            Commandes::class,
+            'annonce_id', // Foreign key on commandes table
+            'commande_id', // Foreign key on avis table
+            'id', // Local key on annonces table
+            'id' // Local key on commandes table
+        );
     }
 
     public function messages()
