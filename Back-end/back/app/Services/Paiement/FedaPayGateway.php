@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Services\Paiement;
+namespace App\Services\Paiement;
 use Illuminate\Support\Facades\Http;
 
 class FedaPayGateway

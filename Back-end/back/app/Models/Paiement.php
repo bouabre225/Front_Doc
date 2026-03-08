@@ -25,7 +25,7 @@ class Paiement extends Model
         'date_paiement' => 'datetime',
     ];
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function commande()
     {

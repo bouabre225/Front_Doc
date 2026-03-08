@@ -3,8 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
-
 return new class extends Migration
 {
     /**
@@ -14,14 +12,14 @@ return new class extends Migration
     {
         Schema::create('paiements', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('commande_id')->constrained('commandes');
+            $table->foreignUuid('commande_id')->constrained('commandes')->onDelete('cascade');
             $table->decimal('montant', 10, 2)->nullable();
+            $table->string('moyen')->default('fedapay');
+            $table->string('statut')->default('en_attente');
             $table->string('provider_reference')->nullable();
             $table->timestamp('date_paiement')->nullable();
+            $table->timestamps();
         });
-        
-        DB::statement('ALTER TABLE paiements ADD COLUMN moyen moyen_paiement_enum');
-        DB::statement('ALTER TABLE paiements ADD COLUMN statut statut_paiement_enum');
     }
 
     /**
