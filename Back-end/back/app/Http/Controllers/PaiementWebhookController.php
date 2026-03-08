@@ -58,6 +58,35 @@ class PaiementWebhookController
 
     public function handleWebhook(Request $request)
     {
+        // ── Vérification de la signature FedaPay ──────────────────────────────
+        $signature = $request->header('X-FedaPay-Signature');
+        $webhookSecret = config('services.fedapay.webhook_secret');
+
+        if (empty($webhookSecret)) {
+            Log::warning('FedaPay webhook secret non configuré — vérification ignorée');
+        } elseif (empty($signature)) {
+            Log::warning('FedaPay webhook reçu sans signature', ['ip' => $request->ip()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Signature manquante'
+            ], 401);
+        } else {
+            $payload = $request->getContent();
+            $expectedSignature = 'sha256=' . hash_hmac('sha256', $payload, $webhookSecret);
+
+            if (!hash_equals($expectedSignature, $signature)) {
+                Log::warning('FedaPay webhook : signature invalide', [
+                    'ip' => $request->ip(),
+                    'signature_reçue' => $signature,
+                ]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Signature invalide'
+                ], 401);
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         Log::info('FedaPay webhook received', [
             'payload' => $request->all(),
             'ip' => $request->ip(),
@@ -66,6 +95,14 @@ class PaiementWebhookController
         try {
             $event = $request->input('event');
             $transactionId = $request->input('transaction.id');
+
+            if (empty($event) || empty($transactionId)) {
+                Log::warning('FedaPay webhook : payload incomplet', ['payload' => $request->all()]);
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Payload incomplet'
+                ], 400);
+            }
 
             $result = $this->service->handleWebhookEvent($event, $transactionId);
 
