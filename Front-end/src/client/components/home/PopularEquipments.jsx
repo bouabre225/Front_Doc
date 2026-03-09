@@ -1,69 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Star, MapPin, ArrowRight, Heart } from 'lucide-react';
-import Card from '../common/Card';
+import { MapPin, ArrowRight, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const equipments = [
-  {
-    id: 1,
-    name: 'Échographe GE Voluson E10',
-    category: 'Imagerie Médicale',
-    price: '45,000',
-    originalPrice: '55,000',
-    currency: 'EUR',
-    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=500',
-    rating: 4.8,
-    reviews: 124,
-    location: 'Cotonou, Bénin',
-    condition: 'Neuf',
-    verified: true,
-  },
-  {
-    id: 5,
-    name: 'Moniteur Patient 5 paramètres',
-    category: 'Monitoring',
-    price: '3,200',
-    originalPrice: '4,500',
-    currency: 'EUR',
-    image: 'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=500',
-    rating: 4.6,
-    reviews: 78,
-    location: 'Lomé, Togo',
-    condition: 'Occasion',
-    verified: true,
-  },
-  {
-    id: 11,
-    name: 'Scanner IRM Siemens',
-    category: 'Imagerie Médicale',
-    price: '125,000',
-    originalPrice: '180,000',
-    currency: 'EUR',
-    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=500',
-    rating: 4.9,
-    reviews: 15,
-    location: "Abidjan, Côte d'Ivoire",
-    condition: 'Reconditionné',
-    verified: true,
-  },
-  {
-    id: 6,
-    name: 'Défibrillateur automatique',
-    category: 'Urgence',
-    price: '1,800',
-    originalPrice: '2,400',
-    currency: 'USD',
-    image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=500',
-    rating: 5.0,
-    reviews: 45,
-    location: 'Douala, Cameroun',
-    condition: 'Neuf',
-    verified: true,
-  },
-];
+import { getAnnonces, getImageUrl } from '../../../services/api';
 
 const PopularEquipments = () => {
+  const [annonces, setAnnonces] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState([]);
+
+  useEffect(() => {
+    const fetchAnnonces = async () => {
+      try {
+        const data = await getAnnonces(1);
+        // Prendre les 4 premières annonces
+        setAnnonces((data.data || []).slice(0, 4));
+      } catch (err) {
+        console.error('Erreur chargement annonces populaires:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAnnonces();
+  }, []);
+
+  const toggleFavorite = (id) => {
+    setFavorites((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
+    );
+  };
+
   return (
     <section className='py-24 bg-gradient-to-b from-white to-gray-50'>
       <div className='container px-4 mx-auto'>
@@ -76,9 +42,11 @@ const PopularEquipments = () => {
           <div>
             <h2 className='mb-3 text-5xl font-bold leading-tight'>
               Équipements
-              <span className='block md:inline bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent'> Populaires</span>
+              <span className='block md:inline bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent'>
+                {' '}Populaires
+              </span>
             </h2>
-            <p className='text-lg text-gray-600'>Les plus demandés cette semaine</p>
+            <p className='text-lg text-gray-600'>Les plus récemment ajoutés</p>
           </div>
           <Link to='/explore'>
             <motion.button
@@ -92,85 +60,93 @@ const PopularEquipments = () => {
           </Link>
         </motion.div>
 
-        <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4'>
-          {equipments.map((equipment, index) => (
-            <motion.div
-              key={equipment.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.08, duration: 0.5 }}
-            >
-              <Link to={`/equipment/${equipment.id}`}>
-                <Card hover={true} className='h-full overflow-hidden cursor-pointer group'>
-                  <div className='relative h-56 overflow-hidden'>
+        {loading ? (
+          <div className='flex justify-center py-16'>
+            <div className='w-10 h-10 border-4 border-[#1DBF73] rounded-full border-t-transparent animate-spin' />
+          </div>
+        ) : annonces.length === 0 ? (
+          <div className='py-16 text-center text-gray-400'>
+            <p className='text-lg'>Aucun équipement disponible pour le moment.</p>
+            <Link to='/explore' className='inline-block mt-4 text-[#1DBF73] font-semibold hover:underline'>
+              Explorer quand même →
+            </Link>
+          </div>
+        ) : (
+          <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4'>
+            {annonces.map((annonce, index) => (
+              <motion.div
+                key={annonce.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ y: -8 }}
+                className='overflow-hidden bg-white border border-gray-100 shadow-lg rounded-2xl group hover:shadow-2xl transition-all duration-300'
+              >
+                {/* Image */}
+                <div className='relative overflow-hidden bg-gray-100 h-48'>
+                  {annonce.images?.[0] ? (
                     <img
-                      src={equipment.image}
-                      alt={equipment.name}
+                      src={getImageUrl(annonce.images[0].image_url)}
+                      alt={annonce.titre}
                       className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110'
                     />
-                    <div className='absolute flex items-start justify-between top-3 left-3 right-3'>
-                      <div className='bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-bold text-gray-700 shadow-md'>
-                        {equipment.condition}
-                      </div>
-                      {equipment.verified && (
-                        <div className='bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-md'>
-                          ✓ Vérifié
-                        </div>
-                      )}
+                  ) : (
+                    <div className='flex items-center justify-center w-full h-full'>
+                      <span className='text-5xl'>🏥</span>
                     </div>
-                    <motion.button
-                      whileHover={{ scale: 1.15 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={(e) => e.preventDefault()}
-                      className='absolute flex items-center justify-center w-10 h-10 transition-opacity duration-300 rounded-full shadow-lg opacity-0 top-3 right-3 bg-white/90 backdrop-blur-sm group-hover:opacity-100'
-                    >
-                      <Heart className='w-5 h-5 text-gray-600 transition-colors hover:text-red-500 hover:fill-red-500' />
-                    </motion.button>
+                  )}
+                  <button
+                    onClick={() => toggleFavorite(annonce.id)}
+                    className='absolute p-2 transition-all bg-white rounded-full shadow-md top-3 right-3 hover:scale-110'
+                  >
+                    <Heart
+                      className={`w-4 h-4 ${
+                        favorites.includes(annonce.id)
+                          ? 'fill-red-500 text-red-500'
+                          : 'text-gray-400'
+                      }`}
+                    />
+                  </button>
+                  <div className='absolute px-2 py-1 text-xs font-bold text-white rounded-lg bg-gray-900/80 bottom-3 left-3'>
+                    {annonce.etat}
                   </div>
+                </div>
 
-                  <div className='p-5'>
-                    <span className='inline-block text-xs font-bold text-[#09B1BA] uppercase tracking-wider bg-[#09B1BA]/10 px-2 py-1 rounded'>
-                      {equipment.category}
-                    </span>
-                    <h3 className='font-bold text-lg mt-3 mb-3 line-clamp-2 group-hover:text-[#1DBF73] transition-colors leading-tight'>
-                      {equipment.name}
-                    </h3>
-                    <div className='flex items-center justify-between mb-4'>
-                      <div className='flex items-center gap-1.5'>
-                        <Star className='w-4 h-4 text-yellow-400 fill-yellow-400' />
-                        <span className='text-sm font-bold'>{equipment.rating}</span>
-                        <span className='text-sm text-gray-400'>({equipment.reviews})</span>
-                      </div>
-                      <div className='flex items-center gap-1.5 text-sm text-gray-600'>
-                        <MapPin className='w-4 h-4 text-[#1DBF73]' />
-                        <span className='font-medium'>{equipment.location}</span>
-                      </div>
-                    </div>
-                    <div className='flex items-end justify-between pt-4 border-t border-gray-100'>
-                      <div>
-                        <div className='mb-1 text-sm text-gray-400 line-through'>
-                          {equipment.originalPrice} {equipment.currency}
-                        </div>
-                        <div className='text-2xl font-bold text-[#1DBF73] flex items-baseline gap-1'>
-                          {equipment.price}
-                          <span className='text-sm font-medium text-gray-600'>{equipment.currency}</span>
-                        </div>
-                      </div>
-                      <motion.div
-                        whileHover={{ scale: 1.15, rotate: -15 }}
-                        whileTap={{ scale: 0.9 }}
-                        className='w-12 h-12 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all'
-                      >
-                        <ArrowRight className='w-5 h-5' />
-                      </motion.div>
-                    </div>
+                {/* Contenu */}
+                <div className='p-5'>
+                  <div className='mb-1 text-xs font-semibold text-[#09B1BA] uppercase'>
+                    {annonce.categorie}
                   </div>
-                </Card>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+                  <h3 className='mb-2 font-bold text-gray-900 line-clamp-2 group-hover:text-[#1DBF73] transition-colors'>
+                    {annonce.titre}
+                  </h3>
+                  <div className='flex items-center gap-1 mb-4 text-xs text-gray-500'>
+                    <MapPin className='w-3.5 h-3.5 text-[#1DBF73]' />
+                    <span className='truncate'>{annonce.pays_expedition || 'Non précisé'}</span>
+                  </div>
+                  <div className='flex items-center justify-between'>
+                    <div>
+                      <p className='text-lg font-bold text-[#1DBF73]'>
+                        {Number(annonce.prix_vendeur).toLocaleString()}
+                        <span className='ml-1 text-xs font-normal text-gray-400'>FCFA</span>
+                      </p>
+                    </div>
+                    <Link to={`/equipment/${annonce.id}`}>
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className='w-9 h-9 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-xl flex items-center justify-center shadow-md'
+                      >
+                        <ArrowRight className='w-4 h-4 text-white' />
+                      </motion.div>
+                    </Link>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
