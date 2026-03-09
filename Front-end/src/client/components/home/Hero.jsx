@@ -138,7 +138,7 @@ const Hero = () => {
           </form>
 
           {/* Suggestions */}
-          <div className='flex flex-wrap justify-center gap-3 mt-8'>
+          <div className='flex flex-wrap justify-center items-center gap-3 mt-8'>
             <span className='text-sm font-medium text-gray-500'>Recherches populaires:</span>
             {['Échographe', 'Stéthoscope', 'Scanner', 'Lit médical', 'Défibrillateur'].map((term, index) => (
               <button
