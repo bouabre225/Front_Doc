@@ -5,6 +5,7 @@ import Home from './pages/Home';
 import Explore from './pages/headercontains/Explore';
 import Equipment from './pages/headercontains/Equipment';
 import Categories from './pages/headercontains/Categories';
+import Contact from './pages/headercontains/Contact';
 import Profile from './pages/auth/Profile';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
@@ -12,6 +13,7 @@ import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
 import PublishEquipement from './pages/sellers/PublishEquipement';
 import Notifications from './components/notifications/Notifications';
+import Messages from './components/messages/Messages';
 import Cart from './components/cart/Cart';
 
 function ClientApp() {
@@ -24,6 +26,7 @@ function ClientApp() {
           <Route path='/equipment/:id' element={<Equipment />} />
           <Route path='/categories' element={<Categories />} />
           <Route path='/categories/:slug' element={<Categories />} />
+          <Route path='/contact' element={<Contact />} />
           <Route path='/cart' element={<Cart />} />
           <Route path='/profile' element={<Profile />} />
           <Route path='/login' element={<Login />} />
@@ -32,6 +35,7 @@ function ClientApp() {
           <Route path='/reset-password' element={<ResetPassword />} />
           <Route path='/publish-equipment' element={<PublishEquipement />} />
           <Route path='/notifications' element={<Notifications />} />
+          <Route path='/messages' element={<Messages />} />
         </Routes>
       </div>
     </LangProvider>
