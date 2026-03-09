@@ -11,6 +11,7 @@ import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import PublishEquipement from './pages/sellers/PublishEquipement';
 import Notifications from './components/notifications/Notifications';
+import Cart from './components/cart/Cart';
 
 function ClientApp() {
   return (
@@ -22,6 +23,7 @@ function ClientApp() {
           <Route path='/equipment/:id' element={<Equipment />} />
           <Route path='/categories' element={<Categories />} />
           <Route path='/categories/:slug' element={<Categories />} />
+          <Route path='/cart' element={<Cart />} />
           <Route path='/profile' element={<Profile />} />
           <Route path='/login' element={<Login />} />
           <Route path='/register' element={<Register />} />
