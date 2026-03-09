@@ -189,8 +189,7 @@ const Header = () => {
               <div className='w-px h-5 mx-1 bg-gray-300'></div>
 
               <Link to="/login"><Button variant='outline' size='sm'>{t.login}</Button></Link>
-              <Link to="/r
-              register"><Button variant='primary' size='sm'>{t.register}</Button></Link>
+              <Link to="/register"><Button variant='primary' size='sm'>{t.register}</Button></Link>
 
               <Link to="/profile">
                 <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'>
