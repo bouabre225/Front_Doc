@@ -54,17 +54,19 @@ const Register = () => {
         ...(userType === 'seller' ? { type_compte: formData.type_compte } : {}),
       };
 
+      // Après inscription
       const data = userType === 'seller'
         ? await registerSeller(payload)
         : await registerBuyer(payload);
 
-      // Sauvegarder token + user
-      localStorage.setItem('auth_token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      window.dispatchEvent(new Event('storage'));
+      if (data.token) { // ← ajoute cette vérification
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.dispatchEvent(new Event('storage'));
+      }
 
       if (userType === 'seller') {
-        navigate('/seller/publish');
+        navigate('/seller/dashboard');
       } else {
         navigate('/');
       }
