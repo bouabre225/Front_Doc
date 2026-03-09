@@ -10,6 +10,7 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import PublishEquipement from './pages/sellers/PublishEquipement';
+import Notifications from './components/notifications/Notifications';
 
 function ClientApp() {
   return (
@@ -26,6 +27,7 @@ function ClientApp() {
           <Route path='/register' element={<Register />} />
           <Route path='/forgot-password' element={<ForgotPassword />} />
           <Route path='/publish-equipment' element={<PublishEquipement />} />
+          <Route path='/notifications' element={<Notifications />} />
         </Routes>
       </div>
     </LangProvider>
