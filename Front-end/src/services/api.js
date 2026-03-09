@@ -197,17 +197,22 @@ export const deleteAnnonce = async (id) => {
 };
 
 export const uploadAnnonceImages = async (annonceId, files) => {
-  const formData = new FormData();
-  files.forEach((file) => formData.append('images[]', file));
-  const res = await fetch(`${API_URL}/annonces/${annonceId}/images`, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {}),
-    },
-    body: formData,
-  });
-  return handleResponse(res);
+  const results = [];
+  for (const file of files) {
+    const formData = new FormData();
+    formData.append('image', file); // ← 'image' pas 'images[]'
+    const res = await fetch(`${API_URL}/annonces/${annonceId}/images`, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {}),
+      },
+      body: formData,
+    });
+    const data = await handleResponse(res);
+    results.push(data);
+  }
+  return results;
 };
 
 // ─── Commandes ───────────────────────────────────────────────────────────────
@@ -291,6 +296,15 @@ export const getNotifications = async (params = {}) => {
 export const getNotificationsCount = async () => {
   const res = await fetch(`${API_URL}/notifications/compteur`, {
     headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const sendContact = async (payload) => {
+  const res = await fetch(`${API_URL}/contact`, {
+    method: 'POST',
+    headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
   });
   return handleResponse(res);
 };
@@ -442,11 +456,11 @@ export const getImageUrl = (imagePath) => {
 export default {
   loginUser, loginAdmin, login2fa,
   registerBuyer, registerSeller,
-  logoutUser, getMe, updateFcmToken,
+  logoutUser, getMe, updateFcmToken, updateProfile, forgotPassword, resetPassword,
   enable2fa, verify2fa, disable2fa,
   getAnnonces, searchAnnonces, getAnnonceById,
   createAnnonce, updateAnnonce, deleteAnnonce,
-  uploadAnnonceImages,
+  uploadAnnonceImages, sendContact,
   getCommandes, getCommandeById, createCommande, cancelCommande, payCommande,
   getConversations, getConversation, sendMessage,
   getNotifications, getNotificationsCount,
