@@ -1,22 +1,29 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, ArrowRight, Heart } from 'lucide-react';
+import { Star, MapPin, ArrowRight, Heart } from 'lucide-react';
+import Card from '../common/Card';
 import { Link } from 'react-router-dom';
-import { getAnnonces, getImageUrl } from '../../../services/api';
+
+const API_URL = 'http://localhost:8000/api';
 
 const PopularEquipments = () => {
-  const [annonces, setAnnonces] = useState([]);
+  const [equipments, setEquipments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [favorites, setFavorites] = useState([]);
 
   useEffect(() => {
     const fetchAnnonces = async () => {
       try {
-        const data = await getAnnonces(1);
-        // Prendre les 4 premières annonces
-        setAnnonces((data.data || []).slice(0, 4));
+        const res = await fetch(`${API_URL}/annonces?page=1`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (res.ok) {
+          // Prendre les 4 premiers
+          setEquipments(data.data?.slice(0, 4) || []);
+        }
       } catch (err) {
-        console.error('Erreur chargement annonces populaires:', err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -24,11 +31,21 @@ const PopularEquipments = () => {
     fetchAnnonces();
   }, []);
 
-  const toggleFavorite = (id) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
+  const conditionColor = (etat) => {
+    if (etat === 'Neuf') return 'text-green-600 bg-green-50';
+    if (etat === 'Occasion') return 'text-orange-600 bg-orange-50';
+    return 'text-blue-600 bg-blue-50';
   };
+
+  if (loading) return (
+    <section className='py-24 bg-gradient-to-b from-white to-gray-50'>
+      <div className='flex justify-center py-20'>
+        <div className='w-10 h-10 border-4 border-[#1DBF73] rounded-full border-t-transparent animate-spin' />
+      </div>
+    </section>
+  );
+
+  if (equipments.length === 0) return null;
 
   return (
     <section className='py-24 bg-gradient-to-b from-white to-gray-50'>
@@ -42,11 +59,9 @@ const PopularEquipments = () => {
           <div>
             <h2 className='mb-3 text-5xl font-bold leading-tight'>
               Équipements
-              <span className='block md:inline bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent'>
-                {' '}Populaires
-              </span>
+              <span className='block md:inline bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent'> Populaires</span>
             </h2>
-            <p className='text-lg text-gray-600'>Les plus récemment ajoutés</p>
+            <p className='text-lg text-gray-600'>Les plus demandés cette semaine</p>
           </div>
           <Link to='/explore'>
             <motion.button
@@ -60,93 +75,82 @@ const PopularEquipments = () => {
           </Link>
         </motion.div>
 
-        {loading ? (
-          <div className='flex justify-center py-16'>
-            <div className='w-10 h-10 border-4 border-[#1DBF73] rounded-full border-t-transparent animate-spin' />
-          </div>
-        ) : annonces.length === 0 ? (
-          <div className='py-16 text-center text-gray-400'>
-            <p className='text-lg'>Aucun équipement disponible pour le moment.</p>
-            <Link to='/explore' className='inline-block mt-4 text-[#1DBF73] font-semibold hover:underline'>
-              Explorer quand même →
-            </Link>
-          </div>
-        ) : (
-          <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4'>
-            {annonces.map((annonce, index) => (
-              <motion.div
-                key={annonce.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                whileHover={{ y: -8 }}
-                className='overflow-hidden bg-white border border-gray-100 shadow-lg rounded-2xl group hover:shadow-2xl transition-all duration-300'
-              >
-                {/* Image */}
-                <div className='relative overflow-hidden bg-gray-100 h-48'>
-                  {annonce.images?.[0] ? (
-                    <img
-                      src={getImageUrl(annonce.images[0].image_url)}
-                      alt={annonce.titre}
-                      className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110'
-                    />
-                  ) : (
-                    <div className='flex items-center justify-center w-full h-full'>
-                      <span className='text-5xl'>🏥</span>
+        <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4'>
+          {equipments.map((equipment, index) => (
+            <motion.div
+              key={equipment.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: index * 0.08, duration: 0.5 }}
+            >
+              <Link to={`/equipment/${equipment.id}`}>
+                <Card hover={true} className='h-full overflow-hidden cursor-pointer group'>
+                  {/* Image */}
+                  <div className='relative h-56 overflow-hidden bg-gray-100'>
+                    {equipment.images?.[0] ? (
+                      <img
+                        src={`http://localhost:8000/storage/${equipment.images[0].image_url}`}
+                        alt={equipment.titre}
+                        className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110'
+                      />
+                    ) : (
+                      <div className='flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-100 to-gray-200'>
+                        <span className='text-4xl'>🏥</span>
+                      </div>
+                    )}
+                    <div className='absolute flex items-start justify-between top-3 left-3 right-3'>
+                      <div className={`px-3 py-1.5 rounded-full text-xs font-bold shadow-md ${conditionColor(equipment.etat)}`}>
+                        {equipment.etat}
+                      </div>
+                      {equipment.vendeur?.badge_verifie && (
+                        <div className='bg-green-500 text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-md'>
+                          ✓ Vérifié
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <button
-                    onClick={() => toggleFavorite(annonce.id)}
-                    className='absolute p-2 transition-all bg-white rounded-full shadow-md top-3 right-3 hover:scale-110'
-                  >
-                    <Heart
-                      className={`w-4 h-4 ${
-                        favorites.includes(annonce.id)
-                          ? 'fill-red-500 text-red-500'
-                          : 'text-gray-400'
-                      }`}
-                    />
-                  </button>
-                  <div className='absolute px-2 py-1 text-xs font-bold text-white rounded-lg bg-gray-900/80 bottom-3 left-3'>
-                    {annonce.etat}
+                    <motion.button
+                      whileHover={{ scale: 1.15 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={(e) => e.preventDefault()}
+                      className='absolute flex items-center justify-center w-10 h-10 transition-opacity duration-300 rounded-full shadow-lg opacity-0 top-3 right-3 bg-white/90 group-hover:opacity-100'
+                    >
+                      <Heart className='w-5 h-5 text-gray-600 hover:text-red-500 hover:fill-red-500' />
+                    </motion.button>
                   </div>
-                </div>
 
-                {/* Contenu */}
-                <div className='p-5'>
-                  <div className='mb-1 text-xs font-semibold text-[#09B1BA] uppercase'>
-                    {annonce.categorie}
-                  </div>
-                  <h3 className='mb-2 font-bold text-gray-900 line-clamp-2 group-hover:text-[#1DBF73] transition-colors'>
-                    {annonce.titre}
-                  </h3>
-                  <div className='flex items-center gap-1 mb-4 text-xs text-gray-500'>
-                    <MapPin className='w-3.5 h-3.5 text-[#1DBF73]' />
-                    <span className='truncate'>{annonce.pays_expedition || 'Non précisé'}</span>
-                  </div>
-                  <div className='flex items-center justify-between'>
-                    <div>
-                      <p className='text-lg font-bold text-[#1DBF73]'>
-                        {Number(annonce.prix_vendeur).toLocaleString()}
-                        <span className='ml-1 text-xs font-normal text-gray-400'>FCFA</span>
-                      </p>
+                  <div className='p-5'>
+                    <span className='inline-block text-xs font-bold text-[#09B1BA] uppercase tracking-wider bg-[#09B1BA]/10 px-2 py-1 rounded'>
+                      {equipment.categorie || 'Médical'}
+                    </span>
+                    <h3 className='font-bold text-lg mt-3 mb-3 line-clamp-2 group-hover:text-[#1DBF73] transition-colors leading-tight'>
+                      {equipment.titre}
+                    </h3>
+                    <div className='flex items-center justify-between mb-4'>
+                      <div className='flex items-center gap-1.5 text-sm text-gray-600'>
+                        <MapPin className='w-4 h-4 text-[#1DBF73]' />
+                        <span className='font-medium'>{equipment.pays_expedition || 'Bénin'}</span>
+                      </div>
                     </div>
-                    <Link to={`/equipment/${annonce.id}`}>
+                    <div className='flex items-end justify-between pt-4 border-t border-gray-100'>
+                      <div className='text-2xl font-bold text-[#1DBF73] flex items-baseline gap-1'>
+                        {Number(equipment.prix_vendeur).toLocaleString()}
+                        <span className='text-sm font-medium text-gray-600'>FCFA</span>
+                      </div>
                       <motion.div
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className='w-9 h-9 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-xl flex items-center justify-center shadow-md'
+                        whileHover={{ scale: 1.15, rotate: -15 }}
+                        whileTap={{ scale: 0.9 }}
+                        className='w-12 h-12 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center justify-center shadow-lg'
                       >
-                        <ArrowRight className='w-4 h-4 text-white' />
+                        <ArrowRight className='w-5 h-5' />
                       </motion.div>
-                    </Link>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                </Card>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </section>
   );
