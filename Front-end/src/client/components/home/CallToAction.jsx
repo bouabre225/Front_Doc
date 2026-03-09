@@ -51,16 +51,20 @@ const CallToAction = () => {
   ];
 
   // Vérifie si le vendeur est connecté et KYC validé
-  const user        = JSON.parse(localStorage.getItem('user') || '{}');
-  const isVendeur   = user.role === 'vendeur';
-  const kycValide   = user.verifie_kyc === true;
+  const user      = JSON.parse(localStorage.getItem('user') || '{}');
+  const isVendeur = user.role === 'vendeur';
+  const isAcheteur = user.role === 'acheteur';
+  const kycValide = user.verifie_kyc === true;
+
   const publishLink = !user.id
     ? '/login'
     : isVendeur && kycValide
     ? '/publish-equipment'
     : isVendeur && !kycValide
-    ? '/profile'   // redirige vers l'onglet KYC
-    : '/';         // acheteur, pas de publication
+    ? '/profile'
+    : isAcheteur
+    ? '/register?type=vendeur'  // inscription vendeur
+    : '/';
 
   return (
     <section className='py-20 bg-gradient-to-r from-[#09B1BA] to-[#1DBF73] relative overflow-hidden'>
@@ -86,35 +90,48 @@ const CallToAction = () => {
             </p>
 
             <Link
-              to={publishLink}
-              onClick={() => {
-                // Si vendeur KYC non validé, pré-sélectionner onglet KYC
-                if (isVendeur && !kycValide) {
-                  sessionStorage.setItem('profile_tab', 'kyc');
-                }
-              }}
+            to={publishLink}
+            onClick={() => {
+              if (isVendeur && !kycValide) {
+                sessionStorage.setItem('profile_tab', 'kyc');
+              }
+            }}
             >
-              <motion.button
-                whileHover={{ scale: 1.05, x: 5 }}
-                whileTap={{ scale: 0.95 }}
-                className='flex items-center gap-3 px-8 py-4 bg-white text-[#1DBF73] rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all'
-              >
-                <Upload className='w-6 h-6' />
-                Publier une annonce gratuite
-                <ArrowRight className='w-6 h-6' />
-              </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05, x: 5 }}
+              whileTap={{ scale: 0.95 }}
+              className='flex items-center gap-3 px-8 py-4 bg-white text-[#1DBF73] rounded-xl font-bold text-lg shadow-2xl hover:shadow-3xl transition-all'
+            >
+              {isAcheteur ? (
+                <>
+                  Devenez vendeur
+                  <ArrowRight className='w-6 h-6' />
+                </>
+              ) : (
+                <>
+                  <Upload className='w-6 h-6' />
+                  Publier une annonce gratuite
+                  <ArrowRight className='w-6 h-6' />
+                </>
+              )}
+            </motion.button>
             </Link>
 
-            {/* Message contextualisé */}
+            {/* Messages contextualisés */}
             {isVendeur && !kycValide && (
-              <p className='mt-4 text-sm text-white/80'>
-                ⚠️ Votre KYC doit être validé pour publier
-              </p>
+            <p className='mt-4 text-sm text-white/80'>
+              ⚠️ Votre KYC doit être validé pour publier
+            </p>
+            )}
+            {isAcheteur && (
+            <p className='mt-4 text-sm text-white/80'>
+              🚀 Rejoignez nos vendeurs vérifiés et commencez à vendre
+            </p>
             )}
             {!user.id && (
-              <p className='mt-4 text-sm text-white/80'>
-                Connectez-vous pour commencer à vendre
-              </p>
+            <p className='mt-4 text-sm text-white/80'>
+              Connectez-vous pour commencer à vendre
+            </p>
             )}
           </motion.div>
 
