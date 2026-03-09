@@ -1,7 +1,5 @@
 const API_URL = 'http://localhost:8000/api';
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
 const getToken = () => localStorage.getItem('auth_token');
 
 const authHeaders = (extra = {}) => ({
@@ -33,8 +31,25 @@ export const loginUser = async (email, mot_de_passe) => {
   return handleResponse(res);
 };
 
+export const loginAdmin = async (email, mot_de_passe) => {
+  const res = await fetch(`${API_URL}/admin/login`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ email, mot_de_passe }),
+  });
+  return handleResponse(res);
+};
+
+export const login2fa = async (challenge_id, code) => {
+  const res = await fetch(`${API_URL}/login/2fa`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ challenge_id, code }),
+  });
+  return handleResponse(res);
+};
+
 export const registerBuyer = async (payload) => {
-  // payload: { nom, email, mot_de_passe, telephone?, adresse?, pays? }
   const res = await fetch(`${API_URL}/register/acheteur`, {
     method: 'POST',
     headers: authHeaders(),
@@ -44,7 +59,6 @@ export const registerBuyer = async (payload) => {
 };
 
 export const registerSeller = async (payload) => {
-  // payload: { nom, email, mot_de_passe, telephone, adresse?, pays?, type_compte? }
   const res = await fetch(`${API_URL}/register/vendeur`, {
     method: 'POST',
     headers: authHeaders(),
@@ -64,6 +78,52 @@ export const logoutUser = async () => {
 export const getMe = async () => {
   const res = await fetch(`${API_URL}/me`, {
     headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const updateProfile = async (payload) => {
+  const res = await fetch(`${API_URL}/me`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+};
+
+export const updateFcmToken = async (fcm_token) => {
+  const res = await fetch(`${API_URL}/me/fcm-token`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ fcm_token }),
+  });
+  return handleResponse(res);
+};
+
+// ─── 2FA ─────────────────────────────────────────────────────────────────────
+
+export const enable2fa = async () => {
+  const res = await fetch(`${API_URL}/2fa/enable`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const verify2fa = async (code) => {
+  const res = await fetch(`${API_URL}/2fa/verify`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ code }),
+  });
+  return handleResponse(res);
+};
+
+export const disable2fa = async (code) => {
+  const res = await fetch(`${API_URL}/2fa/disable`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ code }),
   });
   return handleResponse(res);
 };
@@ -93,7 +153,6 @@ export const getAnnonceById = async (id) => {
 };
 
 export const createAnnonce = async (payload) => {
-  // payload: { titre, description, prix_vendeur, categorie, etat, quantite, pays_expedition }
   const res = await fetch(`${API_URL}/annonces`, {
     method: 'POST',
     headers: authHeaders(),
@@ -133,18 +192,11 @@ export const uploadAnnonceImages = async (annonceId, files) => {
   return handleResponse(res);
 };
 
-export const getAnnoncesByCategorie = async (categorie, page = 1) => {
-  const res = await fetch(
-    `${API_URL}/annonces/search?q=${encodeURIComponent(categorie)}&page=${page}`,
-    { headers: { 'Accept': 'application/json' } }
-  );
-  return handleResponse(res);
-};
-
 // ─── Commandes ───────────────────────────────────────────────────────────────
 
-export const getCommandes = async () => {
-  const res = await fetch(`${API_URL}/commandes`, {
+export const getCommandes = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/commandes${query ? '?' + query : ''}`, {
     headers: authHeaders(),
   });
   return handleResponse(res);
@@ -174,9 +226,17 @@ export const cancelCommande = async (id) => {
   return handleResponse(res);
 };
 
+export const payCommande = async (id) => {
+  const res = await fetch(`${API_URL}/commandes/${id}/pay`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
 // ─── Messages ────────────────────────────────────────────────────────────────
 
-export const getMessages = async () => {
+export const getConversations = async () => {
   const res = await fetch(`${API_URL}/messages`, {
     headers: authHeaders(),
   });
@@ -191,7 +251,116 @@ export const getConversation = async (userId) => {
 };
 
 export const sendMessage = async (payload) => {
+  // payload: { recepteur_id, annonce_id?, contenu }
   const res = await fetch(`${API_URL}/messages`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+};
+
+// ─── Notifications ───────────────────────────────────────────────────────────
+
+export const getNotifications = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/notifications${query ? '?' + query : ''}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const getNotificationsCount = async () => {
+  const res = await fetch(`${API_URL}/notifications/compteur`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const markNotificationRead = async (id) => {
+  const res = await fetch(`${API_URL}/notifications/${id}/lire`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const markAllNotificationsRead = async () => {
+  const res = await fetch(`${API_URL}/notifications/lire-tout`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const deleteNotification = async (id) => {
+  const res = await fetch(`${API_URL}/notifications/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+// ─── KYC Vendeur ─────────────────────────────────────────────────────────────
+
+export const submitKyc = async (typeDocument, fichier) => {
+  const formData = new FormData();
+  formData.append('type_document', typeDocument); // 'cni' ou 'passport'
+  formData.append('fichier', fichier);
+  const res = await fetch(`${API_URL}/kyc/submit`, {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      ...(getToken() ? { 'Authorization': `Bearer ${getToken()}` } : {}),
+      // pas de Content-Type ici, le browser le set automatiquement avec boundary
+    },
+    body: formData,
+  });
+  return handleResponse(res);
+};
+
+export const getKycStatus = async () => {
+  const res = await fetch(`${API_URL}/kyc/status`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const getKycDocuments = async () => {
+  const res = await fetch(`${API_URL}/kyc/documents`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const deleteKycDocument = async (id) => {
+  const res = await fetch(`${API_URL}/kyc/documents/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+// ─── Litiges ─────────────────────────────────────────────────────────────────
+
+export const getLitiges = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/litiges${query ? '?' + query : ''}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const getLitigeById = async (id) => {
+  const res = await fetch(`${API_URL}/litiges/${id}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const createLitige = async (payload) => {
+  // payload: { commande_id, motif, preuves? }
+  const res = await fetch(`${API_URL}/litiges`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify(payload),
@@ -201,13 +370,6 @@ export const sendMessage = async (payload) => {
 
 // ─── Admin ───────────────────────────────────────────────────────────────────
 
-export const getAdminUsers = async () => {
-  const res = await fetch(`${API_URL}/admin/users`, {
-    headers: authHeaders(),
-  });
-  return handleResponse(res);
-};
-
 export const getKycPending = async () => {
   const res = await fetch(`${API_URL}/admin/kyc/pending`, {
     headers: authHeaders(),
@@ -215,9 +377,35 @@ export const getKycPending = async () => {
   return handleResponse(res);
 };
 
-export const decideKyc = async (id, decision) => {
-  // decision: 'approved' | 'rejected'
+export const decideKyc = async (id, decision, commentaire = null) => {
+  // decision: 'valide' ou 'refuse'
   const res = await fetch(`${API_URL}/admin/kyc/${id}/decide`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ decision, commentaire }),
+  });
+  return handleResponse(res);
+};
+
+export const getAdminLitiges = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/admin/litiges${query ? '?' + query : ''}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const prendreEnChargeLitige = async (id) => {
+  const res = await fetch(`${API_URL}/admin/litiges/${id}/prendre-en-charge`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const resoldreLitige = async (id, decision) => {
+  // decision: 'rembourse' ou 'rejete'
+  const res = await fetch(`${API_URL}/admin/litiges/${id}/resoudre`, {
     method: 'POST',
     headers: authHeaders(),
     body: JSON.stringify({ decision }),
@@ -225,7 +413,7 @@ export const decideKyc = async (id, decision) => {
   return handleResponse(res);
 };
 
-// ─── Helpers image ───────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
@@ -234,28 +422,20 @@ export const getImageUrl = (imagePath) => {
 };
 
 export default {
-  loginUser,
-  registerBuyer,
-  registerSeller,
-  logoutUser,
-  getMe,
-  getAnnonces,
-  searchAnnonces,
-  getAnnonceById,
-  createAnnonce,
-  updateAnnonce,
-  deleteAnnonce,
+  loginUser, loginAdmin, login2fa,
+  registerBuyer, registerSeller,
+  logoutUser, getMe, updateFcmToken,
+  enable2fa, verify2fa, disable2fa,
+  getAnnonces, searchAnnonces, getAnnonceById,
+  createAnnonce, updateAnnonce, deleteAnnonce,
   uploadAnnonceImages,
-  getAnnoncesByCategorie,
-  getCommandes,
-  getCommandeById,
-  createCommande,
-  cancelCommande,
-  getMessages,
-  getConversation,
-  sendMessage,
-  getAdminUsers,
-  getKycPending,
-  decideKyc,
+  getCommandes, getCommandeById, createCommande, cancelCommande, payCommande,
+  getConversations, getConversation, sendMessage,
+  getNotifications, getNotificationsCount,
+  markNotificationRead, markAllNotificationsRead, deleteNotification,
+  submitKyc, getKycStatus, getKycDocuments, deleteKycDocument,
+  getLitiges, getLitigeById, createLitige,
+  getKycPending, decideKyc,
+  getAdminLitiges, prendreEnChargeLitige, resoldreLitige,
   getImageUrl,
 };
