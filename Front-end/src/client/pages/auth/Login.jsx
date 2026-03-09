@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowLeft, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLang } from '../../context/LangContext';
+import { loginUser } from '../../../services/api';
 
 const Login = () => {
   const { t } = useLang();
@@ -10,21 +11,47 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem('user', JSON.stringify({ email, role: 'seller' }));
+    setError('');
+
+    try {
+      const data = await loginUser(email, password);
+
+      // Cas 2FA requis
+      if (data.requires_2fa) {
+        localStorage.setItem('2fa_challenge_id', data.challenge_id);
+        navigate('/login/2fa');
+        return;
+      }
+
+      // Connexion normale : sauvegarder token + user
+      localStorage.setItem('auth_token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Rediriger selon le rôle
+      if (data.user?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+
+      // Forcer la mise à jour du Header
+      window.dispatchEvent(new Event('storage'));
+    } catch (err) {
+      setError(err.message || 'Email ou mot de passe incorrect.');
+    } finally {
       setLoading(false);
-      navigate('/');
-    }, 1500);
+    }
   };
 
   return (
     <div className='flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-[#1DBF73]/10 via-white to-[#09B1BA]/10'>
-      <motion.div 
+      <motion.div
         className='w-full max-w-md'
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -39,8 +66,8 @@ const Login = () => {
         {/* Logo */}
         <div className='mb-8 text-center'>
           <Link to='/' className='inline-flex items-center justify-center'>
-            <img 
-              src='/images/docspace.png' 
+            <img
+              src='/images/docspace.png'
               alt='DocSpace Logo'
               className='object-contain w-auto h-20 mix-blend-multiply'
             />
@@ -57,16 +84,21 @@ const Login = () => {
 
         {/* Title */}
         <div className='mb-8 text-center'>
-          <h1 className='mb-2 text-3xl font-bold text-gray-900'>
-            Bon retour !
-          </h1>
-          <p className='text-gray-600'>
-            Connectez-vous à votre compte
-          </p>
+          <h1 className='mb-2 text-3xl font-bold text-gray-900'>Bon retour !</h1>
+          <p className='text-gray-600'>Connectez-vous à votre compte</p>
         </div>
 
         {/* Form Card */}
         <div className='p-8 bg-white border border-gray-100 shadow-xl rounded-2xl'>
+
+          {/* Erreur */}
+          {error && (
+            <div className='flex items-center gap-2 p-3 mb-5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl'>
+              <AlertCircle className='w-4 h-4 shrink-0' />
+              <span>{error}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
             {/* Email */}
             <div className='mb-5'>
@@ -89,11 +121,9 @@ const Login = () => {
             {/* Password */}
             <div className='mb-6'>
               <div className='flex items-center justify-between mb-2'>
-                <label className='text-sm font-semibold text-gray-700'>
-                  Mot de passe
-                </label>
-                <Link 
-                  to='/forgot-password' 
+                <label className='text-sm font-semibold text-gray-700'>Mot de passe</label>
+                <Link
+                  to='/forgot-password'
                   className='text-sm font-medium text-[#1DBF73] hover:text-[#09B1BA] transition-colors'
                 >
                   Mot de passe oublié ?
@@ -119,7 +149,7 @@ const Login = () => {
               </div>
             </div>
 
-            {/* Submit Button */}
+            {/* Submit */}
             <motion.button
               type='submit'
               disabled={loading}
@@ -147,8 +177,8 @@ const Login = () => {
           <div className='text-center'>
             <p className='text-gray-600'>
               Pas encore de compte ?{' '}
-              <Link 
-                to='/register' 
+              <Link
+                to='/register'
                 className='font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors'
               >
                 Créer un compte
