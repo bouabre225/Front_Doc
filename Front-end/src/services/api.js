@@ -75,6 +75,24 @@ export const logoutUser = async () => {
   return handleResponse(res);
 };
 
+export const forgotPassword = async (email) => {
+  const res = await fetch(`${API_URL}/password/forgot`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ email }),
+  });
+  return handleResponse(res);
+};
+
+export const resetPassword = async (payload) => {
+  const res = await fetch(`${API_URL}/password/reset`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+};
+
 export const getMe = async () => {
   const res = await fetch(`${API_URL}/me`, {
     headers: authHeaders(),
