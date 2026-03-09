@@ -115,6 +115,7 @@ const Header = () => {
     { name: t.nav.home, path: '/' },
     { name: t.nav.explore, path: '/explore' },
     { name: t.nav.categories, path: '/categories' },
+    { name: t.nav.contact, path: '/contact' },
   ];
 
   return (
