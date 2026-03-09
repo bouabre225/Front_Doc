@@ -11,7 +11,7 @@ const Register = () => {
   const location = useLocation();
 
   const searchParams = new URLSearchParams(location.search);
-  const initialUserType = searchParams.get('type') === 'seller' ? 'seller' : 'buyer';
+  const initialUserType = ['seller', 'vendeur'].includes(searchParams.get('type')) ? 'seller' : 'buyer';
 
   const [userType, setUserType] = useState(initialUserType);
   const [showPassword, setShowPassword] = useState(false);
@@ -66,7 +66,7 @@ const Register = () => {
       }
 
       if (userType === 'seller') {
-        navigate('/seller/dashboard');
+        navigate('/profile'); // ← ou '/seller/publish' selon ton flow
       } else {
         navigate('/');
       }
