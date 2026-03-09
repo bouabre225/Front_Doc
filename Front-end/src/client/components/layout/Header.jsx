@@ -4,11 +4,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Bell, Menu, X, ChevronDown, LogOut, User, Settings } from 'lucide-react';
 import Button from '../common/Button';
 import { useLang } from '../../context/LangContext';
+import { useCart } from '../../context/CartContext';
+import { ShoppingCart } from 'lucide-react';
 import { logoutUser, getNotificationsCount } from '../../../services/api';
 
 const Header = () => {
   const { t, currentLang, setCurrentLang, langList } = useLang();
   const [scrolled, setScrolled] = useState(false);
+  const { totalItems } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileSearchQuery, setMobileSearchQuery] = useState('');
@@ -208,21 +211,42 @@ const Header = () => {
           </div>
 
           {/* Right Section */}
-          <div className='flex items-center gap-1'>
-            <div className='items-center hidden gap-1 md:flex'>
+<div className='flex items-center gap-1'>
+  <div className='items-center hidden gap-1 md:flex'>
 
-              {/* Cloche notifications — visible si connecté */}
+              {/* Cloche + Panier — visibles si connecté */}
               {currentUser && (
-                <Link to='/notifications'>
-                  <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'>
-                    <Bell className='w-4 h-4 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
-                    {notifCount > 0 && (
-                      <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#1DBF73] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
-                        {notifCount > 9 ? '9+' : notifCount}
-                      </span>
-                    )}
-                  </motion.button>
-                </Link>
+                <>
+                  <Link to='/notifications'>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'
+                    >
+                      <Bell className='w-4 h-4 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
+                      {notifCount > 0 && (
+                        <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#1DBF73] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                          {notifCount > 9 ? '9+' : notifCount}
+                        </span>
+                      )}
+                    </motion.button>
+                  </Link>
+
+                  <Link to='/cart'>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'
+                    >
+                      <ShoppingCart className='w-4 h-4 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
+                      {totalItems > 0 && (
+                        <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                          {totalItems > 9 ? '9+' : totalItems}
+                        </span>
+                      )}
+                    </motion.button>
+                  </Link>
+                </>
               )}
 
               <div className='w-px h-5 mx-1 bg-gray-300'></div>
@@ -236,7 +260,6 @@ const Header = () => {
                     whileTap={{ scale: 0.95 }}
                     className='flex items-center gap-2 pl-1 pr-3 py-1 rounded-full hover:bg-gray-100 transition-all'
                   >
-                    {/* Avatar initiales */}
                     <div className='w-8 h-8 rounded-full bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] flex items-center justify-center shrink-0'>
                       <span className='text-white font-bold text-xs'>{getInitials(currentUser.nom)}</span>
                     </div>
