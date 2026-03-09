@@ -57,9 +57,7 @@ const Header = () => {
   const menuItems = [
     { name: t.nav.home, path: '/' },
     { name: t.nav.explore, path: '/explore' },
-    { name: t.nav.categories, path: '/categories' },
-    { name: t.nav.howItWorks, path: '/how-it-works' },
-    { name: t.nav.contact, path: '/contact' }
+    { name: t.nav.categories, path: '/categories' }
   ];
 
   return (
