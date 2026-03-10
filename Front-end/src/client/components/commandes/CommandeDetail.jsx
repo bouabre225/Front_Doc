@@ -159,27 +159,41 @@ const CommandeDetail = () => {
   };
 
   const handlePay = async () => {
+    // Guard: FedaPay needs the user's phone number stored in their profile
+    if (!currentUser.telephone) {
+      setError('Veuillez ajouter un numéro de téléphone à votre profil avant de payer.');
+      setShowPay(false);
+      return;
+    }
+
+    const publicKey = import.meta.env.VITE_FEDAPAY_PUBLIC_KEY;
+    if (!publicKey) {
+      setError('Configuration de paiement manquante. Contactez l\'administrateur.');
+      setShowPay(false);
+      return;
+    }
+
     setActionLoading(true);
     try {
         const res  = await payCommande(id);
         const data = res.data ?? res;
 
-        if (!data.token) throw new Error('Token de paiement manquant');
+        if (!data.token) throw new Error('Token de paiement manquant — vérifiez la configuration FedaPay côté serveur.');
 
         setShowPay(false);
 
         // ── Ouvrir le modal FedaPay natif ──────────────────────────────
         window.FedaPay.init({
-        public_key:   import.meta.env.VITE_FEDAPAY_PUBLIC_KEY,
-        transaction:  { token: data.token },
-        onComplete: function(transaction) {
+          public_key:  publicKey,
+          transaction: { token: data.token },
+          onComplete: function(transaction) {
             if (transaction.reason === window.FedaPay.CHECKOUT_COMPLETED) {
-            setSuccess('Paiement effectué avec succès !');
-            fetchCommande(); // recharge la commande
+              setSuccess('Paiement effectué avec succès !');
+              fetchCommande();
             } else {
-            setError('Paiement annulé ou échoué.');
+              setError('Paiement annulé ou échoué.');
             }
-        },
+          },
         }).open();
 
     } catch (err) {
@@ -384,11 +398,25 @@ const CommandeDetail = () => {
                 <div className='space-y-2 text-sm'>
                   <div className='flex justify-between'>
                     <span className='text-gray-500'>Méthode</span>
-                    <span className='font-medium text-gray-800'>{commande.paiement.methode ?? '—'}</span>
+                    <span className='font-medium text-gray-800'>{commande.paiement.moyen ?? commande.paiement.methode ?? '—'}</span>
                   </div>
                   <div className='flex justify-between'>
+                    <span className='text-gray-500'>Statut paiement</span>
+                    <span className='font-medium text-gray-800 capitalize'>{commande.paiement.statut ?? '—'}</span>
+                  </div>
+                  <div className='flex justify-between'>
+                    <span className='text-gray-500'>Montant</span>
+                    <span className='font-medium text-gray-800'>{commande.paiement.montant ? formatPrice(commande.paiement.montant) : '—'}</span>
+                  </div>
+                  {commande.paiement.date_paiement && (
+                    <div className='flex justify-between'>
+                      <span className='text-gray-500'>Date</span>
+                      <span className='font-medium text-gray-800'>{formatDate(commande.paiement.date_paiement)}</span>
+                    </div>
+                  )}
+                  <div className='flex justify-between'>
                     <span className='text-gray-500'>Référence</span>
-                    <span className='font-medium text-gray-800'>{commande.paiement.reference ?? '—'}</span>
+                    <span className='font-medium text-gray-800 break-all text-right max-w-[180px]'>{commande.paiement.provider_reference ?? commande.paiement.reference ?? '—'}</span>
                   </div>
                 </div>
               </div>
@@ -400,15 +428,27 @@ const CommandeDetail = () => {
 
               {/* Payer — acheteur + en_attente */}
               {isAcheteur && commande.statut === 'en_attente' && (
-                <motion.button
-                  whileHover={{ scale: 1.01 }}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => setShowPay(true)}
-                  className='w-full py-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all'
-                >
-                  <CreditCard className='w-4 h-4' />
-                  Payer maintenant — {formatPrice(commande.montant)}
-                </motion.button>
+                <>
+                  {!currentUser.telephone && (
+                    <div className='flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-xs text-yellow-700'>
+                      <AlertCircle className='w-4 h-4 shrink-0 mt-0.5' />
+                      <span>
+                        Un numéro de téléphone est requis pour le paiement FedaPay.{' '}
+                        <Link to='/profile' className='underline font-semibold'>Mettre à jour le profil</Link>
+                      </span>
+                    </div>
+                  )}
+                  <motion.button
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => setShowPay(true)}
+                    disabled={!currentUser.telephone}
+                    className='w-full py-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed'
+                  >
+                    <CreditCard className='w-4 h-4' />
+                    Payer maintenant — {formatPrice(commande.montant)}
+                  </motion.button>
+                </>
               )}
 
               {/* Contacter l'interlocuteur */}
