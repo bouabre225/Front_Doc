@@ -31,20 +31,23 @@ export const loginUser = async (email, mot_de_passe) => {
   return handleResponse(res);
 };
 
-export const loginAdmin = async (email, mot_de_passe) => {
+export const loginAdmin = async (email, password) => {
   const res = await fetch(`${API_URL}/admin/login`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ email, mot_de_passe }),
+    body: JSON.stringify({ email, mot_de_passe: password }),
   });
   return handleResponse(res);
 };
 
-export const login2fa = async (challenge_id, code) => {
+export const login2fa = async ({challenge_id, code}) => {
   const res = await fetch(`${API_URL}/login/2fa`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ challenge_id, code }),
+     body: JSON.stringify({
+      challenge_id: String(challenge_id), // ← forcer string
+      code:         String(code),          // ← forcer string
+    }),
   });
   return handleResponse(res);
 };
