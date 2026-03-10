@@ -18,9 +18,10 @@ const CATEGORIES = [
 ];
 
 const ETATS = [
-  { value: 'neuf',          label: 'Neuf' },
-  { value: 'occasion',      label: 'Occasion' },
-  { value: 'reconditionne', label: 'Reconditionné' },
+  { value: 'neuf',       label: 'Neuf'        },
+  { value: 'tres_bon',   label: 'Très bon'    },
+  { value: 'bon',        label: 'Bon'         },
+  { value: 'acceptable', label: 'Acceptable'  },
 ];
 
 // ─── Composant principal ─────────────────────────────────────────────────────
