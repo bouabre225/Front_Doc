@@ -2,6 +2,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AdminLogin from './AdminAuth/AdminLogin';
 import AdminHome from './pages/AdminHome';
+import AdminKyc from './components/AdminKyc';
+import AdminLitiges from './components/AdminLitiges';
 //import ManageEquipments from './pages/ManageEquipments';
 //import ManageUsers from './pages/ManageUsers';
 
@@ -32,23 +34,23 @@ function AdminApp() {
         }
       />
       
-      {/* <Route
-        path="/equipments"
+      <Route
+        path="/kyc"
         element={
           <ProtectedRoute>
-            <ManageEquipments />
+            <AdminKyc />
           </ProtectedRoute>
         }
-      /> */}
+      />
       
-      {/* <Route
-        path="/users"
+      <Route
+        path="/litiges"
         element={
           <ProtectedRoute>
-            <ManageUsers />
+            <AdminLitiges />
           </ProtectedRoute>
         }
-      /> */}
+      />
 
       {/* Redirection par défaut */}
       <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
