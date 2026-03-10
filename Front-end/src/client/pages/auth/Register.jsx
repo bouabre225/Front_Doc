@@ -66,7 +66,7 @@ const Register = () => {
       }
 
       if (userType === 'seller') {
-        navigate('/profile'); // ← ou '/seller/publish' selon ton flow
+        navigate('/'); // ← ou '/seller/publish' selon ton flow
       } else {
         navigate('/');
       }
