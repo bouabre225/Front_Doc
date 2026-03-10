@@ -14,6 +14,8 @@ import ResetPassword from './pages/auth/ResetPassword';
 import PublishEquipement from './pages/sellers/PublishEquipement';
 import Notifications from './components/notifications/Notifications';
 import Messages from './components/messages/Messages';
+import CommandeDetail from './components/commandes/CommandeDetail';
+import Commandes from './components/commandes/Commandes';
 import Cart from './components/cart/Cart';
 
 function ClientApp() {
@@ -36,6 +38,8 @@ function ClientApp() {
           <Route path='/publish-equipment' element={<PublishEquipement />} />
           <Route path='/notifications' element={<Notifications />} />
           <Route path='/messages' element={<Messages />} />
+          <Route path='/commandes' element={<Commandes />} />
+          <Route path='/commandes/:id' element={<CommandeDetail />} />
         </Routes>
       </div>
     </LangProvider>
