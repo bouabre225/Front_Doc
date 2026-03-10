@@ -90,7 +90,7 @@ function Equipment() {
       navigate('/login', { state: { from: `/equipment/${id}` } });
       return;
     }
-    navigate('/messages', { state: { vendeur_id: annonce?.vendeur_id } });
+    navigate(`/messages?userId=${annonce?.vendeur_id}&annonceId=${annonce?.id}&vendeurNom=${encodeURIComponent(annonce?.vendeur?.nom || 'Vendeur')}`);
   };
 
   // ─── Loading ─────────────────────────────────────────────────────────────

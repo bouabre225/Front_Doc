@@ -60,6 +60,9 @@ const Messages = () => {
   const navigate       = useNavigate();
   const [searchParams] = useSearchParams();
   const initUserId     = searchParams.get('userId') || null;
+  const initAnnonceId = searchParams.get('annonceId') || null;
+  const initVendeurNom = searchParams.get('vendeurNom') || 'Vendeur';
+
   const currentUser    = JSON.parse(localStorage.getItem('user') || '{}');
 
   const [conversations,  setConversations]  = useState([]);
@@ -93,12 +96,27 @@ const Messages = () => {
     fetchConversations();
   }, [fetchConversations, navigate]);
 
+// Remplace cet useEffect dans Messages.jsx
   useEffect(() => {
-    if (initUserId && conversations.length > 0) {
-      const conv = conversations.find(c => c.id === initUserId);
-      if (conv) openConversation(conv);
+    if (!initUserId || loadingConvs) return; // ← attendre la fin du chargement
+
+    const conv = conversations.find(c => c.id === initUserId);
+    if (conv) {
+      openConversation(conv);
+    } else {
+      // Pas de conversation existante → chat vide prêt
+      setSelectedConv({
+        id:              initUserId,
+        name:            initVendeurNom, // ← nom réel au lieu de 'Vendeur'
+        avatar:          null,
+        non_lus:         0,
+        dernier_message: null,
+      });
+      setMobileShowChat(true);
+      setMessages([]);
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [initUserId, conversations]);
+  }, [initUserId, loadingConvs]); // ← dépend de loadingConvs pas conversations
 
   const fetchMessages = useCallback(async (userId) => {
     setLoadingMsgs(true);
@@ -155,7 +173,11 @@ const Messages = () => {
     setSending(true);
 
     try {
-      await sendMessage({ recepteur_id: selectedConv.id, contenu: text });
+      await sendMessage({
+        recepteur_id: selectedConv.id,
+        contenu:      text,
+        annonce_id:   initAnnonceId || undefined, // ← passe l'annonce au premier message
+      });
       await fetchMessages(selectedConv.id);
       await fetchConversations();
     } catch {
