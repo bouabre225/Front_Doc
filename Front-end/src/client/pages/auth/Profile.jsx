@@ -652,7 +652,7 @@ function Profile() {
               {/* Champ Téléphone */}
               <div>
                 <label className='block mb-1.5 text-sm font-semibold text-gray-700'>
-                  Téléphone
+                  Téléphone <span className='text-[#1DBF73] font-normal text-xs'>(requis pour les paiements FedaPay)</span>
                 </label>
                 <div className='relative'>
                   <Phone className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1DBF73]' />
