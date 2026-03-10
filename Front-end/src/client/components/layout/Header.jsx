@@ -6,7 +6,7 @@ import Button from '../common/Button';
 import { useLang } from '../../context/LangContext';
 import { useCart } from '../../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
-import { logoutUser, getNotificationsCount } from '../../../services/api';
+import { logoutUser, getNotificationsCount, getConversations } from '../../../services/api';
 
 const Header = () => {
   const { t, currentLang, setCurrentLang, langList } = useLang();
@@ -19,6 +19,8 @@ const Header = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [notifCount, setNotifCount] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
+  const [messageCount, setMessageCount] = useState(0);
+
 
   const langRef = useRef(null);
   const userMenuRef = useRef(null);
@@ -54,6 +56,23 @@ const Header = () => {
     };
     fetchCount();
     const interval = setInterval(fetchCount, 30000); // refresh toutes les 30s
+    return () => clearInterval(interval);
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    const fetchMessageCount = async () => {
+      try {
+        const data = await getConversations();
+        const convs = Array.isArray(data) ? data : [];
+        const total = convs.reduce((sum, c) => sum + (c.non_lus || 0), 0);
+        setMessageCount(total);
+      } catch {
+        //
+      }
+    };
+    fetchMessageCount();
+    const interval = setInterval(fetchMessageCount, 30000);
     return () => clearInterval(interval);
   }, [currentUser]);
 
@@ -240,6 +259,11 @@ const Header = () => {
                       className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'
                     >
                       <MessageCircle className='w-4 h-4 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
+                      {messageCount > 0 && (
+                        <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                          {messageCount > 9 ? '9+' : messageCount}
+                        </span>
+                      )}
                     </motion.button>
                   </Link>
 
