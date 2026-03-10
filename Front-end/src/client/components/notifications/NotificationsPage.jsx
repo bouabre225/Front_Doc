@@ -180,18 +180,7 @@ const NotificationsPage = () => {
     try {
       const res  = await getNotifications();
       const list = res?.data?.data ?? res?.data ?? res ?? [];
-      const arr  = Array.isArray(list) ? list : [];
-
-      // Dédoublonner les notifs existantes en base (bug ancien)
-      const seen = new Set();
-      const deduped = arr.filter(n => {
-        const key = `${n.type}-${n.reference_id}-${n.contenu}`;
-        if (seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-
-      setNotifications(deduped);
+      setNotifications(Array.isArray(list) ? list : []);  // ← plus de déduplication
     } catch (e) {
       console.error('NOTIF ERROR:', e);
     } finally {
