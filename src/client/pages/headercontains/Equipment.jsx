@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, MapPin, Heart, ShoppingCart, Plus, Minus, X, Phone, Check, Package, Calendar, User, Layers } from 'lucide-react';
+import { Star, MapPin, Heart, ShoppingCart, Plus, Minus, X, Phone, Check, Package, Calendar, User, Layers, AlertCircle } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { useLang } from '../../context/LangContext';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+const FEDAPAY_PUBLIC_KEY = import.meta.env.VITE_FEDAPAY_PUBLIC_KEY || '';
 
 const equipmentsData = {
   1: {
@@ -244,41 +247,93 @@ const equipmentsData = {
   },
 };
 
-const paymentMethods = [
-  {
-    id: 'mtn',
-    name: 'MTN MoMo',
-    border: 'border-yellow-400',
-    activeBg: 'bg-yellow-50',
-    logo: <img src='/images/mtn.webp' alt='MTN MoMo' className='object-contain w-12 h-12 rounded-xl' />,
-  },
-  {
-    id: 'moov',
-    name: 'Moov Money',
-    border: 'border-blue-500',
-    activeBg: 'bg-blue-50',
-    logo: <img src='/images/moov.webp' alt='Moov Money' className='object-contain w-12 h-12 rounded-xl' />,
-  },
-  {
-    id: 'celtis',
-    name: 'Celtis Cash',
-    border: 'border-orange-400',
-    activeBg: 'bg-orange-50',
-    logo: <img src='/images/celtiis.webp' alt='Celtis Cash' className='object-contain w-12 h-12 rounded-xl' />,
-  },
-];
-
 const CartSidebar = ({ cartItems, onClose, onUpdateQuantity, onRemove }) => {
   const [step, setStep] = useState('cart');
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [commandeRef, setCommandeRef] = useState('');
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      setError('Vous devez être connecté pour effectuer un paiement.');
+      return;
+    }
+    if (cartItems.length === 0) return;
+
     setLoading(true);
-    setTimeout(() => { setLoading(false); setStep('success'); }, 2000);
+    setError(null);
+
+    try {
+      const item = cartItems[0];
+
+      // Étape 1 : créer la commande
+      const commandeRes = await fetch(`${API_URL}/commandes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          annonce_id: item.id,       // UUID de l'annonce
+          quantite: item.quantity,
+        }),
+      });
+
+      const commandeData = await commandeRes.json();
+      if (!commandeRes.ok) {
+        throw new Error(commandeData.message || 'Erreur lors de la création de la commande');
+      }
+
+      const commandeId = commandeData.data.id;
+      setCommandeRef(commandeId);
+
+      // Étape 2 : initier le paiement → récupérer le token FedaPay
+      const payRes = await fetch(`${API_URL}/commandes/${commandeId}/pay`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+        },
+      });
+
+      const payData = await payRes.json();
+      if (!payRes.ok) {
+        throw new Error(payData.message || "Erreur lors de l'initiation du paiement");
+      }
+
+      const fedaToken = payData.data.token;
+
+      // Étape 3 : ouvrir le modal FedaPay avec le token
+      if (!window.FedaPay) {
+        throw new Error('SDK FedaPay non chargé. Vérifiez votre connexion.');
+      }
+
+      setLoading(false);
+
+      window.FedaPay.init({
+        public_key: FEDAPAY_PUBLIC_KEY,
+        transaction: {
+          token: fedaToken,
+        },
+        onComplete: function (resp) {
+          if (resp.reason === window.FedaPay.DIALOG_DISMISSED) {
+            setError('Paiement annulé. Vous pouvez réessayer.');
+          } else if (resp.transaction && resp.transaction.status === 'approved') {
+            setStep('success');
+          } else {
+            setError('Le paiement a échoué. Veuillez réessayer.');
+          }
+        },
+      }).open();
+
+    } catch (err) {
+      setError(err.message);
+      setLoading(false);
+    }
   };
 
   return (
@@ -348,43 +403,21 @@ const CartSidebar = ({ cartItems, onClose, onUpdateQuantity, onRemove }) => {
         {/* PAIEMENT */}
         {step === 'payment' && (
           <div className='space-y-4'>
-            <p className='text-sm font-semibold text-gray-700'>Sélectionnez votre opérateur</p>
-            <div className='space-y-3'>
-              {paymentMethods.map((method) => (
-                <button key={method.id} onClick={() => setPaymentMethod(method.id)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${
-                    paymentMethod === method.id ? `${method.border} ${method.activeBg}` : 'border-gray-100 bg-gray-50 hover:border-gray-200'
-                  }`}>
-                  <div className='flex items-center justify-center flex-shrink-0 overflow-hidden bg-white shadow-sm w-14 h-14 rounded-xl'>
-                    {method.logo}
-                  </div>
-                  <div className='flex-1 text-left'>
-                    <p className='font-bold text-gray-900'>{method.name}</p>
-                    <p className='text-xs text-gray-400 mt-0.5'>Paiement mobile instantané</p>
-                  </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                    paymentMethod === method.id ? 'border-[#1DBF73] bg-[#1DBF73]' : 'border-gray-300'
-                  }`}>
-                    {paymentMethod === method.id && <Check className='w-3 h-3 text-white' />}
-                  </div>
-                </button>
-              ))}
+            {/* Message info FedaPay */}
+            <div className='p-4 bg-blue-50 border border-blue-100 rounded-2xl'>
+              <p className='text-sm font-semibold text-blue-700 mb-1'>Paiement sécurisé via FedaPay</p>
+              <p className='text-xs text-blue-500'>
+                Vous serez redirigé vers le portail FedaPay pour choisir votre opérateur (MTN MoMo, Moov Money, Celtis Cash) et saisir votre numéro.
+              </p>
             </div>
 
-            <AnimatePresence>
-              {paymentMethod && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                  className='p-4 mt-2 border border-gray-100 bg-gray-50 rounded-2xl'>
-                  <label className='block mb-3 text-sm font-semibold text-gray-700'>Numéro de téléphone</label>
-                  <div className='flex gap-2'>
-                    <div className='flex items-center px-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl'>+229</div>
-                    <input type='tel' value={phone} onChange={(e) => setPhone(e.target.value)} placeholder='XX XX XX XX'
-                      className='flex-1 px-4 py-2.5 text-sm border border-gray-200 bg-white rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all' />
-                  </div>
-                  <p className='mt-2 text-xs text-gray-400'>Une confirmation sera envoyée sur ce numéro</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* Affichage erreur */}
+            {error && (
+              <div className='flex items-start gap-3 p-4 bg-red-50 border border-red-100 rounded-2xl'>
+                <AlertCircle className='w-5 h-5 text-red-500 flex-shrink-0 mt-0.5' />
+                <p className='text-sm text-red-600'>{error}</p>
+              </div>
+            )}
 
             {/* Récapitulatif */}
             <div className='p-4 bg-gradient-to-br from-[#1DBF73]/5 to-[#09B1BA]/5 rounded-2xl border border-[#1DBF73]/15'>
@@ -412,11 +445,11 @@ const CartSidebar = ({ cartItems, onClose, onUpdateQuantity, onRemove }) => {
             </motion.div>
             <h3 className='mb-2 text-2xl font-bold text-gray-900'>Commande confirmée !</h3>
             <p className='mb-6 text-sm leading-relaxed text-gray-500'>
-              Une confirmation a été envoyée<br/>sur le numéro <span className='font-semibold text-gray-700'>{phone}</span>
+              Votre paiement a été traité avec succès.<br/>Vous recevrez une confirmation par email.
             </p>
             <div className='w-full p-4 text-left border border-gray-100 bg-gray-50 rounded-2xl'>
               <p className='mb-1 text-xs tracking-wider text-gray-400 uppercase'>Référence commande</p>
-              <p className='text-[#1DBF73] font-bold text-lg tracking-wider'>#{Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
+              <p className='text-[#1DBF73] font-bold text-lg tracking-wider'>#{commandeRef.slice(-9).toUpperCase()}</p>
             </div>
           </div>
         )}
@@ -439,19 +472,19 @@ const CartSidebar = ({ cartItems, onClose, onUpdateQuantity, onRemove }) => {
           )}
           {step === 'payment' && (
             <div className='flex gap-3'>
-              <button onClick={() => setStep('cart')}
+              <button onClick={() => { setStep('cart'); setError(null); }}
                 className='flex-1 py-3.5 font-semibold text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-all'>
                 Retour
               </button>
               <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handlePayment}
-                disabled={!paymentMethod || !phone || loading}
+                disabled={loading}
                 className='flex-2 px-8 py-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-2xl shadow-lg disabled:opacity-40 transition-all'>
                 {loading ? (
                   <div className='flex items-center justify-center gap-2'>
                     <div className='w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin'></div>
                     Traitement...
                   </div>
-                ) : 'Payer maintenant'}
+                ) : 'Payer via FedaPay'}
               </motion.button>
             </div>
           )}
@@ -479,7 +512,40 @@ function Equipment() {
   const [liked, setLiked] = useState(false);
   const [addedToCart, setAddedToCart] = useState(false);
 
-  const equipment = equipmentsData[parseInt(id)] || equipmentsData[1];
+  // Données de l'équipement : depuis l'API ou fallback sur les données mock
+  const [equipment, setEquipment] = useState(equipmentsData[parseInt(id)] || equipmentsData[1]);
+
+  useEffect(() => {
+    if (!id) return;
+    fetch(`${API_URL}/annonces/${id}`, { headers: { 'Accept': 'application/json' } })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (!data) return;
+        // Mapper les champs de l'API vers la structure attendue par l'UI
+        const images = data.images?.length
+          ? data.images.map(img => img.image_url).filter(Boolean)
+          : [equipmentsData[1].image];
+
+        setEquipment({
+          id: data.id,                          // UUID annonce (utilisé comme annonce_id pour la commande)
+          name: data.titre,
+          category: data.categorie || '',
+          price: parseFloat(data.prix_total || data.prix_vendeur || 0),
+          currency: 'XOF',
+          rating: data.note_moyenne || 0,
+          reviews: data.avis?.length || 0,
+          location: data.pays_expedition || '',
+          condition: data.etat || '',
+          image: images[0],
+          images,
+          seller: data.vendeur?.nom || '',
+          description: data.description || '',
+          features: [],
+          stock: data.quantite || 0,
+        });
+      })
+      .catch(() => {}); // Conserver les données mock en cas d'erreur réseau
+  }, [id]);
 
   const addToCart = () => {
     const existing = cartItems.find(item => item.id === equipment.id);
