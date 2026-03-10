@@ -1,34 +1,156 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingCart, Search, RefreshCw, Eye, AlertCircle,
   CheckCircle, ChevronLeft, ChevronRight, Calendar,
-  User, Package, Info
+  User, Package, X, MapPin, DollarSign, Hash
 } from 'lucide-react';
 import { getAdminCommandes } from '../../services/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const formatPrice = (p) => Number(p || 0).toLocaleString('fr-FR') + ' FCFA';
-
-const formatDate = (d) => d
-  ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+const formatDate  = (d) => d
+  ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
   : '—';
 
 const STATUT_CONFIG = {
-  en_attente: { label: 'En attente',  color: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-400' },
-  payee:      { label: 'Payée',       color: 'bg-blue-100 text-blue-700',     dot: 'bg-blue-400'   },
-  livree:     { label: 'Livrée',      color: 'bg-green-100 text-green-700',   dot: 'bg-green-400'  },
-  annulee:    { label: 'Annulée',     color: 'bg-red-100 text-red-600',       dot: 'bg-red-400'    },
-  litige:     { label: 'Litige',      color: 'bg-orange-100 text-orange-700', dot: 'bg-orange-400' },
+  en_attente: { label: 'En attente', color: 'bg-yellow-100 text-yellow-700', dot: 'bg-yellow-400' },
+  payee:      { label: 'Payée',      color: 'bg-blue-100 text-blue-700',     dot: 'bg-blue-400'   },
+  livree:     { label: 'Livrée',     color: 'bg-green-100 text-green-700',   dot: 'bg-green-400'  },
+  annulee:    { label: 'Annulée',    color: 'bg-red-100 text-red-600',       dot: 'bg-red-400'    },
+  litige:     { label: 'Litige',     color: 'bg-orange-100 text-orange-700', dot: 'bg-orange-400' },
+};
+
+const getInitials = (nom) =>
+  nom?.trim().split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase() || '?';
+
+// ─── Modal détail commande ────────────────────────────────────────────────────
+
+const CommandeModal = ({ commande: c, onClose }) => {
+  const cfg = STATUT_CONFIG[c.statut] || STATUT_CONFIG.en_attente;
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm'
+      onClick={onClose}>
+      <motion.div initial={{ opacity: 0, scale: 0.92, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.92 }} onClick={e => e.stopPropagation()}
+        className='bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto'>
+
+        {/* Header */}
+        <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10'>
+          <div className='flex items-center gap-3'>
+            <div className='w-9 h-9 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-xl flex items-center justify-center'>
+              <ShoppingCart className='w-4 h-4 text-white' />
+            </div>
+            <div>
+              <h3 className='font-bold text-gray-900 text-base'>Détail commande</h3>
+              <p className='text-xs text-gray-400 font-mono'>{c.id.slice(0, 8)}...</p>
+            </div>
+          </div>
+          <button onClick={onClose} className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'>
+            <X className='w-4 h-4' />
+          </button>
+        </div>
+
+        <div className='p-6 space-y-5'>
+
+          {/* Statut + Montant */}
+          <div className='flex items-center justify-between p-4 bg-gradient-to-r from-[#1DBF73]/5 to-[#09B1BA]/5 rounded-xl'>
+            <div>
+              <p className='text-xs text-gray-400 mb-1'>Montant total</p>
+              <p className='text-2xl font-black text-[#1DBF73]'>{formatPrice(c.montant)}</p>
+              <p className='text-xs text-gray-400 mt-0.5'>Quantité : {c.quantite}</p>
+            </div>
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold rounded-full ${cfg.color}`}>
+              <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+              {cfg.label}
+            </span>
+          </div>
+
+          {/* Annonce */}
+          {c.annonce && (
+            <div className='p-4 border border-gray-100 rounded-xl'>
+              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-2'>Annonce</p>
+              <p className='font-bold text-gray-900'>{c.annonce.titre}</p>
+              <div className='flex items-center gap-3 mt-2 text-xs text-gray-500'>
+                <span className='flex items-center gap-1'><Package className='w-3 h-3' />{c.annonce.categorie}</span>
+                <span className='flex items-center gap-1'><MapPin className='w-3 h-3' />{c.annonce.pays_expedition}</span>
+                <span className='font-semibold text-[#1DBF73]'>{formatPrice(c.annonce.prix_total)}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Acheteur / Vendeur */}
+          <div className='grid grid-cols-2 gap-3'>
+            {[
+              { label: 'Acheteur', user: c.acheteur, color: 'from-[#1DBF73] to-[#09B1BA]' },
+              { label: 'Vendeur',  user: c.vendeur,  color: 'from-[#09B1BA] to-[#1DBF73]' },
+            ].map(({ label, user, color }) => (
+              <div key={label} className='p-3 bg-gray-50 rounded-xl'>
+                <p className='text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2'>{label}</p>
+                {user ? (
+                  <div className='flex items-center gap-2'>
+                    <div className={`w-8 h-8 bg-gradient-to-br ${color} rounded-lg flex items-center justify-center text-white font-bold text-xs shrink-0`}>
+                      {getInitials(user.nom)}
+                    </div>
+                    <div className='min-w-0'>
+                      <p className='text-sm font-bold text-gray-800 truncate'>{user.nom}</p>
+                      <p className='text-xs text-gray-400 truncate'>{user.email}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className='text-sm text-gray-400'>—</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Dates */}
+          <div className='grid grid-cols-2 gap-3'>
+            <div className='flex items-start gap-2 p-3 bg-gray-50 rounded-xl'>
+              <Calendar className='w-4 h-4 text-gray-400 mt-0.5 shrink-0' />
+              <div>
+                <p className='text-[10px] text-gray-400 font-medium'>Créée le</p>
+                <p className='text-sm font-semibold text-gray-800'>{formatDate(c.created_at)}</p>
+              </div>
+            </div>
+            <div className='flex items-start gap-2 p-3 bg-gray-50 rounded-xl'>
+              <Calendar className='w-4 h-4 text-gray-400 mt-0.5 shrink-0' />
+              <div>
+                <p className='text-[10px] text-gray-400 font-medium'>Mise à jour</p>
+                <p className='text-sm font-semibold text-gray-800'>{formatDate(c.updated_at)}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Prix détail */}
+          {c.annonce && (
+            <div className='p-4 bg-gray-50 rounded-xl space-y-2'>
+              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-2'>Détail prix</p>
+              {[
+                { label: 'Prix unitaire',    value: formatPrice(c.annonce.prix_vendeur) },
+                { label: 'Frais protection', value: formatPrice(c.annonce.frais_protection) },
+                { label: 'Quantité',         value: `× ${c.quantite}` },
+                { label: 'Total commande',   value: formatPrice(c.montant), highlight: true },
+              ].map(({ label, value, highlight }) => (
+                <div key={label} className={`flex justify-between text-sm ${highlight ? 'pt-2 border-t border-gray-200 font-bold' : ''}`}>
+                  <span className={highlight ? 'text-gray-800' : 'text-gray-500'}>{label}</span>
+                  <span className={highlight ? 'text-[#1DBF73]' : 'text-gray-700 font-medium'}>{value}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  );
 };
 
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export default function AdminCommandes() {
-  const navigate = useNavigate();
-
   const [commandes,  setCommandes]  = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [search,     setSearch]     = useState('');
@@ -37,6 +159,7 @@ export default function AdminCommandes() {
   const [lastPage,   setLastPage]   = useState(1);
   const [total,      setTotal]      = useState(0);
   const [error,      setError]      = useState('');
+  const [modalCmd,   setModalCmd]   = useState(null);
 
   const fetchCommandes = useCallback(async (p = 1) => {
     setLoading(true);
@@ -44,7 +167,6 @@ export default function AdminCommandes() {
     try {
       const params = { page: p, per_page: 20 };
       if (filter !== 'tous') params.statut = filter;
-
       const res  = await getAdminCommandes(params);
       const data = res?.data?.data ?? res?.data ?? res ?? [];
       setCommandes(Array.isArray(data) ? data : []);
@@ -61,15 +183,14 @@ export default function AdminCommandes() {
   useEffect(() => { fetchCommandes(1); }, [filter]);
 
   const FILTERS = [
-    { key: 'tous',       label: 'Toutes'      },
-    { key: 'en_attente', label: 'En attente'  },
-    { key: 'payee',      label: 'Payées'      },
-    { key: 'livree',     label: 'Livrées'     },
-    { key: 'annulee',    label: 'Annulées'    },
-    { key: 'litige',     label: 'Litiges'     },
+    { key: 'tous',       label: 'Toutes'     },
+    { key: 'en_attente', label: 'En attente' },
+    { key: 'payee',      label: 'Payées'     },
+    { key: 'livree',     label: 'Livrées'    },
+    { key: 'annulee',    label: 'Annulées'   },
+    { key: 'litige',     label: 'Litiges'    },
   ];
 
-  // Filtre local par search
   const filtered = commandes.filter(c =>
     !search ||
     c.annonce?.titre?.toLowerCase().includes(search.toLowerCase()) ||
@@ -77,7 +198,6 @@ export default function AdminCommandes() {
     c.vendeur?.nom?.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Stats rapides
   const stats = {
     total:      commandes.length,
     en_attente: commandes.filter(c => c.statut === 'en_attente').length,
@@ -105,12 +225,12 @@ export default function AdminCommandes() {
         {/* Stats rapides */}
         <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6'>
           {[
-            { label: 'Total',      value: stats.total,      color: 'text-gray-800',   bg: 'bg-gray-50'    },
-            { label: 'En attente', value: stats.en_attente, color: 'text-yellow-700', bg: 'bg-yellow-50'  },
-            { label: 'Payées',     value: stats.payee,      color: 'text-blue-700',   bg: 'bg-blue-50'    },
-            { label: 'Litiges',    value: stats.litige,     color: 'text-orange-700', bg: 'bg-orange-50'  },
+            { label: 'Total',      value: stats.total,      color: 'text-gray-800',   bg: 'bg-white'       },
+            { label: 'En attente', value: stats.en_attente, color: 'text-yellow-700', bg: 'bg-yellow-50'   },
+            { label: 'Payées',     value: stats.payee,      color: 'text-blue-700',   bg: 'bg-blue-50'     },
+            { label: 'Litiges',    value: stats.litige,     color: 'text-orange-700', bg: 'bg-orange-50'   },
           ].map(s => (
-            <div key={s.label} className={`p-4 ${s.bg} rounded-xl border border-gray-100 text-center`}>
+            <div key={s.label} className={`p-4 ${s.bg} border border-gray-100 rounded-xl text-center shadow-sm`}>
               <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
               <p className='text-xs text-gray-500 mt-0.5'>{s.label}</p>
             </div>
@@ -126,7 +246,7 @@ export default function AdminCommandes() {
             </motion.div>
           )}
         </AnimatePresence>
-  
+
         {/* Search + Filtres */}
         <div className='flex flex-col sm:flex-row gap-3 mb-6'>
           <div className='relative flex-1'>
@@ -142,8 +262,7 @@ export default function AdminCommandes() {
                   filter === f.key
                     ? 'bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white shadow-md'
                     : 'bg-white border border-gray-200 text-gray-600 hover:border-[#1DBF73]/50'
-                }`}>
-                {f.label}
+                }`}>{f.label}
               </button>
             ))}
           </div>
@@ -151,13 +270,12 @@ export default function AdminCommandes() {
 
         {/* Table */}
         <div className='bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden'>
-          {/* Header table */}
           <div className='hidden md:grid grid-cols-12 gap-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider'>
             <div className='col-span-4'>Annonce</div>
             <div className='col-span-2'>Acheteur</div>
             <div className='col-span-2'>Vendeur</div>
-            <div className='col-span-1'>Montant</div>
-            <div className='col-span-2'>Statut</div>
+            <div className='col-span-2'>Montant</div>
+            <div className='col-span-1'>Statut</div>
             <div className='col-span-1'>Action</div>
           </div>
 
@@ -183,54 +301,38 @@ export default function AdminCommandes() {
                 return (
                   <div key={c.id}
                     className='grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-5 py-4 hover:bg-gray-50 transition-colors items-center'>
-
-                    {/* Annonce */}
                     <div className='md:col-span-4'>
-                      <p className='font-semibold text-gray-900 text-sm truncate'>
-                        {c.annonce?.titre ?? 'Équipement'}
-                      </p>
+                      <p className='font-semibold text-gray-900 text-sm truncate'>{c.annonce?.titre ?? 'Équipement'}</p>
                       <p className='text-xs text-gray-400 mt-0.5 flex items-center gap-1'>
                         <Calendar className='w-3 h-3' />
-                        {formatDate(c.created_at)}
+                        {new Date(c.created_at).toLocaleDateString('fr-FR')}
                       </p>
                     </div>
-
-                    {/* Acheteur */}
                     <div className='md:col-span-2'>
                       <p className='text-sm text-gray-700 font-medium truncate flex items-center gap-1'>
                         <User className='w-3 h-3 text-gray-400 shrink-0' />
                         {c.acheteur?.nom ?? '—'}
                       </p>
                     </div>
-
-                    {/* Vendeur */}
                     <div className='md:col-span-2'>
                       <p className='text-sm text-gray-700 font-medium truncate flex items-center gap-1'>
                         <Package className='w-3 h-3 text-gray-400 shrink-0' />
                         {c.vendeur?.nom ?? '—'}
                       </p>
                     </div>
-
-                    {/* Montant */}
-                    <div className='md:col-span-1'>
-                      <p className='text-sm font-bold text-[#1DBF73]'>{formatPrice(c.montant)}</p>
-                    </div>
-
-                    {/* Statut */}
                     <div className='md:col-span-2'>
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full ${cfg.color}`}>
+                      <p className='text-sm font-bold text-[#1DBF73]'>{formatPrice(c.montant)}</p>
+                      <p className='text-xs text-gray-400'>qté : {c.quantite}</p>
+                    </div>
+                    <div className='md:col-span-1'>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-bold rounded-full ${cfg.color}`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                         {cfg.label}
                       </span>
                     </div>
-
-                    {/* Action */}
                     <div className='md:col-span-1'>
-                      <button
-                        onClick={() => navigate(`/commandes/${c.id}`)}
-                        className='p-2 hover:bg-[#1DBF73]/10 rounded-xl transition-colors group'
-                        title='Voir le détail'
-                      >
+                      <button onClick={() => setModalCmd(c)}
+                        className='p-2 hover:bg-[#1DBF73]/10 rounded-xl transition-colors group' title='Voir détail'>
                         <Eye className='w-4 h-4 text-gray-400 group-hover:text-[#1DBF73] transition-colors' />
                       </button>
                     </div>
@@ -256,6 +358,11 @@ export default function AdminCommandes() {
           </div>
         )}
       </div>
+
+      {/* Modal détail commande */}
+      <AnimatePresence>
+        {modalCmd && <CommandeModal commande={modalCmd} onClose={() => setModalCmd(null)} />}
+      </AnimatePresence>
     </div>
   );
 }
