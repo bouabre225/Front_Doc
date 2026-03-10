@@ -343,7 +343,7 @@ export default function AdminLogin() {
           <div className='pt-4 mt-4 text-center border-t border-gray-200'>
             <p className='text-sm text-gray-600'>
               Accès réservé aux administrateurs.{' '}
-              <Link to='/login' className='font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors hover:underline'>
+              <Link to='/login' className='font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors hover:no-underline'>
                 Retour à l'Espace Client
               </Link>
             </p>
