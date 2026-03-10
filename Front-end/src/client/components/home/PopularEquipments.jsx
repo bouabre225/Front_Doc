@@ -152,8 +152,8 @@ const PopularEquipments = () => {
                       {/* Badges haut gauche */}
                       <div className='absolute top-3 left-3 flex flex-col gap-1.5'>
                         {equipment.etat && (
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold shadow-sm capitalize ${conditionStyle(equipment.etat)}`}>
-                            {equipment.etat}
+                          <span className={`px-2.5 py-1 rounded-full text-xs flex items-center gap-1 font-bold shadow-sm capitalize ${conditionStyle(equipment.etat)}`}>
+                            <ShieldCheck className='w-3 h-3' />  {equipment.etat}  
                           </span>
                         )}
                         {equipment.vendeur?.verifie_kyc && (

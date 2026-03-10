@@ -177,21 +177,24 @@ const Contact = () => {
       <Header />
 
       {/* Hero */}
-      <section className='relative bg-gradient-to-r from-[#09B1BA] to-[#1DBF73] py-16 overflow-hidden'>
+      <section className='relative bg-gradient-to-r from-[#09B1BA] to-[#1DBF73] py-3 overflow-hidden'>
         <div className='absolute inset-0'>
           <div className='absolute top-0 left-0 w-72 h-72 bg-white/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2' />
           <div className='absolute bottom-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl translate-x-1/3 translate-y-1/3' />
         </div>
         <div className='container relative px-4 mx-auto text-center'>
-          <motion.button
-            onClick={() => navigate(-1)}
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            className='inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors text-sm'
-          >
-            <ArrowLeft className='w-4 h-4' />
-            Retour
-          </motion.button>
+          <div className='flex justify-start text-2xl text-white'>
+
+            <motion.button
+              onClick={() => navigate(-1)}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              className='inline-flex items-center gap-2 text-white hover:text-white/80 mb-6 transition-colors text-sm'
+            >
+              <ArrowLeft className='w-4 h-4' />
+              Retour
+            </motion.button>
+          </div>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
