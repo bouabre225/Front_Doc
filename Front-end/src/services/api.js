@@ -448,6 +448,14 @@ export const resoldreLitige = async (id, decision) => {
   return handleResponse(res);
 };
 
+export const getAdminCommandes = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/admin/commandes${query ? '?' + query : ''}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 export const getImageUrl = (imagePath) => {
