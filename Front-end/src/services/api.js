@@ -456,6 +456,39 @@ export const getAdminCommandes = async (params = {}) => {
   return handleResponse(res);
 };
 
+export const getAdminUsers = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/admin/users${query ? '?' + query : ''}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const suspendUser = async (id) => {
+  const res = await fetch(`${API_URL}/admin/users/${id}/suspend`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const reactivateUser = async (id) => {
+  const res = await fetch(`${API_URL}/admin/users/${id}/reactivate`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const deleteAdminUser = async (id) => {
+  const res = await fetch(`${API_URL}/admin/users/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 export const getImageUrl = (imagePath) => {
@@ -480,5 +513,7 @@ export default {
   getLitiges, getLitigeById, createLitige,
   getKycPending, decideKyc,
   getAdminLitiges, prendreEnChargeLitige, resoldreLitige,
+  getAdminCommandes, getAdminUsers,
+  suspendUser, reactivateUser, deleteAdminUser,
   getImageUrl,
 };
