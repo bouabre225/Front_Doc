@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, Menu, X, ChevronDown, LogOut, User, Settings } from 'lucide-react';
+import { Search, Bell, Menu, X, ChevronDown, LogOut, User, Settings, MessageCircle } from 'lucide-react';
 import Button from '../common/Button';
 import { useLang } from '../../context/LangContext';
 import { useCart } from '../../context/CartContext';
@@ -212,8 +212,8 @@ const Header = () => {
           </div>
 
           {/* Right Section */}
-<div className='flex items-center gap-1'>
-  <div className='items-center hidden gap-1 md:flex'>
+          <div className='flex items-center gap-1'>
+            <div className='items-center hidden gap-1 md:flex'>
 
               {/* Cloche + Panier — visibles si connecté */}
               {currentUser && (
@@ -230,6 +230,16 @@ const Header = () => {
                           {notifCount > 9 ? '9+' : notifCount}
                         </span>
                       )}
+                    </motion.button>
+                  </Link>
+
+                  <Link to='/messages'>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'
+                    >
+                      <MessageCircle className='w-4 h-4 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
                     </motion.button>
                   </Link>
 
@@ -311,6 +321,10 @@ const Header = () => {
                           >
                             <User className='w-4 h-4' />
                             Mon profil
+                          </Link>
+
+                          <Link to='/messages' onClick={() => setMobileMenuOpen(false)}>
+                            <Button variant='outline' size='sm' className='w-full'>Messagerie</Button>
                           </Link>
 
                           {currentUser.role === 'admin' && (
