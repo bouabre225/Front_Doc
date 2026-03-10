@@ -9,7 +9,7 @@ function AdminApp() {
   // Vérifier si l'admin est connecté
   const isAdminAuthenticated = () => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    return user.role === 'ADMIN';
+    return user.role === 'admin';
   };
 
   // Composant pour protéger les routes admin
