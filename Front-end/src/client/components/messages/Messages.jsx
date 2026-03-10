@@ -140,7 +140,7 @@ const Messages = () => {
     pollRef.current = setInterval(() => {
       fetchMessages(selectedConv.id);
       fetchConversations();
-    }, 5000);
+    }, 2000);
     return () => clearInterval(pollRef.current);
   }, [selectedConv, fetchMessages, fetchConversations]);
 
