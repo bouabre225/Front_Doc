@@ -211,7 +211,7 @@ const Header = () => {
           </Link>
 
           {/* Search Bar - Desktop */}
-          <div className='flex-1 hidden max-w-xl md:flex'>
+          {/*<div className='flex-1 hidden max-w-xl md:flex'>
             <form onSubmit={handleSearch} className='relative w-full'>
               <input
                 type='text'
@@ -228,7 +228,7 @@ const Header = () => {
                 <span>{t.search}</span>
               </motion.button>
             </form>
-          </div>
+          </div>*/}
 
           {/* Right Section */}
           <div className='flex items-center gap-1'>
@@ -347,8 +347,12 @@ const Header = () => {
                             Mon profil
                           </Link>
 
-                          <Link to='/messages' onClick={() => setMobileMenuOpen(false)}>
-                            <Button variant='outline' size='sm' className='w-full'>Messagerie</Button>
+                          <Link to='/messages' 
+                            onClick={() => setMobileMenuOpen(false)}
+                            className='flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1DBF73] transition-colors'
+                          >
+                            <MessageCircle className='w-4 h-4' />
+                            Messagerie
                           </Link>
 
                           {currentUser.role === 'admin' && (
