@@ -158,6 +158,13 @@ export const getAnnonces = async (page = 1) => {
   return handleResponse(res);
 };
 
+export const getMyAnnonces = async () => {
+  const res = await fetch(`${API_URL}/annonces?my=true`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
 export const searchAnnonces = async (q, page = 1) => {
   const res = await fetch(
     `${API_URL}/annonces/search?q=${encodeURIComponent(q)}&page=${page}`,
@@ -223,6 +230,13 @@ export const uploadAnnonceImages = async (annonceId, files) => {
 export const getCommandes = async (params = {}) => {
   const query = new URLSearchParams(params).toString();
   const res = await fetch(`${API_URL}/commandes${query ? '?' + query : ''}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const getCommandesRecues = async () => {
+  const res = await fetch(`${API_URL}/commandes/recues`, {
     headers: authHeaders(),
   });
   return handleResponse(res);
@@ -502,10 +516,10 @@ export default {
   registerBuyer, registerSeller,
   logoutUser, getMe, updateFcmToken, updateProfile, forgotPassword, resetPassword,
   enable2fa, verify2fa, disable2fa,
-  getAnnonces, searchAnnonces, getAnnonceById,
+  getAnnonces, searchAnnonces, getAnnonceById, getMyAnnonces,
   createAnnonce, updateAnnonce, deleteAnnonce,
   uploadAnnonceImages, sendContact,
-  getCommandes, getCommandeById, createCommande, cancelCommande, payCommande,
+  getCommandes, getCommandeById, createCommande, cancelCommande, payCommande, getCommandesRecues,
   getConversations, getConversation, sendMessage,
   getNotifications, getNotificationsCount,
   markNotificationRead, markAllNotificationsRead, deleteNotification,
