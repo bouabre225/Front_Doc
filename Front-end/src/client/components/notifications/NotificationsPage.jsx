@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Bell, Check, CheckCheck, Trash2, Filter,
   ShoppingBag, MessageSquare, Shield, AlertTriangle,
-  Package, Info, ChevronRight, BellOff
+  Package, Info, ChevronRight, BellOff, ArrowLeft
 } from 'lucide-react';
 import {
   getNotifications, markNotificationRead,
@@ -166,6 +166,8 @@ const NotificationsPage = () => {
   const [typeFilter, setTypeFilter] = useState('tous');
   const [filterOpen, setFilterOpen] = useState(false);
 
+  const navigate = useNavigate();
+
   const nonLuesCount = notifications.filter(n => !n.lu).length;
 
   // ─── Chargement ───────────────────────────────────────────────────────────
@@ -176,13 +178,25 @@ const NotificationsPage = () => {
   const loadNotifications = async () => {
     setLoading(true);
     try {
-      const data = await getNotifications();
-      const list = data.data ?? data ?? [];
-      setNotifications(Array.isArray(list) ? list : []);
-    } catch {
-        //
+      const res  = await getNotifications();
+      const list = res?.data?.data ?? res?.data ?? res ?? [];
+      const arr  = Array.isArray(list) ? list : [];
+
+      // Dédoublonner les notifs existantes en base (bug ancien)
+      const seen = new Set();
+      const deduped = arr.filter(n => {
+        const key = `${n.type}-${n.reference_id}-${n.contenu}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      setNotifications(deduped);
+    } catch (e) {
+      console.error('NOTIF ERROR:', e);
+    } finally {
+      setLoading(false);
     }
-    finally { setLoading(false); }
   };
 
   // ─── Actions ──────────────────────────────────────────────────────────────
@@ -241,6 +255,12 @@ const NotificationsPage = () => {
       {/* Header */}
       <div className='flex items-center justify-between mb-6'>
         <div className='flex items-center gap-3'>
+          <button
+            onClick={() => navigate(-1)}
+            className='p-2 hover:bg-gray-100 rounded-xl transition-colors'
+          >
+            <ArrowLeft className='w-5 h-5 text-gray-600' />
+          </button>
           <div className='w-10 h-10 rounded-2xl bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] flex items-center justify-center'>
             <Bell className='w-5 h-5 text-white' />
           </div>

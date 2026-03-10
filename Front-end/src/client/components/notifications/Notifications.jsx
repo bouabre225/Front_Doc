@@ -1,5 +1,3 @@
-// pages/Notifications.jsx
-
 //import Header from '../layout/Header';
 import Footer from '../layout/Footer';
 import NotificationsPage from './NotificationsPage';
