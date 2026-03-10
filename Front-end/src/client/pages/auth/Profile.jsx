@@ -10,11 +10,8 @@ import {
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import {
-  getMe, getCommandes, deleteAnnonce,
-  logoutUser, getImageUrl, getKycStatus,
-  updateProfile,
-} from '../../../services/api';
+import { getMe, getCommandes, getMyAnnonces, deleteAnnonce, logoutUser, getImageUrl, getKycStatus, updateProfile, getCommandesRecues } from '../../../services/api';
+
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
@@ -72,33 +69,33 @@ function Profile() {
       const meData = await getMe();
       const u = meData.user;
       setUser(u);
-
-      // Définir l'onglet par défaut selon le rôle
       setActiveTab(u.role === 'vendeur' ? 'annonces' : 'achats');
 
-      // Charger commandes (filtrées côté back par user connecté)
+      // Commandes (filtrées par user côté back)
       try {
         const commandesData = await getCommandes();
-        const raw = commandesData.data ?? commandesData;
-        const list = Array.isArray(raw) ? raw : [];
-        setMyCommandes(list);
+        const raw  = commandesData?.data?.data ?? commandesData?.data ?? commandesData;
+        setMyCommandes(Array.isArray(raw) ? raw : []);
+      } catch (_) {
+        //
+      }
 
-        // Les annonces du vendeur viennent des commandes reçues → on prend les annonces distinctes
-        if (u.role === 'vendeur') {
-          const annoncesMap = {};
-          list.forEach(cmd => {
-            if (cmd.annonce) annoncesMap[cmd.annonce.id] = cmd.annonce;
-          });
-          setMyAnnonces(Object.values(annoncesMap));
-        }
-      } catch (_) {}
-
-      // KYC status (vendeur seulement)
+      // Annonces du vendeur — route dédiée
       if (u.role === 'vendeur') {
+        try {
+          const annoncesData = await getMyAnnonces();
+          const raw = annoncesData?.data?.data ?? annoncesData?.data ?? annoncesData;
+          setMyAnnonces(Array.isArray(raw) ? raw : []);
+        } catch (_) {
+          //
+        }
+
         try {
           const kyc = await getKycStatus();
           setKycStatus(kyc);
-        } catch (_) {}
+        } catch (_) {
+          //
+        }
       }
 
     } catch (err) {
@@ -112,7 +109,9 @@ function Profile() {
   };
 
   const handleLogout = async () => {
-    try { await logoutUser(); } catch (_) {}
+    try { await logoutUser(); } catch (_) {
+      //
+    }
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
     window.dispatchEvent(new Event('storage'));
