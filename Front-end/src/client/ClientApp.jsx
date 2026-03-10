@@ -1,4 +1,4 @@
-﻿import React from 'react';
+﻿import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { LangProvider } from './context/LangContext';
 import Home from './pages/Home';
@@ -16,12 +16,33 @@ import Notifications from './components/notifications/Notifications';
 import Messages from './components/messages/Messages';
 import CommandeDetail from './components/commandes/CommandeDetail';
 import Commandes from './components/commandes/Commandes';
+import SellerKyc from './pages/SellerKyc';
 import Cart from './components/cart/Cart';
+
+// ─── Guard : déconnecte automatiquement un admin qui accède au client ─────────
+
+function AdminGuard() {
+  useEffect(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (user?.role === 'admin') {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        window.dispatchEvent(new Event('storage'));
+      }
+    } catch { /**/ }
+  }, []);
+
+  return null;
+}
+
+// ─── App client ───────────────────────────────────────────────────────────────
 
 function ClientApp() {
   return (
     <LangProvider>
       <div className='min-h-screen bg-gray-50'>
+        <AdminGuard />
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/explore' element={<Explore />} />
@@ -40,6 +61,7 @@ function ClientApp() {
           <Route path='/messages' element={<Messages />} />
           <Route path='/commandes' element={<Commandes />} />
           <Route path='/commandes/:id' element={<CommandeDetail />} />
+          <Route path='/seller/kyc' element={<SellerKyc />} />
         </Routes>
       </div>
     </LangProvider>
