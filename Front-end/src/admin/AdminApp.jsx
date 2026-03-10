@@ -4,8 +4,9 @@ import AdminLogin from './AdminAuth/AdminLogin';
 import AdminHome from './pages/AdminHome';
 import AdminKyc from './components/AdminKyc';
 import AdminLitiges from './components/AdminLitiges';
-//import ManageEquipments from './pages/ManageEquipments';
-//import ManageUsers from './pages/ManageUsers';
+import AdminUsers from './components/AdminUsers';
+import AdminAnnonces from './components/AdminAnnonces';
+import AdminCommandes from './components/AdminCommandes';
 
 function AdminApp() {
   // Vérifier si l'admin est connecté
@@ -48,6 +49,33 @@ function AdminApp() {
         element={
           <ProtectedRoute>
             <AdminLitiges />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute>
+            <AdminUsers />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/annonces"
+        element={
+          <ProtectedRoute>
+            <AdminAnnonces />
+          </ProtectedRoute>
+        }
+      />
+      
+      <Route
+        path="/commandes"
+        element={
+          <ProtectedRoute>
+            <AdminCommandes />
           </ProtectedRoute>
         }
       />
