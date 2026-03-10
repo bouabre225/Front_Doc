@@ -210,26 +210,6 @@ const Header = () => {
             </motion.div>
           </Link>
 
-          {/* Search Bar - Desktop */}
-          {/*<div className='flex-1 hidden max-w-xl md:flex'>
-            <form onSubmit={handleSearch} className='relative w-full'>
-              <input
-                type='text'
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t.searchPlaceholder}
-                className='w-full px-4 py-2 pr-28 border border-gray-200 rounded-full focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 bg-gray-50 hover:bg-white text-sm transition-all duration-300'
-              />
-              <motion.button
-                type='submit'
-                className='absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center gap-1.5 font-medium text-xs'
-              >
-                <Search className='w-3.5 h-3.5' />
-                <span>{t.search}</span>
-              </motion.button>
-            </form>
-          </div>*/}
-
           {/* Right Section */}
           <div className='flex items-center gap-1'>
             <div className='items-center hidden gap-1 md:flex'>
