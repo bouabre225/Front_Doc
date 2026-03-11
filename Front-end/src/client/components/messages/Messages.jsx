@@ -6,6 +6,7 @@ import {
   MessageCircle, Package, CheckCheck, Check, X
 } from 'lucide-react';
 import { getConversations, getConversation, sendMessage, getImageUrl } from '../../../services/api';
+import echo from '../../../echo';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -79,7 +80,7 @@ const Messages = () => {
   const bottomRef   = useRef(null);
   const inputRef    = useRef(null);
   const messagesRef = useRef(null);
-  const pollRef     = useRef(null);
+  //const pollRef     = useRef(null);
 
   const fetchConversations = useCallback(async () => {
     try {
@@ -135,14 +136,38 @@ const Messages = () => {
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
+  //useEffect(() => {
+  //  if (!selectedConv) return;
+   // pollRef.current = setInterval(() => {
+   //   fetchMessages(selectedConv.id);
+   //   fetchConversations();
+   // }, 2000);
+   // return () => clearInterval(pollRef.current);
+  //}, [selectedConv, fetchMessages, fetchConversations]);
+
   useEffect(() => {
-    if (!selectedConv) return;
-    pollRef.current = setInterval(() => {
-      fetchMessages(selectedConv.id);
-      fetchConversations();
-    }, 2000);
-    return () => clearInterval(pollRef.current);
-  }, [selectedConv, fetchMessages, fetchConversations]);
+  if (!selectedConv) return;
+
+  // Écoute le canal privé de l'utilisateur connecté
+  const channel = echo.private(`conversation.${currentUser.id}`)
+    .listen('.nouveau.message', (e) => {
+      // Ajoute le message seulement s'il vient de la conversation ouverte
+      if (e.expediteur_id === selectedConv.id) {
+        setMessages(prev => {
+          // Évite les doublons
+          if (prev.find(m => m.id === e.id)) return prev;
+          return [...prev, e];
+        });
+        // Met à jour la liste des conversations
+        fetchConversations();
+      }
+    });
+
+  return () => {
+    channel.stopListening('.nouveau.message');
+    echo.leave(`conversation.${currentUser.id}`);
+  };
+}, [selectedConv, currentUser.id, fetchConversations]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
