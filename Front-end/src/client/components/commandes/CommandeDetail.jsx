@@ -158,50 +158,26 @@ const CommandeDetail = () => {
     }
   };
 
-  const handlePay = async () => {
-    // Guard: FedaPay needs the user's phone number stored in their profile
-    if (!currentUser.telephone) {
-      setError('Veuillez ajouter un numéro de téléphone à votre profil avant de payer.');
-      setShowPay(false);
-      return;
-    }
+const handlePay = async () => {
+  setActionLoading(true);
+  try {
+    const res  = await payCommande(id);
+    const data = res.data ?? res;
 
-    const publicKey = import.meta.env.VITE_FEDAPAY_PUBLIC_KEY;
-    if (!publicKey) {
-      setError('Configuration de paiement manquante. Contactez l\'administrateur.');
-      setShowPay(false);
-      return;
-    }
+    if (!data.payment_url && !data.token) throw new Error('URL de paiement manquante');
 
-    setActionLoading(true);
-    try {
-        const res  = await payCommande(id);
-        const data = res.data ?? res;
+    setShowPay(false);
 
-        if (!data.token) throw new Error('Token de paiement manquant — vérifiez la configuration FedaPay côté serveur.');
+    // Ouvre FedaPay dans un nouvel onglet
+    window.open(data.payment_url ?? `https://process.fedapay.com/${data.token}`, '_blank');
 
-        setShowPay(false);
-
-        // ── Ouvrir le modal FedaPay natif ──────────────────────────────
-        window.FedaPay.init({
-          public_key:  publicKey,
-          transaction: { token: data.token },
-          onComplete: function(transaction) {
-            if (transaction.reason === window.FedaPay.CHECKOUT_COMPLETED) {
-              setSuccess('Paiement effectué avec succès !');
-              fetchCommande();
-            } else {
-              setError('Paiement annulé ou échoué.');
-            }
-          },
-        }).open();
-
-    } catch (err) {
-        setError(err.message || 'Erreur lors du paiement.');
-        setShowPay(false);
-        setActionLoading(false);
-    }
-  };
+  } catch (err) {
+    setError(err.message || 'Erreur lors du paiement.');
+    setShowPay(false);
+  } finally {
+    setActionLoading(false);
+  }
+};
 
   const handleLitige = async () => {
     if (!litigeMotif.trim()) return;
