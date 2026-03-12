@@ -10,6 +10,8 @@ const SOCIAL_LINKS = [
 ];
 
 const Footer = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const isVendeur = user?.role === 'vendeur';
   return (
     <footer className='bg-white border-t border-gray-200'>
       <div className='container px-4 py-8 mx-auto'>
@@ -49,7 +51,9 @@ const Footer = () => {
             <ul className='space-y-2 text-sm'>
               <li><Link to='/explore'    className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Explorer</Link></li>
               <li><Link to='/categories' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Catégories</Link></li>
-              <li><Link to='/publish-equipment' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Vendre</Link></li>
+              {isVendeur && (
+                <li><Link to='/publish-equipment' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Vendre</Link></li>
+              )}
               <li><Link to='/contact' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Contact</Link></li>
             </ul>
           </div>
