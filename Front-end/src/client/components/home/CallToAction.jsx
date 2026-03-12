@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getAnnonces } from '../../../services/api';
+import { getAnnonces, getKycStatus } from '../../../services/api';
 
 const CallToAction = () => {
   const [stats, setStats] = useState({
@@ -11,6 +11,10 @@ const CallToAction = () => {
     pays:        '8',
   });
 
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
+  const [kycValide, setKycValide] = useState(
+    () => JSON.parse(localStorage.getItem('user') || '{}')?.verifie_kyc === true
+  );
   useEffect(() => {
     const fetchStats = async () => {
       try {
@@ -51,19 +55,55 @@ const CallToAction = () => {
   ];
 
   // Vérifie si le vendeur est connecté et KYC validé
-  const user      = JSON.parse(localStorage.getItem('user') || '{}');
-  const isVendeur = user.role === 'vendeur';
+  // Écoute les changements du localStorage
+  useEffect(() => {
+    const handleStorage = () => {
+      setUser(JSON.parse(localStorage.getItem('user') || '{}'));
+    };
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  // Vérifie le KYC depuis l'API si c'est un vendeur
+  useEffect(() => {
+    const checkKyc = async () => {
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      console.log('u.verifie_kyc:', u.verifie_kyc, 'u.role:', u.role);
+      if (u.role !== 'vendeur' || !localStorage.getItem('auth_token')) return;
+
+      // Si déjà dans le localStorage → utilise directement
+      if (u.verifie_kyc === true) {
+        setKycValide(true);
+        return;
+      }
+
+      // Sinon appelle l'API
+      try {
+        const data = await getKycStatus();
+        console.log('KYC API response:', data);
+        if (data?.verifie_kyc === true) {
+          setKycValide(true);
+          // Met à jour le localStorage pour les prochains renders
+          localStorage.setItem('user', JSON.stringify({ ...u, verifie_kyc: true }));
+          window.dispatchEvent(new Event('storage'));
+        }
+      } catch {/* */} 
+    };
+
+    checkKyc();
+  }, [user.role]);
+
+  const isVendeur  = user.role === 'vendeur';
   const isAcheteur = user.role === 'acheteur';
-  const kycValide = user.verifie_kyc === true;
 
   const publishLink = !user.id
     ? '/login'
     : isVendeur && kycValide
     ? '/publish-equipment'
     : isVendeur && !kycValide
-    ? '/publish-equipment'
+    ? '/profile'
     : isAcheteur
-    ? '/register?type=vendeur'  // inscription vendeur
+    ? '/register?type=vendeur'
     : '/';
 
   return (
