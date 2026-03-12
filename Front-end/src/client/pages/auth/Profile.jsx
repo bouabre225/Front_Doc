@@ -86,6 +86,7 @@ function Profile() {
           const annoncesData = await getMyAnnonces();
           const raw = annoncesData?.data?.data ?? annoncesData?.data ?? annoncesData;
           setMyAnnonces(Array.isArray(raw) ? raw : []);
+          //console.log(annoncesData.data[0]);
         } catch (_) {
           //
         }
