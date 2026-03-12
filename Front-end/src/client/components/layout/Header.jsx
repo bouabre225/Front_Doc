@@ -21,7 +21,6 @@ const Header = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [messageCount, setMessageCount] = useState(0);
 
-
   const langRef = useRef(null);
   const userMenuRef = useRef(null);
   const navigate = useNavigate();
@@ -38,7 +37,6 @@ const Header = () => {
 
   useEffect(() => {
     loadUser();
-    // Écoute les changements de session (login/logout)
     window.addEventListener('storage', loadUser);
     return () => window.removeEventListener('storage', loadUser);
   }, []);
@@ -50,12 +48,10 @@ const Header = () => {
       try {
         const data = await getNotificationsCount();
         setNotifCount(data.count ?? data.non_lues ?? 0);
-      } catch {
-        //
-      }
+      } catch { /**/ }
     };
     fetchCount();
-    const interval = setInterval(fetchCount, 30000); // refresh toutes les 30s
+    const interval = setInterval(fetchCount, 30000);
     return () => clearInterval(interval);
   }, [currentUser]);
 
@@ -67,9 +63,7 @@ const Header = () => {
         const convs = Array.isArray(data) ? data : [];
         const total = convs.reduce((sum, c) => sum + (c.non_lus || 0), 0);
         setMessageCount(total);
-      } catch {
-        //
-      }
+      } catch { /**/ }
     };
     fetchMessageCount();
     const interval = setInterval(fetchMessageCount, 30000);
@@ -95,9 +89,7 @@ const Header = () => {
 
   // ─── Logout ──────────────────────────────────────────────────────────────
   const handleLogout = async () => {
-    try { await logoutUser(); } catch {
-      //
-    }
+    try { await logoutUser(); } catch { /**/ }
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user');
     setCurrentUser(null);
@@ -214,7 +206,7 @@ const Header = () => {
           <div className='flex items-center gap-1'>
             <div className='items-center hidden gap-1 md:flex'>
 
-              {/* Cloche + Panier — visibles si connecté */}
+              {/* Cloche + Messages + Panier — visibles si connecté */}
               {currentUser && (
                 <>
                   <Link to='/notifications'>
@@ -327,8 +319,9 @@ const Header = () => {
                             Mon profil
                           </Link>
 
-                          <Link to='/messages' 
-                            onClick={() => setMobileMenuOpen(false)}
+                          <Link
+                            to='/messages'
+                            onClick={() => setUserMenuOpen(false)}
                             className='flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1DBF73] transition-colors'
                           >
                             <MessageCircle className='w-4 h-4' />
@@ -409,6 +402,7 @@ const Header = () => {
             exit={{ opacity: 0, height: 0 }}
             className='pt-4 pb-4 mt-4 border-t border-gray-100 md:hidden'
           >
+            {/* Recherche mobile */}
             <form onSubmit={handleMobileSearch} className='mb-4'>
               <div className='relative'>
                 <input
@@ -442,10 +436,15 @@ const Header = () => {
               </div>
             </div>
 
+            {/* Navigation mobile */}
             <ul className='mb-4 space-y-1'>
               {menuItems.map((item, index) => (
                 <li key={index}>
-                  <Link to={item.path} onClick={() => setMobileMenuOpen(false)} className='block py-2 px-4 text-gray-700 hover:bg-gray-100 hover:text-[#1DBF73] rounded-lg transition-all font-medium text-sm'>
+                  <Link
+                    to={item.path}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className='block py-2 px-4 text-gray-700 hover:bg-gray-100 hover:text-[#1DBF73] rounded-lg transition-all font-medium text-sm'
+                  >
                     {item.name}
                   </Link>
                 </li>
@@ -456,30 +455,103 @@ const Header = () => {
             <div className='flex flex-col gap-2'>
               {currentUser ? (
                 <>
-                  {/* Infos user mobile */}
+                  {/* Infos user */}
                   <div className='flex items-center gap-3 px-4 py-3 bg-gray-50 rounded-xl mb-1'>
                     <div className='w-10 h-10 rounded-full bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] flex items-center justify-center shrink-0'>
                       <span className='text-white font-bold text-sm'>{getInitials(currentUser.nom)}</span>
                     </div>
                     <div>
                       <p className='font-semibold text-gray-900 text-sm'>{currentUser.nom}</p>
-                      <p className='text-xs text-gray-500'>{currentUser.role === 'vendeur' ? 'Vendeur' : 'Acheteur'}</p>
+                      <p className='text-xs text-gray-500'>
+                        {currentUser.role === 'vendeur' ? 'Vendeur' : currentUser.role === 'admin' ? 'Admin' : 'Acheteur'}
+                      </p>
                     </div>
                   </div>
-                  <Link to='/profile' onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant='outline' size='sm' className='w-full'>Mon profil</Button>
-                  </Link>
+
+                  {/* Icônes rapides mobile */}
+                  <div className='flex items-center justify-around px-2 py-3 bg-gray-50 rounded-xl mb-1'>
+                    <Link to='/notifications' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
+                      <div className='relative p-2.5 bg-white rounded-full shadow-sm'>
+                        <Bell className='w-5 h-5 text-gray-600' />
+                        {notifCount > 0 && (
+                          <span className='absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#1DBF73] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                            {notifCount > 9 ? '9+' : notifCount}
+                          </span>
+                        )}
+                      </div>
+                      <span className='text-[10px] text-gray-500 font-medium'>Notifs</span>
+                    </Link>
+
+                    <Link to='/messages' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
+                      <div className='relative p-2.5 bg-white rounded-full shadow-sm'>
+                        <MessageCircle className='w-5 h-5 text-gray-600' />
+                        {messageCount > 0 && (
+                          <span className='absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                            {messageCount > 9 ? '9+' : messageCount}
+                          </span>
+                        )}
+                      </div>
+                      <span className='text-[10px] text-gray-500 font-medium'>Messages</span>
+                    </Link>
+
+                    <Link to='/cart' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
+                      <div className='relative p-2.5 bg-white rounded-full shadow-sm'>
+                        <ShoppingCart className='w-5 h-5 text-gray-600' />
+                        {totalItems > 0 && (
+                          <span className='absolute -top-0.5 -right-0.5 w-4 h-4 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                            {totalItems > 9 ? '9+' : totalItems}
+                          </span>
+                        )}
+                      </div>
+                      <span className='text-[10px] text-gray-500 font-medium'>Panier</span>
+                    </Link>
+
+                    <Link to='/profile' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
+                      <div className='p-2.5 bg-white rounded-full shadow-sm'>
+                        <User className='w-5 h-5 text-gray-600' />
+                      </div>
+                      <span className='text-[10px] text-gray-500 font-medium'>Profil</span>
+                    </Link>
+                  </div>
+
+                  {/* Vendeur : publier */}
+                  {currentUser.role === 'vendeur' && (
+                    <Link
+                      to='/publish-equipment'
+                      onClick={() => setMobileMenuOpen(false)}
+                      className='w-full py-2.5 text-sm font-semibold text-center text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-xl hover:shadow-lg transition-all'
+                    >
+                      + Publier une annonce
+                    </Link>
+                  )}
+
+                  {/* Admin : dashboard */}
+                  {currentUser.role === 'admin' && (
+                    <Link
+                      to='/admin'
+                      onClick={() => setMobileMenuOpen(false)}
+                      className='w-full py-2.5 text-sm font-semibold text-center text-white bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl hover:shadow-lg transition-all'
+                    >
+                      Dashboard Admin
+                    </Link>
+                  )}
+
+                  {/* Déconnexion */}
                   <button
                     onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                    className='w-full py-2 text-sm font-semibold text-red-500 border-2 border-red-200 rounded-xl hover:bg-red-50 transition-all'
+                    className='w-full py-2.5 text-sm font-semibold text-red-500 border-2 border-red-200 rounded-xl hover:bg-red-50 transition-all'
                   >
                     Se déconnecter
                   </button>
                 </>
               ) : (
                 <>
-                  <Link to='/login' onClick={() => setMobileMenuOpen(false)}><Button variant='outline' size='sm' className='w-full'>{t.login}</Button></Link>
-                  <Link to='/register' onClick={() => setMobileMenuOpen(false)}><Button variant='primary' size='sm' className='w-full'>{t.register}</Button></Link>
+                  <Link to='/login' onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant='outline' size='sm' className='w-full'>{t.login}</Button>
+                  </Link>
+                  <Link to='/register' onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant='primary' size='sm' className='w-full'>{t.register}</Button>
+                  </Link>
                 </>
               )}
             </div>
