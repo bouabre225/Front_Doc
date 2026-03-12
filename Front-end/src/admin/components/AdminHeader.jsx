@@ -7,7 +7,7 @@ import {
   ShoppingBag, MessageSquare, AlertTriangle, BellOff
 } from 'lucide-react';
 import {
-  getNotifications, markAllNotificationsRead, getNotificationsCount
+  getNotifications, getNotificationsCount
 } from '../../services/api';
 
 // ─── Config types notifs ──────────────────────────────────────────────────────
@@ -113,19 +113,19 @@ export default function AdminHeader({ onSearch }) {
   };
 
   // ─── Tout marquer lu ───────────────────────────────────────────────────
-  const handleReadAll = async () => {
+  /*const handleReadAll = async () => {
     try {
       await markAllNotificationsRead();
       setNotifications(prev => prev.map(n => ({ ...n, lu: true })));
       setNotifCount(0);
-    } catch { /**/ }
-  };
+    } catch {}
+  };*/
 
   // ─── Search ────────────────────────────────────────────────────────────
-  const handleSearch = (e) => {
+  /*const handleSearch = (e) => {
     e.preventDefault();
     if (onSearch && searchQuery.trim()) onSearch(searchQuery.trim());
-  };
+  };*/
 
   // ─── Initiales ─────────────────────────────────────────────────────────
   const getInitials = (nom) => {
@@ -149,7 +149,7 @@ export default function AdminHeader({ onSearch }) {
             </div>
           </div>
 
-          <form onSubmit={handleSearch} className='flex-1 max-w-2xl'>
+          {/*<form onSubmit={handleSearch} className='flex-1 max-w-2xl'>
             <div className='relative'>
               <Search className='absolute w-4 h-4 text-gray-400 transform -translate-y-1/2 left-4 top-1/2' />
               <input
@@ -160,7 +160,7 @@ export default function AdminHeader({ onSearch }) {
                 className='w-full py-2.5 pl-11 pr-4 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 bg-gray-50 hover:bg-white transition-all'
               />
             </div>
-          </form>
+          </form>*/}
         </div>
 
         {/* Actions */}
@@ -168,7 +168,7 @@ export default function AdminHeader({ onSearch }) {
 
           {/* Notifications */}
           <div className='relative' ref={notifRef}>
-            <button
+            {/*<button
               onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false); }}
               className='relative p-2.5 transition-all rounded-xl hover:bg-gray-100 group'
             >
@@ -178,9 +178,9 @@ export default function AdminHeader({ onSearch }) {
                   {notifCount > 9 ? '9+' : notifCount}
                 </span>
               )}
-            </button>
+            </button>*/}
 
-            <AnimatePresence>
+            {/*<AnimatePresence>
               {showNotifications && (
                 <motion.div
                   initial={{ opacity: 0, y: -8, scale: 0.95 }}
@@ -189,7 +189,7 @@ export default function AdminHeader({ onSearch }) {
                   transition={{ duration: 0.15 }}
                   className='absolute right-0 mt-2 w-80 bg-white border border-gray-200 shadow-xl rounded-2xl overflow-hidden z-50'
                 >
-                  {/* Header */}
+                  {/* Header }
                   <div className='flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-[#1DBF73]/5 to-[#09B1BA]/5'>
                     <h3 className='text-sm font-bold text-gray-800'>Notifications</h3>
                     <div className='flex items-center gap-2'>
@@ -209,7 +209,7 @@ export default function AdminHeader({ onSearch }) {
                     </div>
                   </div>
 
-                  {/* Liste */}
+                  {/* Liste }
                   <div className='overflow-y-auto max-h-96'>
                     {notifications.length === 0 ? (
                       <div className='flex flex-col items-center justify-center py-10 text-center'>
@@ -245,7 +245,7 @@ export default function AdminHeader({ onSearch }) {
                     )}
                   </div>
 
-                  {/* Footer */}
+                  {/* Footer }
                   <div className='px-4 py-3 text-center bg-gray-50 border-t border-gray-100'>
                     <button
                       onClick={() => { navigate('/admin/notifications'); setShowNotifications(false); }}
@@ -256,14 +256,8 @@ export default function AdminHeader({ onSearch }) {
                   </div>
                 </motion.div>
               )}
-            </AnimatePresence>
+            </AnimatePresence>*/}
           </div>
-
-          {/* Settings */}
-          <button className='p-2.5 transition-all rounded-xl hover:bg-gray-100 group'>
-            <Settings className='w-5 h-5 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
-          </button>
-
           <div className='w-px h-8 bg-gray-200 mx-1' />
 
           {/* Profil */}
@@ -311,17 +305,6 @@ export default function AdminHeader({ onSearch }) {
                   </div>
 
                   {/* Menu */}
-                  <div className='py-1'>
-                    <button className='flex items-center w-full gap-3 px-4 py-2.5 text-sm text-left hover:bg-gray-50 group transition-colors'>
-                      <User className='w-4 h-4 text-gray-400 group-hover:text-[#1DBF73] transition-colors' />
-                      <span className='text-gray-700 group-hover:text-[#1DBF73] font-medium transition-colors'>Mon profil</span>
-                    </button>
-                    <button className='flex items-center w-full gap-3 px-4 py-2.5 text-sm text-left hover:bg-gray-50 group transition-colors'>
-                      <Settings className='w-4 h-4 text-gray-400 group-hover:text-[#1DBF73] transition-colors' />
-                      <span className='text-gray-700 group-hover:text-[#1DBF73] font-medium transition-colors'>Paramètres</span>
-                    </button>
-                  </div>
-
                   <div className='border-t border-gray-100 py-1'>
                     <button
                       onClick={handleLogout}
