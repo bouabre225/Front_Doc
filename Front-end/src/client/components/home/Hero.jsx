@@ -138,36 +138,36 @@ const Hero = () => {
             QUE CHERCHEZ-VOUS ?
           </h2>
 
-          <form onSubmit={handleSearch}>
-            <div className='flex items-center gap-4 p-3 bg-white border-4 border-[#1DBF73]/30 rounded-full shadow-2xl hover:border-[#1DBF73]/50 transition-all duration-300 focus-within:border-[#1DBF73]/60'>
-              <div className='flex items-center flex-1 gap-4 px-6'>
-                <Search className='w-7 h-7 text-[#1DBF73] shrink-0' />
-                <input
-                  type='text'
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  placeholder='Ex: Échographe, Stéthoscope, Scanner...'
-                  className='flex-1 py-5 text-xl text-gray-800 placeholder-gray-400 bg-transparent border-none outline-none'
-                />
-                {/* Bouton clear */}
-                {searchQuery && (
-                  <button
-                    type='button'
-                    onClick={() => setSearchQuery('')}
-                    className='text-gray-400 hover:text-gray-600 transition-colors'
-                  >
-                    <X className='w-5 h-5' />
-                  </button>
-                )}
-              </div>
-              <button
-                type='submit'
-                className='px-10 py-5 text-lg bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-full hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 shrink-0'
-              >
-                Rechercher
-              </button>
-            </div>
-          </form>
+          {/* ── Barre de recherche ──────────────────────────────────────── */}
+<form onSubmit={handleSearch}>
+  <div className='flex flex-col sm:flex-row items-center gap-3 p-3 bg-white border-4 border-[#1DBF73]/30 rounded-2xl sm:rounded-full shadow-2xl hover:border-[#1DBF73]/50 transition-all duration-300 focus-within:border-[#1DBF73]/60'>
+    <div className='flex items-center flex-1 gap-3 px-3 w-full'>
+      <Search className='w-6 h-6 text-[#1DBF73] shrink-0' />
+      <input
+        type='text'
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
+        placeholder='Ex: Échographe, Scanner...'
+        className='flex-1 py-3 text-base sm:text-xl text-gray-800 placeholder-gray-400 bg-transparent border-none outline-none'
+      />
+      {searchQuery && (
+        <button
+          type='button'
+          onClick={() => setSearchQuery('')}
+          className='text-gray-400 hover:text-gray-600 transition-colors'
+        >
+          <X className='w-5 h-5' />
+        </button>
+      )}
+    </div>
+    <button
+      type='submit'
+      className='w-full sm:w-auto px-8 py-4 text-base sm:text-lg bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl sm:rounded-full hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 shrink-0'
+    >
+      Rechercher
+    </button>
+  </div>
+</form>
 
           {/* Suggestions */}
           <div className='flex flex-wrap justify-center items-center gap-3 mt-6'>
