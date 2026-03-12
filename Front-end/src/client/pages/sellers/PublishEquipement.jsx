@@ -228,7 +228,7 @@ const PublishEquipment = () => {
             <div className='flex flex-col gap-3'>
               {kycDoc?.statut !== 'en_attente' && (
                 <Link
-                  to='/profile'
+                  to='/seller/kyc'
                   onClick={() => {
                     // pré-sélectionner l'onglet KYC dans le profil
                     sessionStorage.setItem('profile_tab', 'kyc');

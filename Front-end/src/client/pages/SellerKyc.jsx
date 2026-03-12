@@ -17,7 +17,7 @@ const TYPE_DOCS = [
     icon:  '🪪',
   },
   {
-    key:   'passport',
+    key:   'passeport',
     label: 'Passeport',
     desc:  'Page principale du passeport',
     icon:  '📕',
