@@ -502,6 +502,10 @@ export const deleteAdminUser = async (id) => {
   return handleResponse(res);
 };
 
+export const getKycDocumentUrl = (id) => {
+  return `${API_URL}/admin/kyc/document/${id}`;
+};
+
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -530,4 +534,5 @@ export default {
   getAdminCommandes, getAdminUsers,
   suspendUser, reactivateUser, deleteAdminUser,
   getImageUrl,
+  getKycDocumentUrl,
 };
