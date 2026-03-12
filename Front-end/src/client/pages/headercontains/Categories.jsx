@@ -11,7 +11,7 @@ import { getAnnonces, searchAnnonces, getImageUrl } from '../../../services/api'
 const CATEGORIES_CONFIG = {
   cardiologie:        { name: 'Cardiologie',       color: 'from-red-500 to-pink-600',      bgLight: 'bg-red-50',      textColor: 'text-red-500',    emoji: '❤️',  image: 'https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?w=800&fit=crop' },
   neurologie:         { name: 'Neurologie',         color: 'from-purple-500 to-indigo-600', bgLight: 'bg-purple-50',   textColor: 'text-purple-500', emoji: '🧠',  image: 'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800&fit=crop' },
-  'medecine-generale':{ name: 'Médecine Générale',  color: 'from-blue-500 to-sky-600',      bgLight: 'bg-blue-50',     textColor: 'text-blue-500',   emoji: '🩺',  image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&fit=crop' },
+  medecine_generale:  { name: 'Médecine Générale',  color: 'from-blue-500 to-sky-600',      bgLight: 'bg-blue-50',     textColor: 'text-blue-500',   emoji: '🩺',  image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&fit=crop' },
   monitoring:         { name: 'Monitoring',         color: 'from-green-500 to-emerald-600', bgLight: 'bg-green-50',    textColor: 'text-green-500',  emoji: '📊',  image: 'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=800&fit=crop' },
   laboratoire:        { name: 'Laboratoire',        color: 'from-yellow-500 to-orange-500', bgLight: 'bg-yellow-50',   textColor: 'text-yellow-600', emoji: '🔬',  image: 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800&fit=crop' },
   chirurgie:          { name: 'Chirurgie',          color: 'from-teal-500 to-cyan-600',     bgLight: 'bg-teal-50',     textColor: 'text-teal-500',   emoji: '🔪',  image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&fit=crop' },
@@ -20,6 +20,7 @@ const CATEGORIES_CONFIG = {
   sterilisation:      { name: 'Stérilisation',      color: 'from-cyan-500 to-blue-600',     bgLight: 'bg-cyan-50',     textColor: 'text-cyan-500',   emoji: '🧼',  image: 'https://images.unsplash.com/photo-1583911860205-72f8ac8ddcbe?w=800&fit=crop' },
   mobilier:           { name: 'Mobilier Médical',   color: 'from-slate-500 to-gray-600',    bgLight: 'bg-slate-50',    textColor: 'text-slate-500',  emoji: '🛏️', image: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=800&fit=crop' },
   urgence:            { name: 'Urgence',            color: 'from-red-600 to-orange-500',    bgLight: 'bg-red-50',      textColor: 'text-red-600',    emoji: '🚨',  image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&fit=crop' },
+  pieces_rechange:    { name: 'Pièces de Rechange', color: 'from-gray-500 to-slate-600',    bgLight: 'bg-gray-50',     textColor: 'text-gray-600',   emoji: '⚙️',  image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop' },
 };
 
 const ETATS = ['tous', 'neuf', 'occasion', 'reconditionne'];
