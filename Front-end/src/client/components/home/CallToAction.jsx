@@ -61,7 +61,7 @@ const CallToAction = () => {
     : isVendeur && kycValide
     ? '/publish-equipment'
     : isVendeur && !kycValide
-    ? '/profile'
+    ? '/publish-equipment'
     : isAcheteur
     ? '/register?type=vendeur'  // inscription vendeur
     : '/';
