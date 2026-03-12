@@ -17,7 +17,7 @@ const StepLogin = ({ onSuccess, loading, setLoading, error, setError }) => {
     setLoading(true);
     try {
       const res = await loginAdmin(email, password);
-      console.log('RES loginAdmin:', res); // ← ajoute ça temporairement
+      //console.log('RES loginAdmin:', res); // ← ajoute ça temporairement
       if (res.requires_2fa && res.challenge_id) {
         onSuccess(String(res.challenge_id)); // ← forcer string ici aussi
       } else {
@@ -146,8 +146,8 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
   };
 
   const handleVerify = async (code) => {
-    console.log('challenge_id:', challengeId, typeof challengeId);
-    console.log('code:', code, typeof code);
+    //console.log('challenge_id:', challengeId, typeof challengeId);
+    //console.log('code:', code, typeof code);
     setError('');
     setLoading(true);
     try {
@@ -155,24 +155,24 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
         challenge_id: String(challengeId),
         code:         String(code),
       });
-      console.log('RES 2fa:', res); // ← ajoute ça
+      //console.log('RES 2fa:', res); // ← ajoute ça
       if (res.success && res.token && res.user) {
         localStorage.setItem('auth_token', res.token);
         localStorage.setItem('user', JSON.stringify(res.user));
         window.dispatchEvent(new Event('storage'));
-        console.log('Redirect vers /admin/dashboard'); // ← et ça
+        //console.log('Redirect vers /admin/dashboard'); // ← et ça
         // ← attendre que le storage soit propagé
         setTimeout(() => {
           navigate('/admin/dashboard');
         }, 100);
       } else {
-        console.log('Condition non remplie:', res); // ← et ça
+        //console.log('Condition non remplie:', res); // ← et ça
         setError('Code invalide. Vérifiez votre application 2FA.');
         setCodes(['', '', '', '', '', '']);
         inputsRef.current[0]?.focus();
       }
     } catch (err) {
-      console.log('ERREUR 2fa:', err); // ← et ça
+      //console.log('ERREUR 2fa:', err); // ← et ça
       setError(err.message || 'Code incorrect ou expiré.');
       setCodes(['', '', '', '', '', '']);
       inputsRef.current[0]?.focus();

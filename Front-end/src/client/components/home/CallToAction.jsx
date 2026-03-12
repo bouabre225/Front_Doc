@@ -18,17 +18,35 @@ const CallToAction = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const data = await getAnnonces(1);
-        // total annonces
-        const total = data.total ?? data.data?.length ?? null;
-        if (total) {
-          setStats(prev => ({
-            ...prev,
-            equipements: total >= 1000 ? `${Math.floor(total / 100) * 100}+` : `${total}+`,
-          }));
+        const first = await getAnnonces(1);
+        const total = first.total ?? (first.data || []).length;
+        const lastPage = first.last_page || 1;
+
+        // Récupère toutes les pages
+        let allItems = [...(first.data || [])];
+        if (lastPage > 1) {
+          const rest = await Promise.all(
+            Array.from({ length: lastPage - 1 }, (_, i) => getAnnonces(i + 2))
+          );
+          rest.forEach(p => allItems.push(...(p.data || [])));
         }
+
+        // Vendeurs uniques
+        const vendeurIds = new Set(allItems.map(a => a.vendeur_id).filter(Boolean));
+
+        // Pays uniques (depuis vendeur.pays + pays_expedition)
+        const pays = new Set();
+        allItems.forEach(a => {
+          if (a.vendeur?.pays) pays.add(a.vendeur.pays.trim().toLowerCase());
+          if (a.pays_expedition) pays.add(a.pays_expedition.trim().toLowerCase());
+        });
+
+        setStats({
+          equipements: total >= 1000 ? `${Math.floor(total / 100) * 100}+` : `${total}+`,
+          vendeurs:    vendeurIds.size > 0 ? `${vendeurIds.size}+` : '150+',
+          pays:        pays.size > 0 ? `${pays.size}+` : '8',
+        });
       } catch {}
-      // vendeurs et pays restent statiques si pas d'endpoint dédié
     };
     fetchStats();
   }, []);
@@ -68,7 +86,7 @@ const CallToAction = () => {
   useEffect(() => {
     const checkKyc = async () => {
       const u = JSON.parse(localStorage.getItem('user') || '{}');
-      console.log('u.verifie_kyc:', u.verifie_kyc, 'u.role:', u.role);
+      //console.log('u.verifie_kyc:', u.verifie_kyc, 'u.role:', u.role);
       if (u.role !== 'vendeur' || !localStorage.getItem('auth_token')) return;
 
       // Si déjà dans le localStorage → utilise directement
@@ -80,7 +98,7 @@ const CallToAction = () => {
       // Sinon appelle l'API
       try {
         const data = await getKycStatus();
-        console.log('KYC API response:', data);
+        //console.log('KYC API response:', data);
         if (data?.verifie_kyc === true) {
           setKycValide(true);
           // Met à jour le localStorage pour les prochains renders
@@ -101,7 +119,7 @@ const CallToAction = () => {
     : isVendeur && kycValide
     ? '/publish-equipment'
     : isVendeur && !kycValide
-    ? '/profile'
+    ? '/publish-equipment'
     : isAcheteur
     ? '/register?type=vendeur'
     : '/';

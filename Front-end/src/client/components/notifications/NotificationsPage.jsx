@@ -182,7 +182,7 @@ const NotificationsPage = () => {
       const list = res?.data?.data ?? res?.data ?? res ?? [];
       setNotifications(Array.isArray(list) ? list : []);  // ← plus de déduplication
     } catch (e) {
-      console.error('NOTIF ERROR:', e);
+      //console.error('NOTIF ERROR:', e);
     } finally {
       setLoading(false);
     }
