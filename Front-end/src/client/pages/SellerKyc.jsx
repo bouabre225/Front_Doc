@@ -105,10 +105,10 @@ export default function SellerKyc() {
               <p className='text-sm text-yellow-600'>La vérification prend généralement 24 à 48h ouvrées.</p>
             </div>
             <button
-              onClick={() => navigate('/profile')}
+              onClick={() => navigate('/')}
               className='w-full py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl hover:shadow-lg transition-all'
             >
-              Retour au profil
+              Retour à l'accueil
             </button>
           </motion.div>
         </div>
@@ -125,11 +125,11 @@ export default function SellerKyc() {
 
         {/* Retour */}
         <button
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate(-1)}
           className='flex items-center gap-2 text-sm text-gray-500 hover:text-[#1DBF73] transition-colors mb-6'
         >
           <ArrowLeft className='w-4 h-4' />
-          Retour au profil
+          Retour
         </button>
 
         {/* Header */}
