@@ -234,25 +234,6 @@ function Equipment() {
                 </>
               )}
             </div>
-
-            {/* Thumbnails */}
-            {images.length > 1 && (
-              <div className='flex gap-2 overflow-x-auto pb-1'>
-                {images.map((img, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setSelectedImage(i)}
-                    className={`shrink-0 w-18 h-18 rounded-xl overflow-hidden border-2 transition-all ${
-                      i === selectedImage
-                        ? 'border-[#1DBF73] shadow-md scale-105'
-                        : 'border-gray-200 hover:border-[#1DBF73]/50'
-                    }`}
-                  >
-                    <img src={getImageUrl(img.image_url)} alt={`Image ${i + 1}`} className='object-cover w-full h-full' />
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
           {/* ── Détails ──────────────────────────────────────────────── */}
