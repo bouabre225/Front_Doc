@@ -213,25 +213,25 @@ const Contact = () => {
       <div className='container px-4 py-12 mx-auto max-w-6xl'>
 
         {/* Info cards */}
-        <div className='grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 -mt-8 relative z-10'>
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-3 mb-12 -mt-8 relative z-10'>
           {INFO_CARDS.map((card, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
-              className='bg-white rounded-2xl shadow-lg border border-gray-100 p-5 text-center'
+              className='bg-white rounded-2xl shadow-lg border border-gray-100 p-3 sm:p-5 text-center overflow-hidden'
             >
               <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mx-auto mb-3 shadow-md`}>
                 <card.icon className='w-5 h-5 text-white' />
               </div>
               <p className='text-xs text-gray-400 font-medium mb-1'>{card.label}</p>
               {card.href ? (
-                <a href={card.href} className='text-sm font-semibold text-gray-700 hover:text-[#1DBF73] transition-colors'>
-                  {card.value}
-                </a>
+              <a href={card.href} className='text-sm font-semibold text-gray-700 hover:text-[#1DBF73] transition-colors break-all'>
+                {card.value}
+              </a>
               ) : (
-                <p className='text-sm font-semibold text-gray-700'>{card.value}</p>
+                <p className='text-sm font-semibold text-gray-700 break-all'>{card.value}</p>
               )}
             </motion.div>
           ))}
