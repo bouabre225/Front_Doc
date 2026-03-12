@@ -14,7 +14,7 @@ import { createAnnonce, uploadAnnonceImages, getKycStatus } from '../../../servi
 const CATEGORIES = [
   'Imagerie Médicale', 'Cardiologie', 'Laboratoire', 'Chirurgie',
   'Monitoring', 'Urgence', 'Mobilier Médical', 'Stérilisation',
-  'Neurologie', 'Médecine Générale', 'Pharmacie',
+  'Neurologie', 'Médecine Générale', 'Pharmacie', 'Pièces de rechange'
 ];
 
 const ETATS = [
@@ -64,23 +64,29 @@ const PublishEquipment = () => {
     }
 
     // Vérifier KYC
-    const checkKyc = async () => {
-      setKycLoading(true);
-      try {
-        const data = await getKycStatus();
-        setKycStatus(data);
-      } catch {
-        setKycStatus(null);
-      } finally {
-        setKycLoading(false);
+  const checkKyc = async () => {
+    setKycLoading(true);
+    try {
+      const data = await getKycStatus();
+      setKycStatus(data);
+      // ← Met à jour le localStorage si KYC validé
+      if (data?.verifie_kyc === true) {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        localStorage.setItem('user', JSON.stringify({ ...user, verifie_kyc: true }));
+        window.dispatchEvent(new Event('storage'));
       }
-    };
+    } catch {
+      setKycStatus(null);
+    } finally {
+      setKycLoading(false);
+    }
+  };
 
     checkKyc();
   }, [navigate]);
 
-  const user      = JSON.parse(localStorage.getItem('user') || '{}');
-  const kycValide = user.verifie_kyc === true;
+  const kycValide = kycStatus?.verifie_kyc === true;
+
   const kycDoc    = kycStatus?.kyc_document;
 
   // ─── Images ────────────────────────────────────────────────────────────
@@ -222,7 +228,7 @@ const PublishEquipment = () => {
             <div className='flex flex-col gap-3'>
               {kycDoc?.statut !== 'en_attente' && (
                 <Link
-                  to='/seller/kyc'
+                  to='/profile'
                   onClick={() => {
                     // pré-sélectionner l'onglet KYC dans le profil
                     sessionStorage.setItem('profile_tab', 'kyc');
