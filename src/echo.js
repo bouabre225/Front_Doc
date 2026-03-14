@@ -11,7 +11,7 @@ const echo = new Echo({
   wssPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
   forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
   enabledTransports: ['ws', 'wss'],
-  authEndpoint: 'http://localhost:8000/api/broadcasting/auth',
+  authEndpoint: 'https://api.medi-kado.com/api/broadcasting/auth',
   auth: {
     headers: {
       Authorization: 'Bearer ' + localStorage.getItem('auth_token'),
