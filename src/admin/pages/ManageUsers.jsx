@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Shield, ShieldOff, RefreshCw, Users, UserCheck, UserX } from 'lucide-react';
 
-const API_URL = 'http://localhost:8000/api';
+const API_URL = 'https://api.medi-kado.com/api';
 const getToken = () => localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
 
 export default function ManageUsers() {
