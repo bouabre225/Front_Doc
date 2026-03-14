@@ -1,26 +1,29 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, User, UserCircle, Briefcase, Phone, ArrowLeft, Check } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Briefcase, Phone, ArrowLeft, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLang } from '../../context/LangContext';
+import { registerBuyer, registerSeller } from '../../../services/api';
 
 const Register = () => {
   const { t } = useLang();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const searchParams = new URLSearchParams(location.search);
-  const initialUserType = searchParams.get('type') === 'seller' ? 'seller' : 'buyer';
-  
+  const initialUserType = ['seller', 'vendeur'].includes(searchParams.get('type')) ? 'seller' : 'buyer';
+
   const [userType, setUserType] = useState(initialUserType);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
+    nom: '',
     email: '',
-    password: '',
-    phone: '',
-    specialty: '',
+    mot_de_passe: '',
+    telephone: '',
+    pays: '',
+    type_compte: 'particulier',
     acceptTerms: false,
   });
 
@@ -34,24 +37,49 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!formData.acceptTerms) {
+      setError("Veuillez accepter les conditions d'utilisation.");
+      return;
+    }
     setLoading(true);
-    setTimeout(() => {
-      localStorage.setItem('user', JSON.stringify({ 
-        ...formData, 
-        role: userType 
-      }));
-      setLoading(false);
+    setError('');
+
+    try {
+      const payload = {
+        nom: formData.nom,
+        email: formData.email,
+        mot_de_passe: formData.mot_de_passe,
+        telephone: formData.telephone,
+        pays: formData.pays || undefined,
+        ...(userType === 'seller' ? { type_compte: formData.type_compte } : {}),
+      };
+
+      // Après inscription
+      const data = userType === 'seller'
+        ? await registerSeller(payload)
+        : await registerBuyer(payload);
+
+      if (data.token) { // ← ajoute cette vérification
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        window.dispatchEvent(new Event('storage'));
+      }
+
       if (userType === 'seller') {
-        navigate('/seller/publish');
+        navigate('/'); // ← ou '/seller/publish' selon ton flow
       } else {
         navigate('/');
       }
-    }, 1500);
+    } catch (err) {
+      setError(err.message || 'Une erreur est survenue lors de l\'inscription.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className='flex items-center justify-center min-h-screen p-4 bg-gradient-to-br from-[#1DBF73]/10 via-white to-[#09B1BA]/10'>
-      <motion.div 
+      <motion.div
         className='w-full max-w-md'
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -64,8 +92,8 @@ const Register = () => {
 
         <div className='mb-8 text-center'>
           <Link to='/' className='inline-flex items-center justify-center'>
-            <img 
-              src='/images/docspace.png' 
+            <img
+              src='/images/docspace.png'
               alt='DocSpace Logo'
               className='object-contain w-auto h-20 mix-blend-multiply'
             />
@@ -80,65 +108,64 @@ const Register = () => {
         </div>
 
         <div className='mb-8 text-center'>
-          <h1 className='mb-2 text-3xl font-bold text-gray-900'>
-            Créer un compte
-          </h1>
-          <p className='text-gray-600'>
-            Commencez avec DocSpace
-          </p>
+          <h1 className='mb-2 text-3xl font-bold text-gray-900'>Créer un compte</h1>
+          <p className='text-gray-600'>Commencez avec DocSpace</p>
         </div>
 
         <div className='p-8 bg-white border border-gray-100 shadow-xl rounded-2xl'>
+          {/* Sélecteur acheteur / vendeur */}
           <div className='flex gap-3 p-2 mb-6 bg-gray-100 rounded-xl'>
             <button
               type='button'
               onClick={() => setUserType('buyer')}
               className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${
-                userType === 'buyer'
-                  ? 'bg-white text-[#1DBF73] shadow-md'
-                  : 'text-gray-600 hover:text-gray-900'
+                userType === 'buyer' ? 'bg-white text-[#1DBF73] shadow-md' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              <UserCircle className='w-5 h-5' />
+              <User className='w-4 h-4' />
               Acheteur
             </button>
             <button
               type='button'
               onClick={() => setUserType('seller')}
               className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-all ${
-                userType === 'seller'
-                  ? 'bg-white text-[#09B1BA] shadow-md'
-                  : 'text-gray-600 hover:text-gray-900'
+                userType === 'seller' ? 'bg-white text-[#09B1BA] shadow-md' : 'text-gray-600 hover:text-gray-900'
               }`}
             >
-              <Briefcase className='w-5 h-5' />
+              <Briefcase className='w-4 h-4' />
               Vendeur
             </button>
           </div>
 
+          {/* Erreur */}
+          {error && (
+            <div className='flex items-center gap-2 p-3 mb-5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl'>
+              <AlertCircle className='w-4 h-4 shrink-0' />
+              <span>{error}</span>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
+            {/* Nom */}
             <div className='mb-4'>
-              <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                Nom complet
-              </label>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>Nom complet</label>
               <div className='relative'>
                 <User className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                 <input
                   type='text'
-                  name='name'
-                  value={formData.name}
+                  name='nom'
+                  value={formData.nom}
                   onChange={handleChange}
-                  placeholder='Nom et prénoms'
+                  placeholder='Votre nom complet'
                   className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   required
                 />
               </div>
             </div>
 
+            {/* Email */}
             <div className='mb-4'>
-              <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                Adresse email
-              </label>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>Adresse email</label>
               <div className='relative'>
                 <Mail className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                 <input
@@ -153,65 +180,58 @@ const Register = () => {
               </div>
             </div>
 
-            {/* ✅ Téléphone pour acheteur ET vendeur */}
+            {/* Téléphone */}
             <div className='mb-4'>
               <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                Téléphone
+                Téléphone {userType === 'buyer' && <span className='text-gray-400 font-normal'>(optionnel)</span>}
               </label>
               <div className='relative'>
                 <Phone className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                 <input
                   type='tel'
-                  name='phone'
-                  value={formData.phone}
+                  name='telephone'
+                  value={formData.telephone}
                   onChange={handleChange}
                   placeholder='+229 XX XX XX XX'
                   className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
-                  required
+                  required={userType === 'seller'}
                 />
               </div>
             </div>
 
+            {/* Type de compte (vendeur seulement) */}
             {userType === 'seller' && (
               <div className='mb-4'>
-                <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                  Spécialité
-                </label>
+                <label className='block mb-2 text-sm font-semibold text-gray-700'>Type de compte</label>
                 <div className='relative'>
                   <Briefcase className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                   <select
-                    name='specialty'
-                    value={formData.specialty}
+                    name='type_compte'
+                    value={formData.type_compte}
                     onChange={handleChange}
                     className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
-                    required
                   >
-                    <option value=''>Choisir une spécialité</option>
-                    <option value='imagerie'>Imagerie Médicale</option>
-                    <option value='cardiologie'>Cardiologie</option>
-                    <option value='laboratoire'>Laboratoire</option>
-                    <option value='chirurgie'>Chirurgie</option>
-                    <option value='monitoring'>Monitoring</option>
-                    <option value='autre'>Autre</option>
+                    <option value='particulier'>Particulier</option>
+                    <option value='professionnel'>Professionnel</option>
                   </select>
                 </div>
               </div>
             )}
 
+            {/* Mot de passe */}
             <div className='mb-5'>
-              <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                Mot de passe
-              </label>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>Mot de passe</label>
               <div className='relative'>
                 <Lock className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  name='password'
-                  value={formData.password}
+                  name='mot_de_passe'
+                  value={formData.mot_de_passe}
                   onChange={handleChange}
                   placeholder='••••••••'
                   className='w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   required
+                  minLength={6}
                 />
                 <button
                   type='button'
@@ -223,6 +243,26 @@ const Register = () => {
               </div>
             </div>
 
+            {/* CGU */}
+            <div className='mb-5'>
+              <label className='flex items-start gap-3 cursor-pointer'>
+                <input
+                  type='checkbox'
+                  name='acceptTerms'
+                  checked={formData.acceptTerms}
+                  onChange={handleChange}
+                  className='mt-1 w-4 h-4 accent-[#1DBF73]'
+                />
+                <span className='text-sm text-gray-600'>
+                  J'accepte les{' '}
+                  <Link to='/terms' className='text-[#1DBF73] hover:underline font-medium'>conditions d'utilisation</Link>
+                  {' '}et la{' '}
+                  <Link to='/privacy' className='text-[#1DBF73] hover:underline font-medium'>politique de confidentialité</Link>
+                </span>
+              </label>
+            </div>
+
+            {/* Submit */}
             <motion.button
               type='submit'
               disabled={loading}
@@ -244,10 +284,7 @@ const Register = () => {
           <div className='pt-6 mt-6 text-center border-t border-gray-200'>
             <p className='text-gray-600'>
               Déjà un compte ?{' '}
-              <Link 
-                to='/login' 
-                className='font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors'
-              >
+              <Link to='/login' className='font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors'>
                 Se connecter
               </Link>
             </p>

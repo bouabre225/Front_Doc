@@ -1,97 +1,143 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Users, UserCheck, Package, Stethoscope,
-  ShoppingCart, AlertCircle, Settings, LogOut, Shield,
-  FileText, TrendingUp, Heart
+  LayoutDashboard,
+  Users,
+  UserCheck,
+  Stethoscope,
+  ShoppingCart,
+  AlertCircle,
+  LogOut,
+  Shield,
 } from 'lucide-react';
 
-const API_URL = 'http://localhost:8000/api';
-
-export default function AdminSidebar() {
+export default function AdminSidebar({ kycCount = 0, litigeCount = 0 }) {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const user = (() => {
+  const menuItems = [
+    {
+      title: 'Tableau de bord',
+      icon:  LayoutDashboard,
+      path:  '/admin/dashboard',
+    },
+    {
+      title: 'Utilisateurs',
+      icon:  Users,
+      path:  '/admin/users',
+    },
+    {
+      title: 'Vérification KYC',
+      icon:  UserCheck,
+      path:  '/admin/kyc',
+      badge: kycCount,
+      badgeColor: '#1DBF73',
+    },
+    {
+      title: 'Annonces',
+      icon:  Stethoscope,
+      path:  '/admin/annonces',
+    },
+    {
+      title: 'Commandes',
+      icon:  ShoppingCart,
+      path:  '/admin/commandes',
+    },
+    {
+      title: 'Litiges',
+      icon:  AlertCircle,
+      path:  '/admin/litiges',
+      badge: litigeCount,
+      badgeColor: '#ef4444',
+    },
+  ];
+
+  const isActive = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user');
+    window.dispatchEvent(new Event('storage'));
+    navigate('/admin/login');
+  };
+
+  // Récupérer l'user depuis localStorage
+  const currentUser = (() => {
     try { return JSON.parse(localStorage.getItem('user') || '{}'); }
     catch { return {}; }
   })();
 
-  const menuItems = [
-    { title: 'Tableau de bord', icon: LayoutDashboard, path: '/admin/dashboard' },
-    { title: 'Utilisateurs', icon: Users, path: '/admin/users' },
-    { title: 'Vérification KYC', icon: UserCheck, path: '/admin/verification' },
-    { title: 'Équipements', icon: Stethoscope, path: '/admin/equipments' },
-    { title: 'Commandes', icon: ShoppingCart, path: '/admin/orders' },
-    { title: 'Catégories', icon: Package, path: '/admin/categories' },
-    { title: 'Modération', icon: Shield, path: '/admin/moderation' },
-    { title: 'Signalements', icon: AlertCircle, path: '/admin/reports' },
-    { title: 'Avis', icon: Heart, path: '/admin/reviews' },
-    { title: 'Statistiques', icon: TrendingUp, path: '/admin/statistics' },
-    { title: 'Factures', icon: FileText, path: '/admin/invoices' },
-    { title: 'Paramètres', icon: Settings, path: '/admin/settings' },
-  ];
-
-  const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem('admin_token');
-      await fetch(`${API_URL}/logout`, {
-        method: 'POST',
-        headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${token}` }
-      });
-    } finally {
-      localStorage.removeItem('admin_token');
-      localStorage.removeItem('user');
-      navigate('/admin/login');
-    }
+  const getInitials = (nom) => {
+    if (!nom) return 'AD';
+    return nom.trim().split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
   };
 
-  const isActive = (path) => location.pathname === path;
-
   return (
-    <aside className='flex flex-col flex-shrink-0 w-64 min-h-screen bg-white border-r border-gray-100'>
+    <aside className='flex flex-col w-64 min-h-screen bg-white border-r border-gray-200 shrink-0'>
 
       {/* Logo */}
-      <div className='p-4 border-b border-gray-100'>
-        <Link to='/admin/dashboard' className='flex items-center gap-2 group'>
-          <img
-            src='/images/docspace.png'
-            alt='DocSpace'
-            className='object-contain h-10 w-28'
-          />
-          <span className='px-2 py-0.5 text-xs font-bold text-red-600 bg-red-50 border border-red-200 rounded-full'>
-            Admin
-          </span>
-        </Link>
-      </div>
+      <Link to='/admin/dashboard' className='flex items-center gap-3 px-6 py-5 border-b border-gray-100 group'>
+        <div className='w-10 h-10 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow shrink-0'>
+          <Stethoscope className='w-5 h-5 text-white' strokeWidth={2.5} />
+        </div>
+        <div>
+          <h1 className='text-lg font-bold bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent leading-tight'>
+            DocSpace
+          </h1>
+          <div className='flex items-center gap-1'>
+            <Shield className='w-3 h-3 text-gray-400' />
+            <p className='text-xs font-medium text-gray-400'>Admin Panel</p>
+          </div>
+        </div>
+      </Link>
 
-      {/* Nav */}
+      {/* Navigation */}
       <nav className='flex-1 px-3 py-4 overflow-y-auto'>
+        <p className='px-3 mb-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest'>
+          Navigation
+        </p>
         <ul className='space-y-0.5'>
           {menuItems.map((item) => {
-            const Icon = item.icon;
+            const Icon   = item.icon;
             const active = isActive(item.path);
+
             return (
               <li key={item.path}>
-                <Link to={item.path}
-                  className={`flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl transition-all group ${
-                    active
+                <Link
+                  to={item.path}
+                  className={`
+                    flex items-center justify-between gap-3 px-3 py-2.5
+                    rounded-xl transition-all group
+                    ${active
                       ? 'bg-gradient-to-r from-[#1DBF73]/10 to-[#09B1BA]/10'
                       : 'hover:bg-gray-50'
-                  }`}>
+                    }
+                  `}
+                >
                   <div className='flex items-center gap-3'>
-                    <Icon className={`w-4 h-4 flex-shrink-0 transition-colors ${
-                      active ? 'text-[#1DBF73]' : 'text-gray-400 group-hover:text-[#1DBF73]'
-                    }`} strokeWidth={active ? 2.5 : 2} />
+                    <Icon
+                      className={`w-5 h-5 transition-colors shrink-0 ${
+                        active
+                          ? 'text-[#1DBF73]'
+                          : 'text-gray-400 group-hover:text-[#1DBF73]'
+                      }`}
+                      strokeWidth={active ? 2.5 : 2}
+                    />
                     <span className={`text-sm transition-colors ${
-                      active ? 'font-semibold text-[#1DBF73]' : 'font-medium text-gray-600 group-hover:text-[#1DBF73]'
+                      active
+                        ? 'font-semibold text-[#1DBF73]'
+                        : 'font-medium text-gray-600 group-hover:text-[#1DBF73]'
                     }`}>
                       {item.title}
                     </span>
                   </div>
-                  {item.badge && (
-                    <span className='px-1.5 py-0.5 text-xs font-bold text-white bg-[#1DBF73] rounded-full'>
-                      {item.badge}
+
+                  {item.badge > 0 && (
+                    <span
+                      className='px-2 py-0.5 rounded-full text-[10px] font-bold text-white shrink-0'
+                      style={{ backgroundColor: item.badgeColor || '#1DBF73' }}
+                    >
+                      {item.badge > 99 ? '99+' : item.badge}
                     </span>
                   )}
                 </Link>
@@ -101,20 +147,27 @@ export default function AdminSidebar() {
         </ul>
       </nav>
 
-      {/* Footer profil */}
-      <div className='p-3 border-t border-gray-100'>
-        <div className='flex items-center gap-3 p-3 mb-2 rounded-xl bg-gray-50'>
-          <div className='flex items-center justify-center w-9 h-9 text-xs font-bold text-white rounded-xl bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] flex-shrink-0'>
-            {(user.nom || 'AD').slice(0, 2).toUpperCase()}
+      {/* Profil + Logout */}
+      <div className='px-3 py-4 border-t border-gray-100'>
+        <div className='flex items-center gap-3 px-3 py-3 mb-2 rounded-xl bg-gradient-to-r from-[#1DBF73]/5 to-[#09B1BA]/5'>
+          <div className='w-9 h-9 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-xl flex items-center justify-center text-white font-bold text-xs shadow-sm shrink-0'>
+            {getInitials(currentUser.nom)}
           </div>
-          <div className='overflow-hidden'>
-            <p className='text-sm font-semibold text-gray-800 truncate'>{user.nom || 'Admin'}</p>
-            <p className='text-xs text-gray-400 truncate'>{user.email || 'admin@docspace.com'}</p>
+          <div className='flex-1 min-w-0'>
+            <p className='text-sm font-semibold text-gray-800 truncate'>
+              {currentUser.nom || 'Administrateur'}
+            </p>
+            <p className='text-xs text-gray-400 truncate'>
+              {currentUser.email || ''}
+            </p>
           </div>
         </div>
-        <button onClick={handleLogout}
-          className='flex items-center w-full gap-2 px-3 py-2.5 text-sm font-medium text-red-500 rounded-xl hover:bg-red-50 transition-all'>
-          <LogOut className='w-4 h-4' />
+
+        <button
+          onClick={handleLogout}
+          className='flex items-center w-full gap-3 px-3 py-2.5 text-sm font-medium text-red-500 rounded-xl hover:bg-red-50 transition-all group'
+        >
+          <LogOut className='w-4 h-4 group-hover:scale-110 transition-transform' />
           Déconnexion
         </button>
       </div>

@@ -1,674 +1,462 @@
-import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+// src/pages/equipment/Equipment.jsx
+import React, { useState, useEffect } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, MapPin, Heart, ShoppingCart, Plus, Minus, X, Phone, Check, Package, Calendar, User, Layers } from 'lucide-react';
+import {
+  Star, MapPin, Heart, ShoppingCart, MessageSquare,
+  Check, Package, Calendar, User, Layers, AlertCircle,
+  ChevronLeft, ChevronRight, Minus, Plus, ShieldCheck, ArrowLeft
+} from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { useLang } from '../../context/LangContext';
+import { getAnnonceById, getImageUrl } from '../../../services/api';
+import { useCart } from '../../context/CartContext';
 
-const equipmentsData = {
-  1: {
-    id: 1,
-    name: 'Échographe GE Voluson E10',
-    category: 'Imagerie Médicale',
-    price: 45000,
-    originalPrice: 55000,
-    currency: 'EUR',
-    rating: 4.8,
-    reviews: 124,
-    location: 'Cotonou, Bénin',
-    condition: 'Neuf',
-    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=500',
-    images: [
-      'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=500',
-      'https://images.unsplash.com/photo-1559757175-0eb30cd8c063?w=800',
-      'https://images.unsplash.com/photo-1584982751601-97dcc096659c?w=800',
-    ],
-    seller: 'MediTech Solutions',
-    year: 2022,
-    description: 'Échographe portable en excellent état, peu utilisé. Idéal pour cabinet médical ou clinique.',
-    features: ['Écran HD 15 pouces', 'Doppler couleur', 'Batterie longue durée', 'Connexion WiFi'],
-    stock: 1,
-  },
-  2: {
-    id: 2,
-    name: 'Électrocardiographe 12 dérivations',
-    category: 'Cardiologie',
-    price: 2500,
-    originalPrice: 3200,
-    currency: 'EUR',
-    rating: 4.5,
-    reviews: 89,
-    location: 'Paris, France',
-    condition: 'Occasion',
-    image: 'https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?w=500',
-    images: [
-      'https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?w=500',
-      'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800',
-    ],
-    seller: 'CardioPlus',
-    year: 2020,
-    description: 'Électrocardiographe 12 dérivations en bon état de fonctionnement.',
-    features: ['12 dérivations', 'Écran tactile', 'Impression intégrée', 'Mémoire 1000 ECG'],
-    stock: 2,
-  },
-  3: {
-    id: 3,
-    name: 'Analyseur de sang automatique',
-    category: 'Laboratoire',
-    price: 15000,
-    originalPrice: 18000,
-    currency: 'USD',
-    rating: 4.7,
-    reviews: 56,
-    location: "Abidjan, Côte d'Ivoire",
-    condition: 'Reconditionné',
-    image: 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=500',
-    images: ['https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=500'],
-    seller: 'LabEquip Africa',
-    year: 2019,
-    description: 'Analyseur hématologique automatique reconditionné, testé et certifié.',
-    features: ['22 paramètres', 'Résultats en 60s', 'Capacité 60 tests/h', 'Écran couleur'],
-    stock: 1,
-  },
-  4: {
-    id: 4,
-    name: "Table d'opération électrique",
-    category: 'Chirurgie',
-    price: 8500,
-    originalPrice: 11000,
-    currency: 'EUR',
-    rating: 4.9,
-    reviews: 34,
-    location: 'Dakar, Sénégal',
-    condition: 'Neuf',
-    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=500',
-    images: ['https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=500'],
-    seller: 'SurgicalPro',
-    year: 2023,
-    description: "Table d'opération électrique multifonction, idéale pour bloc opératoire.",
-    features: ['4 sections', 'Télécommande', 'Charge max 300kg', 'Acier inox'],
-    stock: 2,
-  },
-  5: {
-    id: 5,
-    name: 'Moniteur Patient 5 paramètres',
-    category: 'Monitoring',
-    price: 3200,
-    originalPrice: 4500,
-    currency: 'EUR',
-    rating: 4.6,
-    reviews: 78,
-    location: 'Lomé, Togo',
-    condition: 'Occasion',
-    image: 'https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=500',
-    images: ['https://images.unsplash.com/photo-1631815588090-d4bfec5b1ccb?w=500'],
-    seller: 'MonitorTech',
-    year: 2021,
-    description: 'Moniteur multiparamétrique 5 en 1 pour suivi continu des patients.',
-    features: ['ECG', 'SpO2', 'NIBP', 'Température', 'Respiration'],
-    stock: 3,
-  },
-  6: {
-    id: 6,
-    name: 'Défibrillateur automatique',
-    category: 'Urgence',
-    price: 1800,
-    originalPrice: 2400,
-    currency: 'USD',
-    rating: 5.0,
-    reviews: 45,
-    location: 'Douala, Cameroun',
-    condition: 'Neuf',
-    image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=500',
-    images: ['https://images.unsplash.com/photo-1584515933487-779824d29309?w=500'],
-    seller: 'EmergencyMed',
-    year: 2023,
-    description: 'Défibrillateur automatique externe, simple et efficace pour les urgences.',
-    features: ['Guidage vocal', 'Analyse automatique', 'Choc 360J', 'IP55'],
-    stock: 5,
-  },
-  7: {
-    id: 7,
-    name: 'Lit médicalisé électrique 3 fonctions',
-    category: 'Mobilier Médical',
-    price: 1200,
-    originalPrice: 1600,
-    currency: 'EUR',
-    rating: 4.4,
-    reviews: 23,
-    location: 'Niamey, Niger',
-    condition: 'Occasion',
-    image: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=500',
-    images: ['https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=500'],
-    seller: 'HospitalFurniture',
-    year: 2020,
-    description: 'Lit médicalisé électrique 3 fonctions avec matelas inclus.',
-    features: ['3 fonctions électriques', 'Barrières latérales', 'Roulettes frein', 'Matelas inclus'],
-    stock: 4,
-  },
-  8: {
-    id: 8,
-    name: 'Autoclave stérilisateur 23L',
-    category: 'Stérilisation',
-    price: 950,
-    originalPrice: 1200,
-    currency: 'EUR',
-    rating: 4.6,
-    reviews: 67,
-    location: 'Ouagadougou, Burkina Faso',
-    condition: 'Reconditionné',
-    image: 'https://images.unsplash.com/photo-1583911860205-72f8ac8ddcbe?w=500',
-    images: ['https://images.unsplash.com/photo-1583911860205-72f8ac8ddcbe?w=500'],
-    seller: 'SterileTech',
-    year: 2019,
-    description: 'Autoclave 23L reconditionné pour stérilisation de matériel médical.',
-    features: ['23 litres', '134°C', 'Cycle rapide 20min', 'Affichage digital'],
-    stock: 2,
-  },
-  9: {
-    id: 9,
-    name: 'Microscope binoculaire LED',
-    category: 'Laboratoire',
-    price: 3500,
-    originalPrice: 4200,
-    currency: 'EUR',
-    rating: 4.7,
-    reviews: 38,
-    location: 'Cotonou, Bénin',
-    condition: 'Neuf',
-    image: 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=500',
-    images: ['https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=500'],
-    seller: 'LabTech',
-    year: 2023,
-    description: 'Microscope binoculaire LED haute résolution pour laboratoire.',
-    features: ['Grossissement 40-1000x', 'LED intégrée', 'Platine mécanique', 'Oculaires 10x'],
-    stock: 3,
-  },
-  10: {
-    id: 10,
-    name: 'Respirateur artificiel portable',
-    category: 'Urgence',
-    price: 12000,
-    originalPrice: 15000,
-    currency: 'EUR',
-    rating: 4.8,
-    reviews: 29,
-    location: 'Paris, France',
-    condition: 'Occasion',
-    image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=500',
-    images: ['https://images.unsplash.com/photo-1584515933487-779824d29309?w=500'],
-    seller: 'RespiCare',
-    year: 2021,
-    description: 'Respirateur portable pour transport et urgences, certifié CE.',
-    features: ['Modes VCV/PCV', 'Batterie 6h', 'Alarmes multiples', 'Compact 4kg'],
-    stock: 1,
-  },
-  11: {
-    id: 11,
-    name: 'Scanner IRM Siemens',
-    category: 'Imagerie Médicale',
-    price: 125000,
-    originalPrice: 180000,
-    currency: 'EUR',
-    rating: 4.9,
-    reviews: 15,
-    location: "Abidjan, Côte d'Ivoire",
-    condition: 'Reconditionné',
-    image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=500',
-    images: ['https://images.unsplash.com/photo-1516549655169-df83a0774514?w=500'],
-    seller: 'ImagingPro',
-    year: 2018,
-    description: 'Scanner IRM Siemens reconditionné, idéal pour hôpitaux et cliniques.',
-    features: ['1.5 Tesla', 'Champ large', 'Logiciel dernière version', 'Installation incluse'],
-    stock: 1,
-  },
-  12: {
-    id: 12,
-    name: 'Lampe scialytique opératoire',
-    category: 'Chirurgie',
-    price: 4500,
-    originalPrice: 6000,
-    currency: 'EUR',
-    rating: 4.6,
-    reviews: 42,
-    location: 'Dakar, Sénégal',
-    condition: 'Neuf',
-    image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=500',
-    images: ['https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=500'],
-    seller: 'SurgeryLight',
-    year: 2023,
-    description: 'Lampe scialytique LED pour bloc opératoire, sans ombre portée.',
-    features: ['LED 120W', 'Sans ombre', 'Réglage couleur', 'Bras articulé'],
-    stock: 3,
-  },
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const etatStyle = (etat) => {
+  if (!etat) return 'bg-gray-100 text-gray-600';
+  const e = etat.toLowerCase();
+  if (e === 'neuf')        return 'bg-emerald-100 text-emerald-700';
+  if (e === 'occasion')    return 'bg-amber-100 text-amber-700';
+  if (e.includes('recon')) return 'bg-blue-100 text-blue-700';
+  return 'bg-gray-100 text-gray-600';
 };
 
-const paymentMethods = [
-  {
-    id: 'mtn',
-    name: 'MTN MoMo',
-    border: 'border-yellow-400',
-    activeBg: 'bg-yellow-50',
-    logo: <img src='/images/mtn.webp' alt='MTN MoMo' className='object-contain w-12 h-12 rounded-xl' />,
-  },
-  {
-    id: 'moov',
-    name: 'Moov Money',
-    border: 'border-blue-500',
-    activeBg: 'bg-blue-50',
-    logo: <img src='/images/moov.webp' alt='Moov Money' className='object-contain w-12 h-12 rounded-xl' />,
-  },
-  {
-    id: 'celtis',
-    name: 'Celtis Cash',
-    border: 'border-orange-400',
-    activeBg: 'bg-orange-50',
-    logo: <img src='/images/celtiis.webp' alt='Celtis Cash' className='object-contain w-12 h-12 rounded-xl' />,
-  },
-];
-
-const CartSidebar = ({ cartItems, onClose, onUpdateQuantity, onRemove }) => {
-  const [step, setStep] = useState('cart');
-  const [paymentMethod, setPaymentMethod] = useState('');
-  const [phone, setPhone] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-  const handlePayment = () => {
-    setLoading(true);
-    setTimeout(() => { setLoading(false); setStep('success'); }, 2000);
-  };
-
-  return (
-    <motion.div
-      initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className='fixed top-0 right-0 z-50 flex flex-col w-full h-full max-w-md bg-white shadow-2xl'
-    >
-      {/* Header sidebar */}
-      <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50'>
-        <div className='flex items-center gap-3'>
-          {step === 'cart' && <ShoppingCart className='w-5 h-5 text-[#1DBF73]' />}
-          {step === 'payment' && <Layers className='w-5 h-5 text-[#1DBF73]' />}
-          {step === 'success' && <Check className='w-5 h-5 text-[#1DBF73]' />}
-          <h2 className='text-base font-bold text-gray-900'>
-            {step === 'cart' ? 'Mon Panier' : step === 'payment' ? 'Paiement sécurisé' : 'Commande confirmée'}
-          </h2>
-        </div>
-        <button onClick={onClose} className='p-2 transition-colors rounded-full hover:bg-gray-200'>
-          <X className='w-4 h-4 text-gray-500' />
-        </button>
-      </div>
-
-      <div className='flex-1 p-6 overflow-y-auto'>
-        {/* PANIER */}
-        {step === 'cart' && (
-          <>
-            {cartItems.length === 0 ? (
-              <div className='flex flex-col items-center justify-center py-20 text-center'>
-                <div className='flex items-center justify-center w-16 h-16 mb-4 bg-gray-100 rounded-2xl'>
-                  <ShoppingCart className='w-8 h-8 text-gray-400' />
-                </div>
-                <p className='font-semibold text-gray-700'>Votre panier est vide</p>
-                <p className='mt-1 text-sm text-gray-400'>Ajoutez des équipements pour commencer</p>
-              </div>
-            ) : (
-              <div className='space-y-3'>
-                {cartItems.map((item) => (
-                  <div key={item.id} className='flex gap-4 p-4 border border-gray-100 bg-gray-50 rounded-2xl'>
-                    <img src={item.image} alt={item.name} className='flex-shrink-0 object-cover w-20 h-20 rounded-xl' />
-                    <div className='flex-1 min-w-0'>
-                      <p className='text-sm font-semibold leading-snug text-gray-900 line-clamp-2'>{item.name}</p>
-                      <p className='text-[#1DBF73] font-bold mt-1 text-sm'>{item.price.toLocaleString()} {item.currency}</p>
-                      <div className='flex items-center gap-2 mt-3'>
-                        <button onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                          className='flex items-center justify-center transition-colors bg-white border border-gray-200 rounded-lg w-7 h-7 hover:bg-gray-100'>
-                          <Minus className='w-3 h-3 text-gray-600' />
-                        </button>
-                        <span className='w-6 text-sm font-bold text-center'>{item.quantity}</span>
-                        <button onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                          className='flex items-center justify-center transition-colors bg-white border border-gray-200 rounded-lg w-7 h-7 hover:bg-gray-100'>
-                          <Plus className='w-3 h-3 text-gray-600' />
-                        </button>
-                        <button onClick={() => onRemove(item.id)}
-                          className='ml-auto p-1.5 hover:bg-red-50 hover:text-red-500 rounded-lg transition-colors text-gray-400'>
-                          <X className='w-4 h-4' />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {/* PAIEMENT */}
-        {step === 'payment' && (
-          <div className='space-y-4'>
-            <p className='text-sm font-semibold text-gray-700'>Sélectionnez votre opérateur</p>
-            <div className='space-y-3'>
-              {paymentMethods.map((method) => (
-                <button key={method.id} onClick={() => setPaymentMethod(method.id)}
-                  className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${
-                    paymentMethod === method.id ? `${method.border} ${method.activeBg}` : 'border-gray-100 bg-gray-50 hover:border-gray-200'
-                  }`}>
-                  <div className='flex items-center justify-center flex-shrink-0 overflow-hidden bg-white shadow-sm w-14 h-14 rounded-xl'>
-                    {method.logo}
-                  </div>
-                  <div className='flex-1 text-left'>
-                    <p className='font-bold text-gray-900'>{method.name}</p>
-                    <p className='text-xs text-gray-400 mt-0.5'>Paiement mobile instantané</p>
-                  </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                    paymentMethod === method.id ? 'border-[#1DBF73] bg-[#1DBF73]' : 'border-gray-300'
-                  }`}>
-                    {paymentMethod === method.id && <Check className='w-3 h-3 text-white' />}
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <AnimatePresence>
-              {paymentMethod && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                  className='p-4 mt-2 border border-gray-100 bg-gray-50 rounded-2xl'>
-                  <label className='block mb-3 text-sm font-semibold text-gray-700'>Numéro de téléphone</label>
-                  <div className='flex gap-2'>
-                    <div className='flex items-center px-3 text-sm font-semibold text-gray-600 bg-white border border-gray-200 rounded-xl'>+229</div>
-                    <input type='tel' value={phone} onChange={(e) => setPhone(e.target.value)} placeholder='XX XX XX XX'
-                      className='flex-1 px-4 py-2.5 text-sm border border-gray-200 bg-white rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all' />
-                  </div>
-                  <p className='mt-2 text-xs text-gray-400'>Une confirmation sera envoyée sur ce numéro</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Récapitulatif */}
-            <div className='p-4 bg-gradient-to-br from-[#1DBF73]/5 to-[#09B1BA]/5 rounded-2xl border border-[#1DBF73]/15'>
-              <p className='mb-3 text-sm font-semibold text-gray-700'>Récapitulatif de commande</p>
-              {cartItems.map((item) => (
-                <div key={item.id} className='flex justify-between mb-2 text-sm'>
-                  <span className='mr-2 text-gray-600 truncate'>{item.name.slice(0, 22)}... ×{item.quantity}</span>
-                  <span className='flex-shrink-0 font-semibold text-gray-800'>{(item.price * item.quantity).toLocaleString()} {item.currency}</span>
-                </div>
-              ))}
-              <div className='flex justify-between font-bold mt-3 pt-3 border-t border-[#1DBF73]/20'>
-                <span className='text-gray-900'>Total à payer</span>
-                <span className='text-[#1DBF73] text-lg'>{total.toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* SUCCÈS */}
-        {step === 'success' && (
-          <div className='flex flex-col items-center justify-center py-12 text-center'>
-            <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', damping: 15 }}
-              className='w-24 h-24 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-full flex items-center justify-center mb-6 shadow-lg'>
-              <Check className='w-12 h-12 text-white' strokeWidth={3} />
-            </motion.div>
-            <h3 className='mb-2 text-2xl font-bold text-gray-900'>Commande confirmée !</h3>
-            <p className='mb-6 text-sm leading-relaxed text-gray-500'>
-              Une confirmation a été envoyée<br/>sur le numéro <span className='font-semibold text-gray-700'>{phone}</span>
-            </p>
-            <div className='w-full p-4 text-left border border-gray-100 bg-gray-50 rounded-2xl'>
-              <p className='mb-1 text-xs tracking-wider text-gray-400 uppercase'>Référence commande</p>
-              <p className='text-[#1DBF73] font-bold text-lg tracking-wider'>#{Math.random().toString(36).substr(2, 9).toUpperCase()}</p>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Footer sidebar */}
-      {cartItems.length > 0 && step !== 'success' && (
-        <div className='px-6 py-4 bg-white border-t border-gray-100'>
-          {step === 'cart' && (
-            <>
-              <div className='flex items-center justify-between mb-4'>
-                <span className='text-sm text-gray-500'>Total</span>
-                <span className='text-xl font-bold text-gray-900'>{total.toLocaleString()} <span className='text-sm font-normal text-gray-500'>EUR</span></span>
-              </div>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={() => setStep('payment')}
-                className='w-full py-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all'>
-                Procéder au paiement
-              </motion.button>
-            </>
-          )}
-          {step === 'payment' && (
-            <div className='flex gap-3'>
-              <button onClick={() => setStep('cart')}
-                className='flex-1 py-3.5 font-semibold text-gray-700 bg-gray-100 rounded-2xl hover:bg-gray-200 transition-all'>
-                Retour
-              </button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handlePayment}
-                disabled={!paymentMethod || !phone || loading}
-                className='flex-2 px-8 py-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-2xl shadow-lg disabled:opacity-40 transition-all'>
-                {loading ? (
-                  <div className='flex items-center justify-center gap-2'>
-                    <div className='w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin'></div>
-                    Traitement...
-                  </div>
-                ) : 'Payer maintenant'}
-              </motion.button>
-            </div>
-          )}
-        </div>
-      )}
-
-      {step === 'success' && (
-        <div className='px-6 py-4 border-t border-gray-100'>
-          <button onClick={onClose}
-            className='w-full py-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-2xl'>
-            Fermer
-          </button>
-        </div>
-      )}
-    </motion.div>
-  );
-};
+// ─── Composant principal ─────────────────────────────────────────────────────
 
 function Equipment() {
-  const { id } = useParams();
-  const { t } = useLang();
+  const { id }       = useParams();
+  const navigate     = useNavigate();
+  const { addToCart, isInCart } = useCart();
+
+  const [annonce,       setAnnonce]       = useState(null);
+  const [loading,       setLoading]       = useState(true);
+  const [error,         setError]         = useState('');
   const [selectedImage, setSelectedImage] = useState(0);
-  const [cartOpen, setCartOpen] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [liked, setLiked] = useState(false);
-  const [addedToCart, setAddedToCart] = useState(false);
+  const [quantite,      setQuantite]      = useState(1);
+  const [addedToCart,   setAddedToCart]   = useState(false);
+  const [isFavorite,    setIsFavorite]    = useState(() => {
+    try {
+      const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+      return favs.includes(id);
+    } catch { return false; }
+  });
 
-  const equipment = equipmentsData[parseInt(id)] || equipmentsData[1];
+  useEffect(() => {
+    const fetch = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const data = await getAnnonceById(id);
+        // L'API peut retourner { data: annonce } ou l'annonce directement
+        setAnnonce(data?.data ?? data);
+      } catch {
+        setError("Équipement introuvable ou une erreur est survenue.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetch();
+  }, [id]);
 
-  const addToCart = () => {
-    const existing = cartItems.find(item => item.id === equipment.id);
-    if (existing) {
-      setCartItems(cartItems.map(item => item.id === equipment.id ? { ...item, quantity: item.quantity + 1 } : item));
-    } else {
-      setCartItems([...cartItems, { ...equipment, quantity: 1 }]);
+  // ─── Favoris ────────────────────────────────────────────────────────────
+  const handleFavorite = () => {
+    const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
+    const updated = isFavorite ? favs.filter(f => f !== id) : [...favs, id];
+    localStorage.setItem('favorites', JSON.stringify(updated));
+    setIsFavorite(!isFavorite);
+  };
+
+  // ─── Panier ─────────────────────────────────────────────────────────────
+  const handleAddToCart = () => {
+    if (!annonce) return;
+
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      navigate('/login', { state: { from: `/equipment/${id}` } });
+      return;
     }
+
+    addToCart(annonce, quantite);
     setAddedToCart(true);
-    setCartOpen(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+    setTimeout(() => setAddedToCart(false), 2500);
   };
 
-  const updateQuantity = (id, quantity) => {
-    if (quantity <= 0) {
-      setCartItems(cartItems.filter(item => item.id !== id));
-    } else {
-      setCartItems(cartItems.map(item => item.id === id ? { ...item, quantity } : item));
+  // ─── Contact vendeur ────────────────────────────────────────────────────
+  const handleContact = () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      navigate('/login', { state: { from: `/equipment/${id}` } });
+      return;
     }
+    navigate(`/messages?userId=${annonce?.vendeur_id}&annonceId=${annonce?.id}&vendeurNom=${encodeURIComponent(annonce?.vendeur?.nom || 'Vendeur')}`);
   };
 
-  const removeFromCart = (id) => setCartItems(cartItems.filter(item => item.id !== id));
-  const totalCartItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  // ─── Loading ─────────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className='min-h-screen bg-gray-50'>
+        <Header />
+        <div className='container max-w-5xl px-4 py-10 mx-auto'>
+          <div className='grid grid-cols-1 gap-8 lg:grid-cols-2 animate-pulse'>
+            <div className='h-80 bg-gray-200 rounded-2xl' />
+            <div className='space-y-4'>
+              <div className='h-4 bg-gray-200 rounded w-1/3' />
+              <div className='h-8 bg-gray-200 rounded w-3/4' />
+              <div className='h-20 bg-gray-200 rounded' />
+              <div className='grid grid-cols-2 gap-3'>
+                {[1,2,3,4].map(i => <div key={i} className='h-20 bg-gray-200 rounded-2xl' />)}
+              </div>
+            </div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !annonce) {
+    return (
+      <div className='min-h-screen bg-gray-50'>
+        <Header />
+        <div className='flex flex-col items-center justify-center py-40 gap-4'>
+          <AlertCircle className='w-12 h-12 text-red-400' />
+          <p className='text-xl font-bold text-gray-700'>{error || "Équipement introuvable"}</p>
+          <Link to='/explore' className='px-6 py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl'>
+            Retour à l'exploration
+          </Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const images      = annonce.images || [];
+  const avis        = annonce.avis || [];
+  const noteMoyenne = avis.length > 0
+    ? (avis.reduce((sum, a) => sum + (a.note || 0), 0) / avis.length).toFixed(1)
+    : null;
+  const stockDispo  = Number(annonce.quantite) || 0;
+  const alreadyInCart = isInCart(annonce.id);
 
   return (
     <div className='min-h-screen bg-gray-50'>
       <Header />
 
-      <AnimatePresence>
-        {cartOpen && (
-          <>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setCartOpen(false)} className='fixed inset-0 z-40 bg-black/40 backdrop-blur-sm' />
-            <CartSidebar cartItems={cartItems} onClose={() => setCartOpen(false)}
-              onUpdateQuantity={updateQuantity} onRemove={removeFromCart} />
-          </>
-        )}
-      </AnimatePresence>
+      <div className='container max-w-5xl px-4 py-10 mx-auto'>
 
-      {/* Bouton panier flottant */}
-      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setCartOpen(true)}
-        className='fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-2xl flex items-center justify-center shadow-xl z-30'>
-        <ShoppingCart className='w-6 h-6 text-white' />
-        {totalCartItems > 0 && (
-          <span className='absolute flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-500 rounded-full shadow-md -top-2 -right-2'>
-            {totalCartItems}
-          </span>
-        )}
-      </motion.button>
-
-      {/* Contenu principal avec espacement top/bottom */}
-      <div className='container max-w-6xl px-4 py-12 mx-auto'>
-        <div className='grid grid-cols-1 gap-12 lg:grid-cols-2'>
-
-          {/* Colonne images */}
-          <div>
-            <motion.div className='relative mb-4 overflow-hidden bg-white shadow-lg rounded-3xl' whileHover={{ scale: 1.005 }}>
-              <img src={equipment.images[selectedImage]} alt={equipment.name} className='object-cover w-full h-96' />
-              <button onClick={() => setLiked(!liked)}
-                className='absolute flex items-center justify-center transition-transform bg-white shadow-lg w-11 h-11 rounded-2xl top-4 right-4 hover:scale-110'>
-                <Heart className={`w-5 h-5 ${liked ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
-              </button>
-              <div className='absolute bottom-4 left-4'>
-                <span className='px-3 py-1.5 bg-white/90 backdrop-blur-sm text-xs font-semibold text-gray-700 rounded-xl shadow-sm'>
-                  {equipment.condition}
-                </span>
-              </div>
-            </motion.div>
-
-            {equipment.images.length > 1 && (
-              <div className='flex gap-3'>
-                {equipment.images.map((img, index) => (
-                  <button key={index} onClick={() => setSelectedImage(index)}
-                    className={`w-20 h-20 rounded-2xl overflow-hidden border-2 transition-all hover:scale-105 ${
-                      selectedImage === index ? 'border-[#1DBF73] shadow-md' : 'border-gray-200'
-                    }`}>
-                    <img src={img} alt='' className='object-cover w-full h-full' />
-                  </button>
-                ))}
-              </div>
+        {/* Fil d'Ariane + retour */}
+        <div className='flex items-center justify-between mb-6'>
+          <div className='flex items-center gap-2 text-sm text-gray-500'>
+            <Link to='/' className='hover:text-[#1DBF73] transition-colors'>Accueil</Link>
+            <span>/</span>
+            <Link to='/explore' className='hover:text-[#1DBF73] transition-colors'>Explorer</Link>
+            {annonce.categorie && (
+              <>
+                <span>/</span>
+                <Link to={`/categories/${annonce.categorie?.toLowerCase().replace(/\s+/g, '-')}`} className='hover:text-[#1DBF73] transition-colors'>
+                  {annonce.categorie}
+                </Link>
+              </>
             )}
+            <span>/</span>
+            <span className='text-gray-900 font-medium line-clamp-1 max-w-[160px]'>{annonce.titre}</span>
+          </div>
+          <button
+            onClick={() => navigate(-1)}
+            className='flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1DBF73] transition-colors'
+          >
+            <ArrowLeft className='w-4 h-4' />
+            Retour
+          </button>
+        </div>
+
+        <div className='grid grid-cols-1 gap-10 lg:grid-cols-2'>
+
+          {/* ── Galerie ──────────────────────────────────────────────── */}
+          <div className='space-y-4'>
+            <div className='relative overflow-hidden bg-gray-100 rounded-2xl h-96 group'>
+              {images[selectedImage] ? (
+                <img
+                  src={getImageUrl(images[selectedImage].image_url)}
+                  alt={annonce.titre}
+                  className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-105'
+                />
+              ) : (
+                <div className='flex items-center justify-center w-full h-full'>
+                  <span className='text-8xl'>🏥</span>
+                </div>
+              )}
+
+              {/* Badge état */}
+              {annonce.etat && (
+                <span className={`absolute top-4 left-4 px-3 py-1 text-xs font-bold rounded-full capitalize ${etatStyle(annonce.etat)}`}>
+                  {annonce.etat}
+                </span>
+              )}
+
+              {/* Favori */}
+              <button
+                onClick={handleFavorite}
+                className='absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all'
+              >
+                <Heart className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+              </button>
+
+              {/* Navigation flèches */}
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={() => setSelectedImage(i => Math.max(0, i - 1))}
+                    disabled={selectedImage === 0}
+                    className='absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all disabled:opacity-30'
+                  >
+                    <ChevronLeft className='w-4 h-4 text-gray-700' />
+                  </button>
+                  <button
+                    onClick={() => setSelectedImage(i => Math.min(images.length - 1, i + 1))}
+                    disabled={selectedImage === images.length - 1}
+                    className='absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all disabled:opacity-30'
+                  >
+                    <ChevronRight className='w-4 h-4 text-gray-700' />
+                  </button>
+                  {/* Indicateur */}
+                  <div className='absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5'>
+                    {images.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setSelectedImage(i)}
+                        className={`w-2 h-2 rounded-full transition-all ${i === selectedImage ? 'bg-white w-5' : 'bg-white/50'}`}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
-          {/* Colonne détails */}
-          <div className='flex flex-col gap-6'>
-
-            {/* Titre et catégorie */}
+          {/* ── Détails ──────────────────────────────────────────────── */}
+          <div className='space-y-5'>
+            {/* Catégorie + Titre */}
             <div>
-              <span className='inline-block px-3 py-1 bg-[#09B1BA]/10 text-[#09B1BA] text-xs font-semibold rounded-full mb-3'>
-                {equipment.category}
-              </span>
-              <h1 className='text-3xl font-bold leading-tight text-gray-900'>{equipment.name}</h1>
+              {annonce.categorie && (
+                <span className='text-xs font-bold text-[#09B1BA] uppercase tracking-wide'>
+                  {annonce.categorie}
+                </span>
+              )}
+              <h1 className='mt-1 text-2xl font-bold text-gray-900 leading-snug'>{annonce.titre}</h1>
 
-              <div className='flex items-center gap-5 mt-4'>
-                <div className='flex items-center gap-1.5'>
-                  <Star className='w-4 h-4 text-yellow-400 fill-yellow-400' />
-                  <span className='font-bold text-gray-800'>{equipment.rating}</span>
-                  <span className='text-sm text-gray-400'>({equipment.reviews} avis)</span>
-                </div>
-                <div className='flex items-center gap-1.5 text-sm text-gray-500'>
-                  <MapPin className='w-4 h-4 text-[#1DBF73]' />
-                  <span>{equipment.location}</span>
-                </div>
+              {/* Note + localisation */}
+              <div className='flex flex-wrap items-center gap-3 mt-2'>
+                {noteMoyenne && (
+                  <div className='flex items-center gap-1'>
+                    {[1,2,3,4,5].map(s => (
+                      <Star key={s} className={`w-4 h-4 ${s <= Math.round(noteMoyenne) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                    ))}
+                    <span className='ml-1 text-sm font-semibold text-gray-700'>{noteMoyenne}</span>
+                    <span className='text-xs text-gray-400'>({avis.length} avis)</span>
+                  </div>
+                )}
+                {annonce.pays_expedition && (
+                  <div className='flex items-center gap-1 text-sm text-gray-500'>
+                    <MapPin className='w-4 h-4 text-[#1DBF73]' />
+                    {annonce.pays_expedition}
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Prix */}
             <div className='p-5 bg-gradient-to-br from-[#1DBF73]/5 to-[#09B1BA]/5 rounded-2xl border border-[#1DBF73]/15'>
-              <div className='text-4xl font-bold text-[#1DBF73]'>
-                {equipment.price.toLocaleString()}
-                <span className='ml-2 text-lg font-semibold text-gray-500'>{equipment.currency}</span>
+              <p className='text-xs text-gray-500 mb-1'>Prix unitaire</p>
+              <div className='text-4xl font-black text-[#1DBF73]'>
+                {Number(annonce.prix_vendeur).toLocaleString('fr-FR')}
+                <span className='ml-2 text-lg font-semibold text-gray-400'>FCFA</span>
               </div>
-              {equipment.originalPrice && (
-                <p className='mt-1 text-sm text-gray-400 line-through'>
-                  Prix original : {equipment.originalPrice.toLocaleString()} {equipment.currency}
+              {stockDispo > 0 && (
+                <p className='text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1'>
+                  <ShieldCheck className='w-3.5 h-3.5' />
+                  {stockDispo} unité{stockDispo > 1 ? 's' : ''} disponible{stockDispo > 1 ? 's' : ''}
                 </p>
               )}
             </div>
 
             {/* Infos grille */}
             <div className='grid grid-cols-2 gap-3'>
-              <div className='flex items-center gap-3 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl'>
-                <div className='w-9 h-9 bg-[#1DBF73]/10 rounded-xl flex items-center justify-center'>
-                  <Package className='w-4 h-4 text-[#1DBF73]' />
+              {[
+                { icon: Package,  color: 'bg-[#1DBF73]/10', iconColor: 'text-[#1DBF73]',   label: 'État',       value: annonce.etat },
+                { icon: Layers,   color: 'bg-[#09B1BA]/10', iconColor: 'text-[#09B1BA]',   label: 'Quantité',   value: `${annonce.quantite} dispo.` },
+                { icon: User,     color: 'bg-purple-50',    iconColor: 'text-purple-400',   label: 'Vendeur',    value: annonce.vendeur?.nom || '—' },
+                { icon: Calendar, color: 'bg-orange-50',    iconColor: 'text-orange-400',   label: 'Publié le',  value: new Date(annonce.created_at).toLocaleDateString('fr-FR') },
+              ].map(({ icon: Icon, color, iconColor, label, value }) => (
+                <div key={label} className='flex items-center gap-3 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl'>
+                  <div className={`w-9 h-9 ${color} rounded-xl flex items-center justify-center`}>
+                    <Icon className={`w-4 h-4 ${iconColor}`} />
+                  </div>
+                  <div className='min-w-0'>
+                    <p className='text-xs text-gray-400'>{label}</p>
+                    <p className='text-sm font-semibold text-gray-900 truncate capitalize'>{value}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className='text-xs text-gray-400'>État</p>
-                  <p className='text-sm font-semibold text-gray-900'>{equipment.condition}</p>
-                </div>
-              </div>
-              <div className='flex items-center gap-3 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl'>
-                <div className='w-9 h-9 bg-[#09B1BA]/10 rounded-xl flex items-center justify-center'>
-                  <Calendar className='w-4 h-4 text-[#09B1BA]' />
-                </div>
-                <div>
-                  <p className='text-xs text-gray-400'>Année</p>
-                  <p className='text-sm font-semibold text-gray-900'>{equipment.year}</p>
-                </div>
-              </div>
-              <div className='flex items-center gap-3 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl'>
-                <div className='flex items-center justify-center w-9 h-9 bg-purple-50 rounded-xl'>
-                  <User className='w-4 h-4 text-purple-400' />
-                </div>
-                <div>
-                  <p className='text-xs text-gray-400'>Vendeur</p>
-                  <p className='text-sm font-semibold text-gray-900'>{equipment.seller}</p>
-                </div>
-              </div>
-              <div className='flex items-center gap-3 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl'>
-                <div className='flex items-center justify-center w-9 h-9 bg-orange-50 rounded-xl'>
-                  <Layers className='w-4 h-4 text-orange-400' />
-                </div>
-                <div>
-                  <p className='text-xs text-gray-400'>Stock</p>
-                  <p className='text-sm font-semibold text-gray-900'>{equipment.stock} disponible(s)</p>
-                </div>
-              </div>
+              ))}
             </div>
 
             {/* Description */}
-            <p className='text-sm leading-relaxed text-gray-600'>{equipment.description}</p>
-
-            {/* Caractéristiques */}
-            <div>
-              <p className='mb-3 text-sm font-semibold tracking-wide text-gray-900 uppercase'>Caractéristiques</p>
-              <div className='flex flex-wrap gap-2'>
-                {equipment.features.map((feature, index) => (
-                  <span key={index} className='px-3 py-1.5 bg-white border border-[#1DBF73]/30 text-[#1DBF73] text-xs rounded-xl font-medium shadow-sm'>
-                    {feature}
-                  </span>
-                ))}
+            {annonce.description && (
+              <div className='p-4 bg-white border border-gray-100 rounded-2xl'>
+                <p className='text-xs font-semibold text-gray-400 uppercase mb-2'>Description</p>
+                <p className='text-sm leading-relaxed text-gray-600'>{annonce.description}</p>
               </div>
-            </div>
+            )}
+
+            {/* Sélecteur quantité */}
+            {stockDispo > 1 && (
+              <div className='flex items-center gap-4'>
+                <span className='text-sm font-semibold text-gray-700'>Quantité :</span>
+                <div className='flex items-center gap-2 bg-white border border-gray-200 rounded-xl p-1'>
+                  <button
+                    onClick={() => setQuantite(q => Math.max(1, q - 1))}
+                    className='w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors'
+                  >
+                    <Minus className='w-4 h-4 text-gray-600' />
+                  </button>
+                  <span className='w-8 text-center font-bold text-gray-900'>{quantite}</span>
+                  <button
+                    onClick={() => setQuantite(q => Math.min(stockDispo, q + 1))}
+                    className='w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition-colors'
+                  >
+                    <Plus className='w-4 h-4 text-gray-600' />
+                  </button>
+                </div>
+                <span className='text-xs text-gray-400'>max {stockDispo}</span>
+              </div>
+            )}
 
             {/* Boutons actions */}
-            <div className='flex gap-3 pt-2'>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={addToCart}
-                className='flex-1 py-4 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2'>
-                <ShoppingCart className='w-5 h-5' />
-                {addedToCart ? 'Ajouté au panier !' : 'Ajouter au panier'}
+            <div className='flex gap-3 pt-1'>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleAddToCart}
+                disabled={stockDispo === 0}
+                className={`flex-1 py-4 font-semibold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 ${
+                  stockDispo === 0
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : alreadyInCart
+                    ? 'bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white hover:shadow-xl'
+                    : 'bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white hover:shadow-xl'
+                }`}
+              >
+                <AnimatePresence mode='wait'>
+                  {addedToCart ? (
+                    <motion.span
+                      key='added'
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      className='flex items-center gap-2'
+                    >
+                      <Check className='w-5 h-5' /> Ajouté au panier !
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key='add'
+                      initial={{ opacity: 0, y: 5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -5 }}
+                      className='flex items-center gap-2'
+                    >
+                      <ShoppingCart className='w-5 h-5' />
+                      {stockDispo === 0 ? 'Rupture de stock' : alreadyInCart ? 'Déjà dans le panier' : 'Ajouter au panier'}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
               </motion.button>
-              <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
-                className='px-6 py-4 border-2 border-[#1DBF73] text-[#1DBF73] font-semibold rounded-2xl hover:bg-[#1DBF73]/5 transition-all flex items-center gap-2'>
-                <Phone className='w-5 h-5' />
+
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleFavorite}
+                className='px-4 py-4 border-2 border-gray-200 rounded-2xl hover:border-red-300 transition-all'
+              >
+                <Heart className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+              </motion.button>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleContact}
+                className='px-5 py-4 border-2 border-[#1DBF73] text-[#1DBF73] font-semibold rounded-2xl hover:bg-[#1DBF73]/5 transition-all flex items-center gap-2 text-sm'
+              >
+                <MessageSquare className='w-4 h-4' />
                 Contacter
               </motion.button>
             </div>
+
+            {/* Lien vers panier si déjà ajouté */}
+            <AnimatePresence>
+              {(addedToCart || alreadyInCart) && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                >
+                  <Link
+                    to='/cart'
+                    className='flex items-center justify-center gap-2 w-full py-3 bg-white border-2 border-[#1DBF73]/30 text-[#1DBF73] font-semibold rounded-xl hover:bg-[#1DBF73]/5 transition-all text-sm'
+                  >
+                    <ShoppingCart className='w-4 h-4' />
+                    Voir mon panier →
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
+
+        {/* ── Avis ─────────────────────────────────────────────────── */}
+        {avis.length > 0 && (
+          <div className='mt-14'>
+            <div className='flex items-center justify-between mb-6'>
+              <h2 className='text-xl font-bold text-gray-900'>Avis clients ({avis.length})</h2>
+              {noteMoyenne && (
+                <div className='flex items-center gap-2 px-4 py-2 bg-yellow-50 rounded-xl border border-yellow-100'>
+                  <Star className='w-5 h-5 fill-yellow-400 text-yellow-400' />
+                  <span className='font-bold text-gray-900'>{noteMoyenne}</span>
+                  <span className='text-sm text-gray-400'>/ 5</span>
+                </div>
+              )}
+            </div>
+            <div className='grid gap-4 md:grid-cols-2'>
+              {avis.map(a => (
+                <div key={a.id} className='p-5 bg-white border border-gray-100 rounded-2xl shadow-sm'>
+                  <div className='flex items-center justify-between mb-3'>
+                    <div className='flex items-center gap-2'>
+                      <div className='w-8 h-8 rounded-full bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] flex items-center justify-center text-white text-xs font-bold'>
+                        {(a.acheteur?.nom || a.vendeur?.nom || 'U')[0].toUpperCase()}
+                      </div>
+                      <span className='font-semibold text-gray-800 text-sm'>
+                        {a.acheteur?.nom || a.vendeur?.nom || 'Utilisateur'}
+                      </span>
+                    </div>
+                    <div className='flex gap-0.5'>
+                      {[1,2,3,4,5].map(s => (
+                        <Star key={s} className={`w-4 h-4 ${s <= a.note ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                      ))}
+                    </div>
+                  </div>
+                  {a.commentaire && <p className='text-sm text-gray-600 leading-relaxed'>{a.commentaire}</p>}
+                  {a.created_at && (
+                    <p className='text-xs text-gray-400 mt-2'>
+                      {new Date(a.created_at).toLocaleDateString('fr-FR')}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <Footer />
