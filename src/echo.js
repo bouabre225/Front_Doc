@@ -7,11 +7,11 @@ const echo = new Echo({
   broadcaster: 'reverb',
   key: import.meta.env.VITE_REVERB_APP_KEY,
   wsHost: import.meta.env.VITE_REVERB_HOST ?? 'localhost',
-  wsPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-  wssPort: import.meta.env.VITE_REVERB_PORT ?? 8080,
-  forceTLS: (import.meta.env.VITE_REVERB_SCHEME ?? 'http') === 'https',
+  wsPort: import.meta.env.VITE_REVERB_SCHEME === 'https' ? 443 : 80,
+  wssPort: import.meta.env.VITE_REVERB_SCHEME === 'https' ? 443 : 80,
+  forceTLS: import.meta.env.VITE_REVERB_SCHEME === 'https',
   enabledTransports: ['ws', 'wss'],
-  authEndpoint: 'https://api.medi-kado.com/api/broadcasting/auth',
+  authEndpoint: `${import.meta.env.VITE_API_URL}/broadcasting/auth`,
   auth: {
     headers: {
       Authorization: 'Bearer ' + localStorage.getItem('auth_token'),
@@ -19,4 +19,4 @@ const echo = new Echo({
   },
 });
 
-export default echo;    
+export default echo;
