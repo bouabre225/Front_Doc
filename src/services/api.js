@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'https://api.medi-kado.com/api';
+const API_URL = import.meta.env.VITE_API_URL ?? 'https://medi-kado.com/api';
 
 const getToken = () => localStorage.getItem('auth_token');
 
