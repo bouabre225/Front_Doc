@@ -433,7 +433,7 @@ const handlePay = async () => {
                 className='w-full py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl flex items-center justify-center gap-2 hover:border-[#1DBF73]/50 hover:text-[#1DBF73] transition-all text-sm'
               >
                 <MessageCircle className='w-4 h-4' />
-                Contacter le {isAcheteur ? 'vendeur' : 'acheteur'}
+                Contacter  {isAcheteur ? 'le vendeur' : 'l\'acheteur'}
               </Link>
 
               {/* Ouvrir un litige — acheteur + payee */}
