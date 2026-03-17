@@ -145,8 +145,8 @@ const Contact = () => {
     {
       icon:  Mail,
       label: 'Email',
-      value: 'support@docspace.com',
-      href:  'mailto:support@docspace.com',
+      value: 'docspaceafrica@gmail.com',
+      href:  'mailto:docspaceafrica@gmail.com',
       color: 'from-[#1DBF73] to-[#09B1BA]',
     },
     {
@@ -166,7 +166,7 @@ const Contact = () => {
     {
       icon:  Clock,
       label: 'Disponibilité',
-      value: 'Lun–Ven, 8h–18h',
+      value: '24h/24, 7j/7',
       href:  null,
       color: 'from-[#09B1BA] to-[#1DBF73]',
     },
