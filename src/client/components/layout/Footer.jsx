@@ -62,7 +62,6 @@ const Footer = () => {
           <div>
             <h3 className='mb-3 font-bold text-gray-900'>Support</h3>
             <ul className='space-y-2 text-sm'>
-              <li><Link to='/faq'     className='text-gray-600 hover:text-[#1DBF73] transition-colors'>FAQ</Link></li>
               <li><Link to='/contact' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Contact</Link></li>
               <li><Link to='/terms'   className='text-gray-600 hover:text-[#1DBF73] transition-colors'>CGU</Link></li>
               <li><Link to='/privacy' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Confidentialité</Link></li>
@@ -74,9 +73,9 @@ const Footer = () => {
             <h3 className='mb-3 font-bold text-gray-900'>Contact</h3>
             <ul className='space-y-2 text-sm'>
               <li>
-                <a href='mailto:contact@docspace.com' className='flex items-center gap-2 text-gray-600 hover:text-[#1DBF73] transition-colors'>
+                <a href='mailto:docspaceafrica@gmail.com' className='flex items-center gap-2 text-gray-600 hover:text-[#1DBF73] transition-colors'>
                   <Mail className='w-4 h-4 text-[#1DBF73]' />
-                  contact@docspace.com
+                  docspaceafrica@gmail.com
                 </a>
               </li>
               <li>
