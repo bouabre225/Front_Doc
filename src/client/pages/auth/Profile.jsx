@@ -209,10 +209,10 @@ function Profile() {
   // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen flex flex-col bg-gray-50'>
       <Header />
 
-      <div className='container max-w-6xl px-4 py-10 mx-auto'>
+      <div className='container max-w-6xl px-4 flex-grow py-10 mx-auto'>
         <div className='grid grid-cols-1 gap-6 lg:grid-cols-4'>
 
           {/* ── Sidebar ─────────────────────────────────────────────────── */}

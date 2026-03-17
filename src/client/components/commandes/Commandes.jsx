@@ -112,7 +112,7 @@ const Commandes = () => {
   const isVendeur  = currentUser.role === 'vendeur';
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen flex flex-col bg-gray-50'>
       <Header />
 
       {/* Hero */}
@@ -139,7 +139,7 @@ const Commandes = () => {
         </div>
       </div>
 
-      <div className='container px-4 py-8 mx-auto max-w-4xl'>
+      <div className='container px-4 py-8 mx-auto max-w-4xl flex-grow'>
 
         {/* Filtres */}
         <div className='flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-hide'>

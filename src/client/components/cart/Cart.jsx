@@ -67,9 +67,9 @@ const Cart = () => {
   // ── Panier vide ──────────────────────────────────────────────────────────
   if (cart.length === 0 && !success) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen flex flex-col bg-gray-50'>
         <Header />
-        <div className='container max-w-2xl px-4 py-20 mx-auto text-center'>
+        <div className='container max-w-2xl px-4 flex-grow py-20 mx-auto text-center'>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <div className='w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6'>
               <ShoppingCart className='w-12 h-12 text-gray-300' />
@@ -93,9 +93,9 @@ const Cart = () => {
   // ── Succès commande ──────────────────────────────────────────────────────
   if (success) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen flex flex-col bg-gray-50'>
         <Header />
-        <div className='container max-w-lg px-4 py-20 mx-auto text-center'>
+        <div className='container max-w-lg px-4 flex-grow py-20 mx-auto text-center'>
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -117,10 +117,10 @@ const Cart = () => {
   }
 
   return (
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen flex flex-col bg-gray-50'>
       <Header />
 
-      <div className='container max-w-5xl px-4 py-10 mx-auto'>
+      <div className='container flex-grow max-w-5xl px-4 py-10 mx-auto'>
 
         {/* Header */}
         <div className='flex items-center justify-between mb-8'>
