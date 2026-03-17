@@ -512,7 +512,7 @@ export const getKycDocumentUrl = (id) => {
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
   if (imagePath.startsWith('http')) return imagePath;
-  return `http://localhost:8000/storage/${imagePath}`;
+  return `https://medi-kado.com/storage/${imagePath}`;
 };
 
 export default {
