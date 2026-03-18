@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'https://medi-kado.com/api';
+const API_URL = import.meta.env.VITE_API_URL ?? 'https://docspace.bj/api';
 
 const getToken = () => localStorage.getItem('auth_token');
 
@@ -512,7 +512,7 @@ export const getKycDocumentUrl = (id) => {
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
   if (imagePath.startsWith('http')) return imagePath;
-  return `https://medi-kado.com/storage/${imagePath}`;
+  return `https://docspace.bj/storage/${imagePath}`;
 };
 
 export default {
