@@ -20,13 +20,13 @@ const CATEGORIES = [
 const SLUG_TO_CATEGORIE = {
   'cardiologie':        'Cardiologie',
   'neurologie':         'Neurologie',
-  'medecine-generale':  'Médecine Générale',
+  'medecine_generale':  'Médecine Générale',
   'monitoring':         'Monitoring',
   'laboratoire':        'Laboratoire',
   'chirurgie':          'Chirurgie',
   'imagerie':           'Imagerie Médicale',
   'pharmacie':          'Pharmacie',
-  'pieces-de-rechange': 'Pièces de rechange',
+  'pieces_de_rechange': 'Pièces de rechange', 
 };
 
 const CategoryCards = () => {

@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import { Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const SOCIAL_LINKS = [
-  { icon: Facebook,  href: 'https://facebook.com/docspace',  label: 'Facebook' },
-  { icon: Twitter,   href: 'https://twitter.com/docspace',   label: 'Twitter' },
-  { icon: Instagram, href: 'https://instagram.com/docspace', label: 'Instagram' },
-  { icon: Linkedin,  href: 'https://linkedin.com/company/docspace', label: 'LinkedIn' },
+  { icon: Facebook,  href: 'https://facebook.com/',  label: 'Facebook' },
+  { icon: Twitter,   href: 'https://twitter.com/',   label: 'Twitter' },
+  { icon: Instagram, href: 'https://instagram.com/', label: 'Instagram' },
+  { icon: Linkedin,  href: 'https://linkedin.com/company/', label: 'LinkedIn' },
 ];
 
 const Footer = () => {
