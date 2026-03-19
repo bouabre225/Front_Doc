@@ -13,7 +13,7 @@ const CATEGORIES = [
   { slug: 'chirurgie',         name: 'Chirurgie',         image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=300&fit=crop',  color: 'from-teal-500/80 to-cyan-500/80' },
   { slug: 'imagerie',          name: 'Imagerie',          image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=400&h=300&fit=crop',  color: 'from-indigo-500/80 to-purple-500/80' },
   { slug: 'pharmacie',         name: 'Pharmacie',         image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=400&h=300&fit=crop',  color: 'from-pink-500/80 to-rose-500/80' },
-  { slug: 'pieces-de-rechange', name: 'Pièces de rechange' , image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop',  color: 'from-gray-500/80 to-slate-500/80' }
+  { slug: 'pieces_rechange',   name: 'Pièces de rechange', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop',  color: 'from-gray-500/80 to-slate-500/80' }
 ];
 
 // Mapping slug → nom exact backend
@@ -26,7 +26,7 @@ const SLUG_TO_CATEGORIE = {
   'chirurgie':          'Chirurgie',
   'imagerie':           'Imagerie Médicale',
   'pharmacie':          'Pharmacie',
-  'pieces_de_rechange': 'Pièces de rechange', 
+  'pieces_rechange': 'Pièces de rechange', 
 };
 
 const CategoryCards = () => {
