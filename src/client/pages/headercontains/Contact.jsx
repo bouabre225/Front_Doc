@@ -166,7 +166,7 @@ const Contact = () => {
     {
       icon:  Clock,
       label: 'Disponibilité',
-      value: '24h/24, 7j/7',
+      value: '24h/24 - 7j/7',
       href:  null,
       color: 'from-[#09B1BA] to-[#1DBF73]',
     },
