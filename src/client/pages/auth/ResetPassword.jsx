@@ -10,7 +10,7 @@ const ResetPassword = () => {
   const token          = params.get('token') || '';
   const email          = params.get('email') || '';
 
-  const [form,         setForm]         = useState({ password: '', password_confirmation: '' });
+  const [form,         setForm]         = useState({ mot_de_passe: '', password_confirmation: '' });
   const [showPass,     setShowPass]     = useState(false);
   const [showConfirm,  setShowConfirm]  = useState(false);
   const [loading,      setLoading]      = useState(false);
@@ -25,10 +25,10 @@ const ResetPassword = () => {
     e.preventDefault();
     setError('');
 
-    if (form.password.length < 8) {
+    if (form.mot_de_passe.length < 8) {
       setError('Le mot de passe doit contenir au moins 8 caractères'); return;
     }
-    if (form.password !== form.password_confirmation) {
+    if (form.mot_de_passe !== form.password_confirmation) {
       setError('Les mots de passe ne correspondent pas'); return;
     }
 
@@ -94,8 +94,8 @@ const ResetPassword = () => {
                     <Lock className='absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                     <input
                       type={showPass ? 'text' : 'password'}
-                      value={form.password}
-                      onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+                      value={form.mot_de_passe}
+                      onChange={e => setForm(p => ({ ...p, mot_de_passe: e.target.value }))}
                       placeholder='Minimum 8 caractères'
                       className='w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                     />
@@ -106,11 +106,11 @@ const ResetPassword = () => {
                   </div>
 
                   {/* Indicateur force */}
-                  {form.password && (
+                  {form.mot_de_passe && (
                     <div className='mt-2 flex gap-1'>
                       {[1,2,3,4].map(i => (
                         <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${
-                          form.password.length >= i * 3
+                          form.mot_de_passe.length >= i * 3
                             ? i <= 1 ? 'bg-red-400'
                             : i <= 2 ? 'bg-orange-400'
                             : i <= 3 ? 'bg-yellow-400'
@@ -135,7 +135,7 @@ const ResetPassword = () => {
                       onChange={e => setForm(p => ({ ...p, password_confirmation: e.target.value }))}
                       placeholder='Répétez le mot de passe'
                       className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${
-                        form.password_confirmation && form.password !== form.password_confirmation
+                        form.password_confirmation && form.mot_de_passe !== form.password_confirmation
                           ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
                           : 'border-gray-200 focus:border-[#1DBF73] focus:ring-[#1DBF73]/20'
                       }`}
@@ -145,7 +145,7 @@ const ResetPassword = () => {
                       {showConfirm ? <EyeOff className='w-5 h-5' /> : <Eye className='w-5 h-5' />}
                     </button>
                   </div>
-                  {form.password_confirmation && form.password !== form.password_confirmation && (
+                  {form.password_confirmation && form.mot_de_passe !== form.password_confirmation && (
                     <p className='text-xs text-red-500 mt-1'>Les mots de passe ne correspondent pas</p>
                   )}
                 </div>
