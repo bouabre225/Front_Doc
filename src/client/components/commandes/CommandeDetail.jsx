@@ -200,6 +200,10 @@ const handlePay = async () => {
   const isVendeur  = currentUser.id === commande?.vendeur_id;
   const cfg        = commande ? (STATUT_CONFIG[commande.statut] || STATUT_CONFIG.en_attente) : null;
   const Icon       = cfg?.icon;
+  const prixTotal    = Number(commande.montant);
+  const quantite     = Number(commande.quantite) || 1;
+  const prixVendeur  = Math.round(prixTotal / 1.08 / quantite);
+  const protection   = Math.round(prixVendeur * 0.08 * quantite);
 
   // ── Skeleton ────────────────────────────────────────────────────────────────
   if (loading) {
@@ -317,16 +321,14 @@ const handlePay = async () => {
                 </div>
                 <div>
                   <p className='text-xs text-gray-400'>Prix vendeur</p>
-                  <p className='font-bold text-gray-800'>{formatPrice(commande.annonce?.prix_vendeur)}</p>
+                    <p className='font-bold text-gray-800'>{formatPrice(prixVendeur * quantite)}</p>
                 </div>
                 <div>
                   <p className='text-xs text-gray-400 flex items-center gap-1'>
                     🛡️ Protection acheteur
                     <span className='bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full text-[10px] font-semibold'>8%</span>
                   </p>
-                  <p className='font-bold text-[#09B1BA]'>
-                    + {formatPrice(Math.round(Number(commande.annonce?.prix_vendeur) * 0.08))}
-                  </p>
+                  <p className='font-bold text-[#09B1BA]'>+ {formatPrice(protection)}</p>
                 </div>
                 <div>
                   <p className='text-xs text-gray-400'>Total</p>
