@@ -224,16 +224,32 @@ const Cart = () => {
                   <div key={item.id} className='flex justify-between text-sm'>
                     <span className='text-gray-500 truncate max-w-[150px]'>{item.titre} ×{item.quantite}</span>
                     <span className='font-medium text-gray-800 shrink-0 ml-2'>
-                      {(Number(item.prix_vendeur) * item.quantite).toLocaleString('fr-FR')}
+                      {(Number(item.prix_vendeur) * item.quantite).toLocaleString('fr-FR')} FCFA
                     </span>
                   </div>
                 ))}
               </div>
-              <div className='border-t border-gray-100 pt-3 flex justify-between'>
-                <span className='font-bold text-gray-900'>Total</span>
-                <span className='text-xl font-black text-[#1DBF73]'>
-                  {totalPrice.toLocaleString('fr-FR')} FCFA
-                </span>
+              <div className='border-t border-gray-100 pt-3 space-y-2'>
+                <div className='flex justify-between text-sm'>
+                  <span className='text-gray-500'>Sous-total</span>
+                  <span className='font-medium text-gray-800'>
+                    {totalPrice.toLocaleString('fr-FR')} FCFA
+                  </span>
+                </div>
+                <div className='flex justify-between text-sm'>
+                  <span className='flex items-center gap-1 text-[#09B1BA]'>
+                    🛡️ Protection acheteur <span className='text-xs bg-[#09B1BA]/10 px-1.5 py-0.5 rounded-full font-semibold'>8%</span>
+                  </span>
+                  <span className='font-medium text-[#09B1BA]'>
+                    + {Math.round(totalPrice * 0.08).toLocaleString('fr-FR')} FCFA
+                  </span>
+                </div>
+                <div className='flex justify-between pt-2 border-t border-gray-100'>
+                  <span className='font-bold text-gray-900'>Total</span>
+                  <span className='text-xl font-black text-[#1DBF73]'>
+                    {Math.round(totalPrice * 1.08).toLocaleString('fr-FR')} FCFA
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -283,7 +299,7 @@ const Cart = () => {
               {loading ? (
                 <><div className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin' /> Traitement...</>
               ) : (
-                <><ShieldCheck className='w-5 h-5' /> Passer la commande</>
+                <><ShieldCheck className='w-5 h-5' /> Commander pour {Math.round(totalPrice * 1.08).toLocaleString('fr-FR')} FCFA</>
               )}
             </motion.button>
 
