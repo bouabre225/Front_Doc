@@ -176,7 +176,7 @@ function Equipment() {
 
           {/* ── Galerie ──────────────────────────────────────────────── */}
           <div className='space-y-4'>
-            <div className='relative overflow-hidden bg-gray-100 rounded-2xl h-96 group'>
+            <div className='relative overflow-hidden bg-gray-100 rounded-2xl h-64 sm:h-80 lg:h-96 group'>
               {images[selectedImage] ? (
                 <img
                   src={getImageUrl(images[selectedImage].image_url)}
