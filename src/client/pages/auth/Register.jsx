@@ -252,12 +252,13 @@ const Register = () => {
                   checked={formData.acceptTerms}
                   onChange={handleChange}
                   className='mt-1 w-4 h-4 accent-[#1DBF73]'
+                  required
                 />
                 <span className='text-sm text-gray-600'>
                   J'accepte les{' '}
-                  <Link to='/terms' className='text-[#1DBF73] hover:underline font-medium'>conditions d'utilisation</Link>
+                  <Link to='/terms' className='text-[#1DBF73] hover:no-underline font-medium'>conditions d'utilisation</Link>
                   {' '}et la{' '}
-                  <Link to='/privacy' className='text-[#1DBF73] hover:underline font-medium'>politique de confidentialité</Link>
+                  <Link to='/privacy' className='text-[#1DBF73] hover:no-underline font-medium'>politique de confidentialité</Link>
                 </span>
               </label>
             </div>

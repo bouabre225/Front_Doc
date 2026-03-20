@@ -18,6 +18,8 @@ import CommandeDetail from './components/commandes/CommandeDetail';
 import Commandes from './components/commandes/Commandes';
 import SellerKyc from './pages/SellerKyc';
 import Cart from './components/cart/Cart';
+import TermsOfService from './pages/headercontains/TermsOfService';
+import PrivacyPolicy from './pages/headercontains/PrivacyPolicy';
 
 // ─── Guard : déconnecte automatiquement un admin qui accède au client ─────────
 
@@ -62,6 +64,8 @@ function ClientApp() {
           <Route path='/commandes' element={<Commandes />} />
           <Route path='/commandes/:id' element={<CommandeDetail />} />
           <Route path='/seller/kyc' element={<SellerKyc />} />
+          <Route path='/terms' element={<TermsOfService />} />
+          <Route path='/privacy' element={<PrivacyPolicy />} />
         </Routes>
       </div>
     </LangProvider>
