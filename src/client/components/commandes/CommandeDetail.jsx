@@ -315,46 +315,46 @@ const handlePay = async () => {
               >
                 {commande.annonce?.titre}
               </Link>
-              <div className='flex items-center gap-6 mt-3 pt-3 border-t border-gray-100'>
+              <div className='grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100 sm:flex sm:items-center sm:gap-6'>
                 <div>
                   <p className='text-xs text-gray-400'>Quantité</p>
                   <p className='font-bold text-gray-800'>{commande.quantite}</p>
                 </div>
                 <div>
                   <p className='text-xs text-gray-400'>Prix vendeur</p>
-                    <p className='font-bold text-gray-800'>{formatPrice(prixVendeur * quantite)}</p>
+                  <p className='font-bold text-gray-800'>{formatPrice(prixVendeur * quantite)}</p>
                 </div>
                 <div>
                   <p className='text-xs text-gray-400 flex items-center gap-1'>
-                    🛡️ Protection acheteur
+                    🛡️ Protection
                     <span className='bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full text-[10px] font-semibold'>8%</span>
                   </p>
                   <p className='font-bold text-[#09B1BA]'>+ {formatPrice(protection)}</p>
                 </div>
                 <div>
                   <p className='text-xs text-gray-400'>Total</p>
-                  <p className='font-bold text-xl text-[#1DBF73]'>{formatPrice(commande.montant)}</p>
+                  <p className='font-bold text-lg text-[#1DBF73]'>{formatPrice(commande.montant)}</p>
                 </div>
               </div>
             </div>
 
             {/* Parties */}
             <div className='grid grid-cols-2 gap-4'>
-              <div className='bg-white rounded-2xl border border-gray-100 p-4'>
+              <div className='bg-white rounded-2xl border border-gray-100 p-4 min-w-0'>
                 <div className='flex items-center gap-2 mb-2'>
-                  <User className='w-4 h-4 text-[#1DBF73]' />
+                  <User className='w-4 h-4 text-[#1DBF73] shrink-0' />
                   <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>Acheteur</span>
                 </div>
-                <p className='font-bold text-gray-800 text-sm'>{commande.acheteur?.nom}</p>
-                <p className='text-xs text-gray-400 mt-0.5'>{commande.acheteur?.email}</p>
+                <p className='font-bold text-gray-800 text-sm truncate'>{commande.acheteur?.nom}</p>
+                <p className='text-xs text-gray-400 mt-0.5 truncate'>{commande.acheteur?.email}</p>
               </div>
-              <div className='bg-white rounded-2xl border border-gray-100 p-4'>
+              <div className='bg-white rounded-2xl border border-gray-100 p-4 min-w-0'>
                 <div className='flex items-center gap-2 mb-2'>
-                  <Store className='w-4 h-4 text-[#09B1BA]' />
+                  <Store className='w-4 h-4 text-[#09B1BA] shrink-0' />
                   <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>Vendeur</span>
                 </div>
-                <p className='font-bold text-gray-800 text-sm'>{commande.vendeur?.nom}</p>
-                <p className='text-xs text-gray-400 mt-0.5'>{commande.vendeur?.email}</p>
+                <p className='font-bold text-gray-800 text-sm truncate'>{commande.vendeur?.nom}</p>
+                <p className='text-xs text-gray-400 mt-0.5 truncate'>{commande.vendeur?.email}</p>
               </div>
             </div>
 
