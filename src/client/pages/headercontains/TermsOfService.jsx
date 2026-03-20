@@ -46,7 +46,7 @@ const TermsOfService = () => {
         <div>
           <h2 className="text-xl font-semibold text-blue-800 mb-2 font-mono uppercase tracking-wide">4. Transactions et Paiements</h2>
           <p>
-            Les paiements sont sécurisés via nos partenaires (MTN, Moov, Celtis, CB). 
+            Les paiements sont sécurisés via FedaPay. 
             Les fonds sont séquestrés par docSpace et ne sont libérés au vendeur qu'après :
           </p>
           <ol className="list-decimal pl-6 space-y-2 mt-2">
