@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, Menu, X, ChevronDown, LogOut, User, Settings, MessageCircle } from 'lucide-react';
+import { Search, Bell, Menu, X, ChevronDown, LogOut, User, Settings, MessageCircle, ShoppingBag } from 'lucide-react';
 import Button from '../common/Button';
 import { useLang } from '../../context/LangContext';
 import { useCart } from '../../context/CartContext';
@@ -253,6 +253,16 @@ const Header = () => {
                       )}
                     </motion.button>
                   </Link>
+
+                  <Link to='/commandes'>
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'
+                    >
+                      <ShoppingBag className='w-4 h-4 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
+                    </motion.button>
+                  </Link>
                 </>
               )}
 
@@ -469,7 +479,7 @@ const Header = () => {
                   </div>
 
                   {/* Icônes rapides mobile */}
-                  <div className='flex items-center justify-around px-2 py-3 bg-gray-50 rounded-xl mb-1'>
+                  <div className='grid grid-cols-5 px-2 py-3 bg-gray-50 rounded-xl mb-1'>
                     <Link to='/notifications' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
                       <div className='relative p-2.5 bg-white rounded-full shadow-sm'>
                         <Bell className='w-5 h-5 text-gray-600' />
@@ -504,6 +514,13 @@ const Header = () => {
                         )}
                       </div>
                       <span className='text-[10px] text-gray-500 font-medium'>Panier</span>
+                    </Link>
+
+                    <Link to='/commandes' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
+                      <div className='p-2.5 bg-white rounded-full shadow-sm'>
+                        <ShoppingBag className='w-5 h-5 text-gray-600' />
+                      </div>
+                      <span className='text-[10px] text-gray-500 font-medium'>Commandes</span>
                     </Link>
 
                     <Link to='/profile' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
