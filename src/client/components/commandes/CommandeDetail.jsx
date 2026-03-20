@@ -200,10 +200,6 @@ const handlePay = async () => {
   const isVendeur  = currentUser.id === commande?.vendeur_id;
   const cfg        = commande ? (STATUT_CONFIG[commande.statut] || STATUT_CONFIG.en_attente) : null;
   const Icon       = cfg?.icon;
-  const prixTotal    = Number(commande.montant);
-  const quantite     = Number(commande.quantite) || 1;
-  const prixVendeur  = Math.round(prixTotal / 1.08 / quantite);
-  const protection   = Math.round(prixVendeur * 0.08 * quantite);
 
   // ── Skeleton ────────────────────────────────────────────────────────────────
   if (loading) {
@@ -241,6 +237,11 @@ const handlePay = async () => {
       </div>
     );
   }
+
+  const prixTotal    = Number(commande.montant);
+  const quantite     = Number(commande.quantite) || 1;
+  const prixVendeur  = Math.round(prixTotal / 1.08 / quantite);
+  const protection   = Math.round(prixVendeur * 0.08 * quantite);
 
   return (
     <div className='min-h-screen bg-gray-50'>
