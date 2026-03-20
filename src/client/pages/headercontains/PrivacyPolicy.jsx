@@ -26,7 +26,7 @@ const PrivacyPolicy = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 border rounded-lg">
               <h3 className="font-bold text-green-700">Identité & Contact</h3>
-              <p className="text-sm">Nom, email, téléphone, SIRET, pièces d'identité (KYC).</p>
+              <p className="text-sm">Nom, email, téléphone, pièces d'identité (KYC).</p>
             </div>
             <div className="p-4 border rounded-lg">
               <h3 className="font-bold text-green-700">Données Techniques</h3>
