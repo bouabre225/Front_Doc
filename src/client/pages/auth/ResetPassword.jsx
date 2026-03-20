@@ -37,7 +37,7 @@ const ResetPassword = () => {
       await resetPassword({
         token,
         email,
-        password:              form.password,
+        mot_de_passe:              form.mot_de_passe,
         password_confirmation: form.password_confirmation,
       });
       setSuccess(true);
