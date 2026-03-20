@@ -16,7 +16,7 @@ import Notifications from './components/notifications/Notifications';
 import Messages from './components/messages/Messages';
 import CommandeDetail from './components/commandes/CommandeDetail';
 import Commandes from './components/commandes/Commandes';
-import SellerKyc from './pages/SellerKyc';
+import SellerKyc from './pages/SellerKyc'; 
 import Cart from './components/cart/Cart';
 import TermsOfService from './pages/headercontains/TermsOfService';
 import PrivacyPolicy from './pages/headercontains/PrivacyPolicy';
