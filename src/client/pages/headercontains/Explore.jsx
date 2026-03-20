@@ -442,16 +442,28 @@ const Explore = () => {
                           <span className='truncate'>{item.pays_expedition || 'Non précisé'}</span>
                         </div>
 
-                        <div className='text-xl font-bold text-[#1DBF73] mb-3'>
-                          {Number(item.prix_vendeur).toLocaleString('fr-FR')}
-                          <span className='ml-1 text-sm font-normal text-gray-400'>FCFA</span>
+                        {/* Prix */}
+                        <div className='mb-3'>
+                          <div className='text-xl font-bold text-[#1DBF73]'>
+                            {Number(item.prix_vendeur).toLocaleString('fr-FR')}
+                            <span className='ml-1 text-sm font-normal text-gray-400'>FCFA</span>
+                          </div>
+                          <div className='flex items-center gap-1 mt-0.5'>
+                            <span className='text-xs text-gray-400'>Prix total :</span>
+                            <span className='text-xs font-semibold text-gray-600'>
+                              {Math.round(Number(item.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
+                            </span>
+                            <span className='text-[10px] bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full font-semibold'>
+                              🛡️ +8%
+                            </span>
+                          </div>
                         </div>
 
                         <div className='flex items-center justify-between pt-3 mb-3 border-t border-gray-100 text-xs text-gray-400'>
                           <span className='truncate max-w-[100px]'>{item.vendeur?.nom || 'Vendeur'}</span>
                           <div className='flex items-center gap-1 shrink-0'>
                             <Calendar className='w-3.5 h-3.5' />
-                            {new Date(item.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                            {item.created_at ? new Date(item.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : '—'}
                           </div>
                         </div>
 

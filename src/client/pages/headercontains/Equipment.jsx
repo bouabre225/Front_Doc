@@ -269,13 +269,40 @@ function Equipment() {
 
             {/* Prix */}
             <div className='p-5 bg-gradient-to-br from-[#1DBF73]/5 to-[#09B1BA]/5 rounded-2xl border border-[#1DBF73]/15'>
-              <p className='text-xs text-gray-500 mb-1'>Prix unitaire</p>
+              <p className='text-xs text-gray-500 mb-1'>Prix vendeur</p>
               <div className='text-4xl font-black text-[#1DBF73]'>
                 {Number(annonce.prix_vendeur).toLocaleString('fr-FR')}
                 <span className='ml-2 text-lg font-semibold text-gray-400'>FCFA</span>
               </div>
+
+              {/* Protection acheteur style Vinted */}
+              <div className='mt-3 pt-3 border-t border-[#1DBF73]/15 space-y-2'>
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='text-gray-500'>Prix vendeur</span>
+                  <span className='text-gray-700 font-medium'>
+                    {Number(annonce.prix_vendeur).toLocaleString('fr-FR')} FCFA
+                  </span>
+                </div>
+                <div className='flex items-center justify-between text-sm'>
+                  <div className='flex items-center gap-1.5'>
+                    <ShieldCheck className='w-4 h-4 text-[#09B1BA]' />
+                    <span className='text-[#09B1BA] font-medium'>Protection acheteur</span>
+                    <span className='text-xs bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full font-semibold'>8%</span>
+                  </div>
+                  <span className='text-[#09B1BA] font-medium'>
+                    + {Math.round(Number(annonce.prix_vendeur) * 0.08).toLocaleString('fr-FR')} FCFA
+                  </span>
+                </div>
+                <div className='flex items-center justify-between pt-2 border-t border-[#1DBF73]/15'>
+                  <span className='font-bold text-gray-800'>Total</span>
+                  <span className='font-black text-xl text-[#1DBF73]'>
+                    {Math.round(Number(annonce.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
+                  </span>
+                </div>
+              </div>
+
               {stockDispo > 0 && (
-                <p className='text-xs text-emerald-600 font-medium mt-2 flex items-center gap-1'>
+                <p className='text-xs text-emerald-600 font-medium mt-3 flex items-center gap-1'>
                   <ShieldCheck className='w-3.5 h-3.5' />
                   {stockDispo} unité{stockDispo > 1 ? 's' : ''} disponible{stockDispo > 1 ? 's' : ''}
                 </p>
@@ -288,7 +315,7 @@ function Equipment() {
                 { icon: Package,  color: 'bg-[#1DBF73]/10', iconColor: 'text-[#1DBF73]',   label: 'État',       value: annonce.etat },
                 { icon: Layers,   color: 'bg-[#09B1BA]/10', iconColor: 'text-[#09B1BA]',   label: 'Quantité',   value: `${annonce.quantite} dispo.` },
                 { icon: User,     color: 'bg-purple-50',    iconColor: 'text-purple-400',   label: 'Vendeur',    value: annonce.vendeur?.nom || '—' },
-                { icon: Calendar, color: 'bg-orange-50',    iconColor: 'text-orange-400',   label: 'Publié le',  value: new Date(annonce.created_at).toLocaleDateString('fr-FR') },
+                { icon: Calendar, color: 'bg-orange-50',    iconColor: 'text-orange-400',   label: 'Publié le',  value: annonce.created_at ? new Date(annonce.created_at).toLocaleDateString('fr-FR') : '—' },
               ].map(({ icon: Icon, color, iconColor, label, value }) => (
                 <div key={label} className='flex items-center gap-3 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl'>
                   <div className={`w-9 h-9 ${color} rounded-xl flex items-center justify-center`}>

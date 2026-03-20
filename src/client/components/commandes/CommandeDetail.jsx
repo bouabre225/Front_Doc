@@ -316,8 +316,17 @@ const handlePay = async () => {
                   <p className='font-bold text-gray-800'>{commande.quantite}</p>
                 </div>
                 <div>
-                  <p className='text-xs text-gray-400'>Prix unitaire</p>
-                  <p className='font-bold text-gray-800'>{formatPrice(commande.annonce?.prix_total)}</p>
+                  <p className='text-xs text-gray-400'>Prix vendeur</p>
+                  <p className='font-bold text-gray-800'>{formatPrice(commande.annonce?.prix_vendeur)}</p>
+                </div>
+                <div>
+                  <p className='text-xs text-gray-400 flex items-center gap-1'>
+                    🛡️ Protection acheteur
+                    <span className='bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full text-[10px] font-semibold'>8%</span>
+                  </p>
+                  <p className='font-bold text-[#09B1BA]'>
+                    + {formatPrice(Math.round(Number(commande.annonce?.prix_vendeur) * 0.08))}
+                  </p>
                 </div>
                 <div>
                   <p className='text-xs text-gray-400'>Total</p>

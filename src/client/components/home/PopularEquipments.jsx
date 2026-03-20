@@ -203,12 +203,20 @@ const PopularEquipments = () => {
                             {Number(equipment.prix_vendeur).toLocaleString('fr-FR')}
                             <span className='text-sm font-medium text-gray-500'>FCFA</span>
                           </div>
+                          <div className='flex items-center gap-1 mt-0.5'>
+                            <span className='text-xs text-gray-400'>Total :</span>
+                            <span className='text-xs font-semibold text-gray-600'>
+                              {Math.round(Number(equipment.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
+                            </span>
+                            <span className='text-[10px] bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full font-semibold'>
+                              🛡️ +8%
+                            </span>
+                          </div>
                           {isInCart(equipment.id) && (
                             <span className='text-xs text-[#1DBF73] font-semibold'>✓ Dans le panier</span>
                           )}
                         </div>
 
-                        {/* Flèche = naviguer vers le détail (le Link parent s'en charge) */}
                         <motion.div
                           whileHover={{ scale: 1.15, rotate: -10 }}
                           whileTap={{ scale: 0.9 }}

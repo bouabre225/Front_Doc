@@ -554,10 +554,30 @@ const PublishEquipment = () => {
                     />
                     <span className='absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400'>FCFA</span>
                   </div>
-                  {formData.prix_vendeur && (
-                    <p className='text-xs text-[#1DBF73] mt-1 font-medium'>
-                      = {Number(formData.prix_vendeur).toLocaleString('fr-FR')} FCFA
-                    </p>
+
+                  {formData.prix_vendeur && Number(formData.prix_vendeur) > 0 && (
+                    <div className='mt-3 p-3 bg-[#1DBF73]/5 border border-[#1DBF73]/20 rounded-xl space-y-1.5'>
+                      <div className='flex items-center justify-between text-sm'>
+                        <span className='text-gray-500'>Prix vendeur</span>
+                        <span className='font-semibold text-gray-700'>
+                          {Number(formData.prix_vendeur).toLocaleString('fr-FR')} FCFA
+                        </span>
+                      </div>
+                      <div className='flex items-center justify-between text-sm'>
+                        <span className='flex items-center gap-1 text-[#09B1BA]'>
+                          🛡️ Protection acheteur <span className='text-xs'>(8%)</span>
+                        </span>
+                        <span className='font-semibold text-[#09B1BA]'>
+                          + {Math.round(Number(formData.prix_vendeur) * 0.08).toLocaleString('fr-FR')} FCFA
+                        </span>
+                      </div>
+                      <div className='border-t border-[#1DBF73]/20 pt-1.5 flex items-center justify-between'>
+                        <span className='font-bold text-gray-800'>Prix total acheteur</span>
+                        <span className='font-black text-[#1DBF73] text-base'>
+                          {Math.round(Number(formData.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
+                        </span>
+                      </div>
+                    </div>
                   )}
                 </div>
 
