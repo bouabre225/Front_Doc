@@ -80,10 +80,21 @@ const AnnonceCard = ({ annonce, index }) => (
             )}
           </div>
           <div className='flex items-center justify-between pt-3 border-t border-gray-100'>
-            <p className='text-xl font-black text-[#1DBF73]'>
-              {Number(annonce.prix_vendeur).toLocaleString('fr-FR')}
-              <span className='ml-1 text-sm font-medium text-gray-400'>FCFA</span>
-            </p>
+            <div>
+              <p className='text-xl font-black text-[#1DBF73]'>
+                {Number(annonce.prix_vendeur).toLocaleString('fr-FR')}
+                <span className='ml-1 text-sm font-medium text-gray-400'>FCFA</span>
+              </p>
+              <div className='flex items-center gap-1 mt-0.5'>
+                <span className='text-xs text-gray-400'>Total :</span>
+                <span className='text-xs font-semibold text-gray-600'>
+                  {Math.round(Number(annonce.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
+                </span>
+                <span className='text-[10px] bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full font-semibold'>
+                  🛡️ +8%
+                </span>
+              </div>
+            </div>
             <motion.div
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
