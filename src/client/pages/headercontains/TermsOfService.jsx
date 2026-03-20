@@ -1,11 +1,14 @@
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 const TermsOfService = () => {
   const navigate = useNavigate();
   
   return (
     <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-lg rounded-xl border border-gray-100 text-gray-800 leading-relaxed">
-      <span onClick={() => navigate(-1)} className="cursor-pointer text-blue-600 underline">Retour</span>
+      <span onClick={() => navigate(-1)} className="cursor-pointer text-gray-600 no-underline flex items-center gap-2 pb-6">
+        <ArrowLeft size={16} /> Retour
+      </span>
       <header className="border-b pb-6 mb-8">
         <h1 className="text-3xl font-bold text-blue-900">Conditions Générales d'Utilisation</h1>
         <p className="text-sm text-gray-500 mt-2">Version 1.0 — En vigueur au 18 mars 2026</p>
