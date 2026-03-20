@@ -155,10 +155,10 @@ const Cart = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: -30, height: 0 }}
                   transition={{ duration: 0.2 }}
-                  className='flex gap-4 p-4 bg-white border border-gray-100 rounded-2xl shadow-sm'
+                  className='flex gap-3 p-3 bg-white border border-gray-100 rounded-2xl shadow-sm'
                 >
-                  {/* Image */}
-                  <div className='w-24 h-24 rounded-xl overflow-hidden bg-gray-100 shrink-0'>
+                  {/* Image — plus grande sur mobile */}
+                  <div className='w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-gray-100 shrink-0'>
                     {item.image_url ? (
                       <img src={getImageUrl(item.image_url)} alt={item.titre} className='object-cover w-full h-full' />
                     ) : (
@@ -174,12 +174,15 @@ const Cart = () => {
                     >
                       {item.titre}
                     </Link>
-                    <p className='text-xs text-gray-400 mt-1'>{item.vendeur}</p>
-                    <p className='text-lg font-bold text-[#1DBF73] mt-2'>
-                      {(Number(item.prix_vendeur) * item.quantite).toLocaleString('fr-FR')} FCFA
-                    </p>
+                    <p className='text-xs text-gray-400 mt-0.5 truncate'>{item.vendeur}</p>
+                    <div className='flex items-baseline gap-1 mt-1.5'>
+                      <p className='text-base font-bold text-[#1DBF73]'>
+                        {(Number(item.prix_vendeur) * item.quantite).toLocaleString('fr-FR')}
+                      </p>
+                      <span className='text-xs text-gray-400'>FCFA</span>
+                    </div>
                     <p className='text-xs text-gray-400'>
-                      {Number(item.prix_vendeur).toLocaleString('fr-FR')} FCFA / unité
+                      {Number(item.prix_vendeur).toLocaleString('fr-FR')} / unité
                     </p>
                   </div>
 
@@ -191,20 +194,20 @@ const Cart = () => {
                     >
                       <Trash2 className='w-4 h-4' />
                     </button>
-                    <div className='flex items-center gap-1.5 bg-gray-100 rounded-xl p-1'>
+                    <div className='flex items-center gap-1 bg-gray-100 rounded-xl p-1'>
                       <button
                         onClick={() => updateQuantite(item.id, item.quantite - 1)}
-                        className='w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white transition-colors'
+                        className='w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white transition-colors'
                       >
-                        <Minus className='w-3.5 h-3.5 text-gray-600' />
+                        <Minus className='w-3 h-3 text-gray-600' />
                       </button>
-                      <span className='w-7 text-center font-bold text-sm text-gray-900'>{item.quantite}</span>
+                      <span className='w-5 text-center font-bold text-xs text-gray-900'>{item.quantite}</span>
                       <button
                         onClick={() => updateQuantite(item.id, item.quantite + 1)}
                         disabled={item.quantite >= item.stock}
-                        className='w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white transition-colors disabled:opacity-30'
+                        className='w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white transition-colors disabled:opacity-30'
                       >
-                        <Plus className='w-3.5 h-3.5 text-gray-600' />
+                        <Plus className='w-3 h-3 text-gray-600' />
                       </button>
                     </div>
                   </div>
