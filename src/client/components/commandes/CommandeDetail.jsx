@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
@@ -119,6 +119,7 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel, loading, danger = f
 const CommandeDetail = () => {
   const { id }      = useParams();
   const navigate    = useNavigate();
+  const [searchParams] = useSearchParams();
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
   const [commande,      setCommande]      = useState(null);
@@ -153,43 +154,35 @@ const CommandeDetail = () => {
 
   // ─── Polling après retour FedaPay ────────────────────────────────────────
   useEffect(() => {
-    if (!commande) return;
-    if (commande.statut !== 'en_attente') return;
+    const fedaStatus = searchParams.get('status');
+    if (!fedaStatus || !commande || commande.statut !== 'en_attente') return;
 
-    let attempts = 0;
-    const maxAttempts = 40; // 40 × 3s = 2 min
-
-    const checkStatut = async () => {
+    // Vérifier directement côté serveur
+    const verify = async () => {
       try {
-        const res = await getCommandeById(id);
-        const updated = res.data ?? res;
-        if (updated.statut !== 'en_attente') {
-          setCommande(updated);
-          if (updated.statut === 'payee') {
-            setSuccess('✅ Paiement confirmé ! Votre facture a été envoyée par email.');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/commandes/${id}/verify`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json',
           }
-          return true;
+        });
+        const data = await res.json();
+        if (data.statut === 'payee') {
+          fetchCommande();
+          setSuccess('✅ Paiement confirmé ! Votre facture a été envoyée par email.');
         }
       } catch { /**/ }
-      return false;
     };
 
-    const interval = setInterval(async () => {
-      attempts++;
-      const changed = await checkStatut();
-      if (changed || attempts >= maxAttempts) clearInterval(interval);
-    }, 3000);
+    // Essaie immédiatement puis toutes les 3s pendant 1 min
+    verify();
+    const interval = setInterval(verify, 3000);
+    const timeout  = setTimeout(() => clearInterval(interval), 60000);
 
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible') await checkStatut();
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => { clearInterval(interval); clearTimeout(timeout); };
+  }, [commande?.statut, id, searchParams]);
 
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [commande?.statut, id]);
 
   const handleCancel = async () => {
     setActionLoading(true);
