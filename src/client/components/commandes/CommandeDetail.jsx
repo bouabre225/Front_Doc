@@ -154,50 +154,34 @@ const CommandeDetail = () => {
 
   // ─── Polling + détection retour onglet après FedaPay ─────────────────────
   useEffect(() => {
-    if (!commande) return;
-    if (commande.statut !== 'en_attente') return;
-
     const fedaStatus = searchParams.get('status');
-    // Si FedaPay a redirigé → poll toutes les 2s, sinon toutes les 5s
-    const interval_ms = fedaStatus ? 2000 : 5000;
-    const maxAttempts = fedaStatus ? 30 : 24; // 1 min si feda, 2 min sinon
+    if (!fedaStatus || !commande || commande.statut !== 'en_attente') return;
 
-    let attempts = 0;
-
-    const checkStatut = async () => {
+    // Vérifier directement côté serveur
+    const verify = async () => {
       try {
-        const res = await getCommandeById(id);
-        const updated = res.data ?? res;
-        if (updated.statut !== 'en_attente') {
-          setCommande(updated);
-          if (updated.statut === 'payee') {
-            setSuccess('✅ Paiement confirmé ! Votre facture a été envoyée par email.');
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/commandes/${id}/verify`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
+            'Content-Type': 'application/json',
           }
-          return true;
+        });
+        const data = await res.json();
+        if (data.statut === 'payee') {
+          fetchCommande();
+          setSuccess('✅ Paiement confirmé ! Votre facture a été envoyée par email.');
         }
       } catch { /**/ }
-      return false;
     };
 
-    // Fetch immédiat si FedaPay vient de rediriger
-    if (fedaStatus) checkStatut();
+    // Essaie immédiatement puis toutes les 3s pendant 1 min
+    verify();
+    const interval = setInterval(verify, 3000);
+    const timeout  = setTimeout(() => clearInterval(interval), 60000);
 
-    const interval = setInterval(async () => {
-      attempts++;
-      const changed = await checkStatut();
-      if (changed || attempts >= maxAttempts) clearInterval(interval);
-    }, interval_ms);
-
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible') await checkStatut();
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, [commande?.statut, id, searchParams]);
+    return () => { clearInterval(interval); clearTimeout(timeout); };
+  }, [commande?.statut, id, searchParams, fetchCommande]);
 
   const handleCancel = async () => {
     setActionLoading(true);
