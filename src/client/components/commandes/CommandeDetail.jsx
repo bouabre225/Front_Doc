@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
@@ -119,7 +119,6 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel, loading, danger = f
 const CommandeDetail = () => {
   const { id }      = useParams();
   const navigate    = useNavigate();
-  const [searchParams] = useSearchParams();
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
   const [commande,      setCommande]      = useState(null);
@@ -152,36 +151,45 @@ const CommandeDetail = () => {
     }
   };
 
-  // ─── Polling + détection retour onglet après FedaPay ─────────────────────
+  // ─── Polling après retour FedaPay ────────────────────────────────────────
   useEffect(() => {
-    const fedaStatus = searchParams.get('status');
-    if (!fedaStatus || !commande || commande.statut !== 'en_attente') return;
+    if (!commande) return;
+    if (commande.statut !== 'en_attente') return;
 
-    // Vérifier directement côté serveur
-    const verify = async () => {
+    let attempts = 0;
+    const maxAttempts = 40; // 40 × 3s = 2 min
+
+    const checkStatut = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/commandes/${id}/verify`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-            'Content-Type': 'application/json',
+        const res = await getCommandeById(id);
+        const updated = res.data ?? res;
+        if (updated.statut !== 'en_attente') {
+          setCommande(updated);
+          if (updated.statut === 'payee') {
+            setSuccess('✅ Paiement confirmé ! Votre facture a été envoyée par email.');
           }
-        });
-        const data = await res.json();
-        if (data.statut === 'payee') {
-          fetchCommande();
-          setSuccess('✅ Paiement confirmé ! Votre facture a été envoyée par email.');
+          return true;
         }
       } catch { /**/ }
+      return false;
     };
 
-    // Essaie immédiatement puis toutes les 3s pendant 1 min
-    verify();
-    const interval = setInterval(verify, 3000);
-    const timeout  = setTimeout(() => clearInterval(interval), 60000);
+    const interval = setInterval(async () => {
+      attempts++;
+      const changed = await checkStatut();
+      if (changed || attempts >= maxAttempts) clearInterval(interval);
+    }, 3000);
 
-    return () => { clearInterval(interval); clearTimeout(timeout); };
-  }, [commande?.statut, id, searchParams, fetchCommande]);
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') await checkStatut();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [commande?.statut, id]);
 
   const handleCancel = async () => {
     setActionLoading(true);
@@ -394,7 +402,7 @@ const handlePay = async () => {
           </motion.div>
         )}
 
-        {commande && (
+        {commande && commande.statut !== 'payee' && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -500,7 +508,7 @@ const handlePay = async () => {
                   </div>
                   <div className='flex justify-between'>
                     <span className='text-gray-500'>Statut paiement</span>
-                    <span className='font-medium text-gray-800 capitalize'>{commande.paiement.statut ?? '—'}</span>
+                    <span className='font-medium text-gray-800 capitalize'>{commande.paiement.statut === 'bloque' ? '✅ Confirmé' : commande.paiement.statut ?? '—'}</span>
                   </div>
                   <div className='flex justify-between'>
                     <span className='text-gray-500'>Montant</span>
