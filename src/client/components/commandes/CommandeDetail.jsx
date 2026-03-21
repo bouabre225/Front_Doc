@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
@@ -119,6 +119,7 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel, loading, danger = f
 const CommandeDetail = () => {
   const { id }      = useParams();
   const navigate    = useNavigate();
+  const [searchParams] = useSearchParams();
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
   const [commande,      setCommande]      = useState(null);
@@ -142,21 +143,26 @@ const CommandeDetail = () => {
     setLoading(true);
     try {
       const res = await getCommandeById(id);
-      setCommande(res.data ?? res);
+      const data = res.data ?? res;
+      setCommande(data);
     } catch {
       setError('Commande introuvable.');
     } finally {
       setLoading(false);
     }
   };
-  
+
   // ─── Polling + détection retour onglet après FedaPay ─────────────────────
   useEffect(() => {
     if (!commande) return;
     if (commande.statut !== 'en_attente') return;
 
+    const fedaStatus = searchParams.get('status');
+    // Si FedaPay a redirigé → poll toutes les 2s, sinon toutes les 5s
+    const interval_ms = fedaStatus ? 2000 : 5000;
+    const maxAttempts = fedaStatus ? 30 : 24; // 1 min si feda, 2 min sinon
+
     let attempts = 0;
-    const maxAttempts = 40; // 40 × 3s = 2 min
 
     const checkStatut = async () => {
       try {
@@ -167,24 +173,23 @@ const CommandeDetail = () => {
           if (updated.statut === 'payee') {
             setSuccess('✅ Paiement confirmé ! Votre facture a été envoyée par email.');
           }
-          return true; // statut changé
+          return true;
         }
       } catch { /**/ }
       return false;
     };
 
-    // Polling toutes les 3s
+    // Fetch immédiat si FedaPay vient de rediriger
+    if (fedaStatus) checkStatut();
+
     const interval = setInterval(async () => {
       attempts++;
       const changed = await checkStatut();
       if (changed || attempts >= maxAttempts) clearInterval(interval);
-    }, 3000);
+    }, interval_ms);
 
-    // Fetch immédiat quand l'utilisateur revient sur l'onglet
     const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible') {
-        await checkStatut();
-      }
+      if (document.visibilityState === 'visible') await checkStatut();
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
@@ -192,7 +197,7 @@ const CommandeDetail = () => {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [commande?.statut, id]);
+  }, [commande?.statut, id, searchParams]);
 
   const handleCancel = async () => {
     setActionLoading(true);
