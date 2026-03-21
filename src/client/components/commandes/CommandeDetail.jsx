@@ -20,8 +20,15 @@ const STATUT_CONFIG = {
     text:  'text-yellow-700',
     icon:  Clock,
   },
-  payee: {
-    label: 'Payée — en cours de traitement',
+  payee: {                                          // ← ajoute
+    label: 'Paiement confirmé',
+    color: 'from-[#1DBF73] to-[#09B1BA]',
+    bg:    'bg-green-50 border-green-200',
+    text:  'text-green-700',
+    icon:  CheckCircle,
+  },
+  expediee: {                                       // ← ajoute
+    label: 'Expédiée',
     color: 'from-blue-400 to-blue-600',
     bg:    'bg-blue-50 border-blue-200',
     text:  'text-blue-700',
@@ -142,6 +149,50 @@ const CommandeDetail = () => {
       setLoading(false);
     }
   };
+  
+  // ─── Polling + détection retour onglet après FedaPay ─────────────────────
+  useEffect(() => {
+    if (!commande) return;
+    if (commande.statut !== 'en_attente') return;
+
+    let attempts = 0;
+    const maxAttempts = 40; // 40 × 3s = 2 min
+
+    const checkStatut = async () => {
+      try {
+        const res = await getCommandeById(id);
+        const updated = res.data ?? res;
+        if (updated.statut !== 'en_attente') {
+          setCommande(updated);
+          if (updated.statut === 'payee') {
+            setSuccess('✅ Paiement confirmé ! Votre facture a été envoyée par email.');
+          }
+          return true; // statut changé
+        }
+      } catch { /**/ }
+      return false;
+    };
+
+    // Polling toutes les 3s
+    const interval = setInterval(async () => {
+      attempts++;
+      const changed = await checkStatut();
+      if (changed || attempts >= maxAttempts) clearInterval(interval);
+    }, 3000);
+
+    // Fetch immédiat quand l'utilisateur revient sur l'onglet
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        await checkStatut();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [commande?.statut, id]);
 
   const handleCancel = async () => {
     setActionLoading(true);
@@ -283,6 +334,76 @@ const handlePay = async () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* ── Section succès paiement ─────────────────────────────────────── */}
+        {commande?.statut === 'payee' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className='mb-6 overflow-hidden rounded-2xl border border-green-200 shadow-lg'
+          >
+            {/* Bandeau dégradé */}
+            <div className='bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] px-6 py-8 text-center'>
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                className='w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4'
+              >
+                <CheckCircle className='w-10 h-10 text-white' />
+              </motion.div>
+              <h2 className='text-2xl font-black text-white mb-2'>Paiement effectué !</h2>
+              <p className='text-white/85 text-sm'>
+                Merci d'avoir utilisé DocSpace. Votre commande a bien été enregistrée.
+              </p>
+            </div>
+
+            {/* Détails */}
+            <div className='bg-white px-6 py-5 space-y-4'>
+
+              {/* Étapes livraison */}
+              <div className='space-y-3'>
+                {[
+                  { icon: CheckCircle, color: 'text-[#1DBF73] bg-[#1DBF73]/10', label: 'Paiement confirmé',        desc: 'Votre paiement a été reçu avec succès', done: true },
+                  { icon: Package,     color: 'text-[#09B1BA] bg-[#09B1BA]/10', label: 'Préparation en cours',     desc: 'Le vendeur prépare votre commande',       done: false },
+                  { icon: ShoppingBag, color: 'text-orange-400 bg-orange-50',   label: 'Livraison',                desc: 'Vous serez livré(e) prochainement',       done: false },
+                ].map(({ icon: Icon, color, label, desc, done }) => (
+                  <div key={label} className='flex items-center gap-4'>
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
+                      <Icon className='w-5 h-5' />
+                    </div>
+                    <div className='flex-1 min-w-0'>
+                      <p className={`text-sm font-bold ${done ? 'text-gray-900' : 'text-gray-400'}`}>{label}</p>
+                      <p className='text-xs text-gray-400'>{desc}</p>
+                    </div>
+                    {done && <CheckCircle className='w-4 h-4 text-[#1DBF73] shrink-0' />}
+                  </div>
+                ))}
+              </div>
+
+              <div className='border-t border-gray-100 pt-4'>
+                <p className='text-xs text-center text-gray-400 mb-4'>
+                  📧 Une facture a été envoyée à <span className='font-semibold text-gray-600'>{commande.acheteur?.email}</span>
+                </p>
+                <div className='flex gap-3'>
+                  <Link
+                    to='/explore'
+                    className='flex-1 py-3 text-center text-sm font-semibold text-gray-600 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-all'
+                  >
+                    Continuer mes achats
+                  </Link>
+                  <Link
+                    to='/profile'
+                    className='flex-1 py-3 text-center text-sm font-semibold text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-xl hover:shadow-lg transition-all'
+                  >
+                    Mes commandes
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {commande && (
           <motion.div
