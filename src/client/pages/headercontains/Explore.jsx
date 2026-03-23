@@ -14,7 +14,7 @@ import { getAnnonces, searchAnnonces, getImageUrl } from '../../../services/api'
 const CATEGORIES = [
   'Toutes', 'Imagerie Médicale', 'Cardiologie', 'Laboratoire',
   'Chirurgie', 'Monitoring', 'Urgence', 'Mobilier Médical',
-  'Stérilisation', 'Neurologie', 'Médecine Générale', 'Ophtamologie', 'Pièces de rechange', 'Autres'
+  'Stérilisation', 'Neurologie', 'Médecine Générale', 'Ophtalmologie', 'Pièces de rechange', 'Autres'
 ];
 
 const CONDITIONS = ['Tous', 'neuf', 'occasion', 'reconditionne'];
