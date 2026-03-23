@@ -76,6 +76,7 @@ const Messages = () => {
   const [sending,        setSending]        = useState(false);
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [showScrollBtn,  setShowScrollBtn]  = useState(false);
+  const selectedConvRef = useRef(null);
 
   const bottomRef   = useRef(null);
   const inputRef    = useRef(null);
@@ -99,20 +100,21 @@ const Messages = () => {
 
 // Remplace cet useEffect dans Messages.jsx
   useEffect(() => {
-    if (!initUserId || loadingConvs) return; // ← attendre la fin du chargement
+    if (!initUserId || loadingConvs) return;
 
     const conv = conversations.find(c => c.id === initUserId);
     if (conv) {
-      openConversation(conv);
+      openConversation(conv); // ← openConversation sync déjà la ref
     } else {
-      // Pas de conversation existante → chat vide prêt
-      setSelectedConv({
+      const newConv = {
         id:              initUserId,
-        name:            initVendeurNom, // ← nom réel au lieu de 'Vendeur'
+        name:            initVendeurNom,
         avatar:          null,
         non_lus:         0,
         dernier_message: null,
-      });
+      };
+      setSelectedConv(newConv);
+      selectedConvRef.current = newConv; // ← sync la ref ici aussi
       setMobileShowChat(true);
       setMessages([]);
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -128,8 +130,10 @@ const Messages = () => {
     finally { setLoadingMsgs(false); }
   }, []);
 
+  // Remplace ta fonction openConversation par celle-ci
   const openConversation = (conv) => {
     setSelectedConv(conv);
+    selectedConvRef.current = conv; // ← sync la ref
     setMobileShowChat(true);
     fetchMessages(conv.id);
     setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, non_lus: 0 } : c));
@@ -145,29 +149,35 @@ const Messages = () => {
    // return () => clearInterval(pollRef.current);
   //}, [selectedConv, fetchMessages, fetchConversations]);
 
+  // ✅ Remplace l'ancien useEffect WebSocket par celui-ci
   useEffect(() => {
-  if (!selectedConv) return;
+    if (!currentUser?.id) return;
 
-  // Écoute le canal privé de l'utilisateur connecté
-  const channel = echo.private(`conversation.${currentUser.id}`)
-    .listen('.nouveau.message', (e) => {
-      // Ajoute le message seulement s'il vient de la conversation ouverte
-      if (e.expediteur_id === selectedConv.id) {
+    const channel = echo.private(`conversation.${currentUser.id}`);
+
+    channel.listen('.nouveau.message', (e) => {
+      console.log('[WS] message reçu :', e); // ← garde pour vérifier
+
+      // Utilise la ref pour lire selectedConv sans closure stale
+      const conv = selectedConvRef.current;
+
+      if (conv && String(e.expediteur_id) === String(conv.id)) {
+        // Message de la conversation ouverte → ajoute en temps réel
         setMessages(prev => {
-          // Évite les doublons
-          if (prev.find(m => m.id === e.id)) return prev;
+          if (prev.find(m => m.id === e.id)) return prev; // anti-doublon
           return [...prev, e];
         });
-        // Met à jour la liste des conversations
-        fetchConversations();
       }
+
+      // Toujours rafraîchir la liste (badges non lus)
+      fetchConversations();
     });
 
-  return () => {
-    channel.stopListening('.nouveau.message');
-    echo.leave(`conversation.${currentUser.id}`);
-  };
-}, [selectedConv, currentUser.id, fetchConversations]);
+    // ✅ Quitte UNIQUEMENT au démontage total du composant
+    return () => {
+      echo.leave(`conversation.${currentUser.id}`);
+    };
+  }, [currentUser.id]); // ← SEULEMENT currentUser.id, jamais selectedConv
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
