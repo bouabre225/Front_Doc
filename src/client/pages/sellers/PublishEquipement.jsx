@@ -14,7 +14,7 @@ import { createAnnonce, uploadAnnonceImages, getKycStatus } from '../../../servi
 const CATEGORIES = [
   'Imagerie Médicale', 'Cardiologie', 'Laboratoire', 'Chirurgie',
   'Monitoring', 'Urgence', 'Mobilier Médical', 'Stérilisation',
-  'Neurologie', 'Médecine Générale', 'Ophtamologie', 'Pièces de rechange', 'Autres'
+  'Neurologie', 'Médecine Générale', 'Ophtalmologie', 'Pièces de rechange', 'Autres'
 ];
 
 const ETATS = [
