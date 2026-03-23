@@ -14,7 +14,10 @@ const echo = new Echo({
     authEndpoint: `${import.meta.env.VITE_API_URL}/broadcasting/auth`,
     auth: {
         headers: {
-            Authorization: 'Bearer ' + localStorage.getItem('auth_token'),
+            // ✅ Fonction fléchée → token lu dynamiquement à chaque auth
+            get Authorization() {
+                return 'Bearer ' + localStorage.getItem('auth_token');
+            },
         },
     },
 });
