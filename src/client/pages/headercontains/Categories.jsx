@@ -16,12 +16,12 @@ const CATEGORIES_CONFIG = {
   laboratoire:        { name: 'Laboratoire',        color: 'from-yellow-500 to-orange-500', bgLight: 'bg-yellow-50',   textColor: 'text-yellow-600', emoji: '🔬',  image: 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=800&fit=crop' },
   chirurgie:          { name: 'Chirurgie',          color: 'from-teal-500 to-cyan-600',     bgLight: 'bg-teal-50',     textColor: 'text-teal-500',   emoji: '🔪',  image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&fit=crop' },
   imagerie:           { name: 'Imagerie Médicale',  color: 'from-indigo-500 to-purple-600', bgLight: 'bg-indigo-50',   textColor: 'text-indigo-500', emoji: '🩻',  image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=800&fit=crop' },
-  ophtalmologie:      { name: 'Ophtalmologie',      color: 'from-pink-500 to-rose-600',     bgLight: 'bg-pink-50',     textColor: 'text-pink-500',   emoji: '👁️',  image: 'https://images.unsplash.com/photo-1576089238240-df71dfc57cfa?w=800&fit=crop' },
+  ophtalmologie:      { name: 'Ophtalmologie',      color: 'from-pink-500 to-rose-600',     bgLight: 'bg-pink-50',     textColor: 'text-pink-500',   emoji: '👁️',  image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800'},
   sterilisation:      { name: 'Stérilisation',      color: 'from-cyan-500 to-blue-600',     bgLight: 'bg-cyan-50',     textColor: 'text-cyan-500',   emoji: '🧼',  image: 'https://images.unsplash.com/photo-1583911860205-72f8ac8ddcbe?w=800&fit=crop' },
   mobilier:           { name: 'Mobilier Médical',   color: 'from-slate-500 to-gray-600',    bgLight: 'bg-slate-50',    textColor: 'text-slate-500',  emoji: '🛏️', image: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?w=800&fit=crop' },
   urgence:            { name: 'Urgence',            color: 'from-red-600 to-orange-500',    bgLight: 'bg-red-50',      textColor: 'text-red-600',    emoji: '🚨',  image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=800&fit=crop' },
   pieces_rechange:    { name: 'Pièces de Rechange', color: 'from-gray-500 to-slate-600',    bgLight: 'bg-gray-50',     textColor: 'text-gray-600',   emoji: '⚙️',  image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop' },
-  autres:             { name: 'Autres',             color: 'from-gray-500 to-slate-600',    bgLight: 'bg-gray-50',     textColor: 'text-gray-600',   emoji: '⚙️',  image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop' },
+  autres:             { name: 'Autres',             color: 'from-gray-500 to-slate-600',    bgLight: 'bg-gray-50',     textColor: 'text-gray-600',   emoji: '⚙️',  image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800' },
 };
 
 const ETATS = ['tous', 'neuf', 'occasion', 'reconditionne'];
