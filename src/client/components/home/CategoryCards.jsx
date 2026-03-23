@@ -12,9 +12,9 @@ const CATEGORIES = [
   { slug: 'laboratoire',       name: 'Laboratoire',       image: 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=400&h=300&fit=crop',  color: 'from-yellow-500/80 to-orange-500/80' },
   { slug: 'chirurgie',         name: 'Chirurgie',         image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=400&h=300&fit=crop',  color: 'from-teal-500/80 to-cyan-500/80' },
   { slug: 'imagerie',          name: 'Imagerie',          image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?w=400&h=300&fit=crop',  color: 'from-indigo-500/80 to-purple-500/80' },
-  { slug: 'ophtalmologie',     name: 'Ophtalmologie',      image: 'https://images.unsplash.com/photo-1576089238240-df71dfc57cfa?w=800&fit=crop',        color: 'from-pink-500/80 to-rose-500/80' },
+  { slug: 'ophtalmologie',     name: 'Ophtalmologie',      image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800',color: 'from-pink-500/80 to-rose-500/80' },
   { slug: 'pieces_rechange',   name: 'Pièces de rechange', image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop',  color: 'from-gray-500/80 to-slate-500/80' },
-  { slug: 'autres',            name: 'Autres',              image: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop',  color: 'from-gray-500/80 to-slate-500/80' },
+  { slug: 'autres',            name: 'Autres',              image: 'https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&q=80&w=800', color: 'from-gray-500/80 to-slate-500/80' },
 ];
 
 // Mapping slug → nom exact backend
