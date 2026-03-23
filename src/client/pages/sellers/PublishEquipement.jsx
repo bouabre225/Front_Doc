@@ -14,14 +14,13 @@ import { createAnnonce, uploadAnnonceImages, getKycStatus } from '../../../servi
 const CATEGORIES = [
   'Imagerie Médicale', 'Cardiologie', 'Laboratoire', 'Chirurgie',
   'Monitoring', 'Urgence', 'Mobilier Médical', 'Stérilisation',
-  'Neurologie', 'Médecine Générale', 'Pharmacie', 'Pièces de rechange'
+  'Neurologie', 'Médecine Générale', 'Ophtamologie', 'Pièces de rechange', 'Autres'
 ];
 
 const ETATS = [
   { value: 'neuf',       label: 'Neuf'        },
-  { value: 'tres_bon',   label: 'Très bon'    },
-  { value: 'bon',        label: 'Bon'         },
-  { value: 'acceptable', label: 'Acceptable'  },
+  { value: 'occasion',   label: 'Occasion'    },
+  { value: 'reconditionne', label: 'Reconditionné'  },
 ];
 
 // ─── Composant principal ─────────────────────────────────────────────────────
