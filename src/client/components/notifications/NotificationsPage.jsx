@@ -66,6 +66,10 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
   const cfg = getTypeConfig(notif.type);
   const Icon = cfg.icon;
 
+  const handleCardClick = () => {
+    if (!notif.lu) onRead(notif.id);
+  };
+
   return (
     <motion.div
       layout
@@ -73,6 +77,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20, height: 0, marginBottom: 0 }}
       transition={{ duration: 0.2 }}
+      onClick={handleCardClick}
       className={`relative flex gap-4 p-4 rounded-2xl border transition-all group ${
         notif.lu
           ? 'bg-white border-gray-100'
@@ -107,6 +112,10 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
         {notif.reference_id && notif.type === 'commande' && (
           <Link
             to={`/commandes/${notif.reference_id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!notif.lu) onRead(notif.id);
+            }}
             className='inline-flex items-center gap-1 mt-2 text-xs font-medium text-[#1DBF73] hover:text-[#09B1BA] transition-colors'
           >
             Voir la commande <ChevronRight className='w-3 h-3' />
@@ -115,6 +124,10 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
         {notif.reference_id && notif.type === 'litige' && (
           <Link
             to={`/litiges/${notif.reference_id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!notif.lu) onRead(notif.id);
+            }}
             className='inline-flex items-center gap-1 mt-2 text-xs font-medium text-orange-500 hover:text-orange-600 transition-colors'
           >
             Voir le litige <ChevronRight className='w-3 h-3' />
@@ -123,6 +136,10 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
         {notif.reference_id && notif.type === 'message' && (
           <Link
             to={`/messages`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!notif.lu) onRead(notif.id);
+            }}
             className='inline-flex items-center gap-1 mt-2 text-xs font-medium text-purple-500 hover:text-purple-600 transition-colors'
           >
             Ouvrir la conversation <ChevronRight className='w-3 h-3' />
@@ -146,7 +163,10 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          onClick={() => onDelete(notif.id)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete(notif.id);
+          }}
           title='Supprimer'
           className='w-7 h-7 flex items-center justify-center rounded-full bg-red-50 text-red-400 hover:bg-red-100 transition-all'
         >
