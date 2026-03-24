@@ -88,7 +88,7 @@ const Hero = () => {
           <h1 className='mb-6 text-5xl font-bold leading-tight text-gray-800 md:text-6xl'>
             Équipements Médicaux Neuf
             <span className='block bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent'>
-              D'occasion Premium
+               Et D'occasion Premium
             </span>
           </h1>
           <p className='max-w-3xl mx-auto mb-8 text-xl text-gray-600'>
