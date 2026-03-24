@@ -7,7 +7,7 @@ import {
   CheckCircle, XCircle, Eye
 } from 'lucide-react';
 import {
-  getAdminLitiges, getKycPending, getCommandes, getAnnonces
+  getAdminLitiges, getKycPending, getAdminCommandes, getAnnonces
 } from '../../services/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
       const [kycRes, litigesRes, commandesRes, annoncesRes] = await Promise.allSettled([
         getKycPending(),
         getAdminLitiges(),
-        getCommandes({ per_page: 100 }),
+        getAdminCommandes({ per_page: 100 }),
         getAnnonces({ per_page: 100 }),
       ]);
 
