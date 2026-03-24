@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShoppingCart, Search, RefreshCw, Eye, AlertCircle,
-  CheckCircle, ChevronLeft, ChevronRight, Calendar,
-  User, Package, X, MapPin, DollarSign, Hash
+  ChevronLeft, ChevronRight, Calendar,
+  User, Package, X, MapPin, PackageCheck, Loader2
 } from 'lucide-react';
-import { getAdminCommandes } from '../../services/api';
+import { getAdminCommandes, marquerCommandeLivree } from '../../services/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -27,8 +27,23 @@ const getInitials = (nom) =>
 
 // ─── Modal détail commande ────────────────────────────────────────────────────
 
-const CommandeModal = ({ commande: c, onClose }) => {
+const CommandeModal = ({ commande: c, onClose, onLivree }) => {
+  const [loading, setLoading] = useState(false);
   const cfg = STATUT_CONFIG[c.statut] || STATUT_CONFIG.en_attente;
+
+  const handleLivree = async () => {
+    if (!window.confirm(`Confirmer la livraison de la commande #${c.id.slice(0, 8)} ?`)) return;
+    setLoading(true);
+    try {
+      await marquerCommandeLivree(c.id);
+      onLivree(c.id);
+      onClose();
+    } catch (err) {
+      alert('Erreur : ' + (err.message || 'Une erreur est survenue'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -68,6 +83,22 @@ const CommandeModal = ({ commande: c, onClose }) => {
               {cfg.label}
             </span>
           </div>
+
+          {/* ✅ Bouton Marquer livrée — visible seulement si payée */}
+          {c.statut === 'payee' && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleLivree}
+              disabled={loading}
+              className='w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl shadow hover:shadow-lg disabled:opacity-50 transition-all'
+            >
+              {loading
+                ? <><Loader2 className='w-4 h-4 animate-spin' /> Traitement...</>
+                : <><PackageCheck className='w-4 h-4' /> Marquer comme livrée</>
+              }
+            </motion.button>
+          )}
 
           {/* Annonce */}
           {c.annonce && (
@@ -161,6 +192,15 @@ export default function AdminCommandes() {
   const [error,      setError]      = useState('');
   const [modalCmd,   setModalCmd]   = useState(null);
 
+  // ✅ Met à jour la commande en local après livraison
+  const handleLivree = (commandeId) => {
+    setCommandes(prev =>
+      prev.map(c => c.id === commandeId ? { ...c, statut: 'livree' } : c)
+    );
+    // Met aussi à jour la modal si ouverte
+    setModalCmd(prev => prev?.id === commandeId ? { ...prev, statut: 'livree' } : prev);
+  };
+
   const fetchCommandes = useCallback(async (p = 1) => {
     setLoading(true);
     setError('');
@@ -225,10 +265,10 @@ export default function AdminCommandes() {
         {/* Stats rapides */}
         <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6'>
           {[
-            { label: 'Total',      value: stats.total,      color: 'text-gray-800',   bg: 'bg-white'       },
-            { label: 'En attente', value: stats.en_attente, color: 'text-yellow-700', bg: 'bg-yellow-50'   },
-            { label: 'Payées',     value: stats.payee,      color: 'text-blue-700',   bg: 'bg-blue-50'     },
-            { label: 'Litiges',    value: stats.litige,     color: 'text-orange-700', bg: 'bg-orange-50'   },
+            { label: 'Total',      value: stats.total,      color: 'text-gray-800',   bg: 'bg-white'     },
+            { label: 'En attente', value: stats.en_attente, color: 'text-yellow-700', bg: 'bg-yellow-50' },
+            { label: 'Payées',     value: stats.payee,      color: 'text-blue-700',   bg: 'bg-blue-50'   },
+            { label: 'Litiges',    value: stats.litige,     color: 'text-orange-700', bg: 'bg-orange-50' },
           ].map(s => (
             <div key={s.label} className={`p-4 ${s.bg} border border-gray-100 rounded-xl text-center shadow-sm`}>
               <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
@@ -271,12 +311,12 @@ export default function AdminCommandes() {
         {/* Table */}
         <div className='bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden'>
           <div className='hidden md:grid grid-cols-12 gap-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider'>
-            <div className='col-span-4'>Annonce</div>
+            <div className='col-span-3'>Annonce</div>
             <div className='col-span-2'>Acheteur</div>
             <div className='col-span-2'>Vendeur</div>
             <div className='col-span-2'>Montant</div>
             <div className='col-span-1'>Statut</div>
-            <div className='col-span-1'>Action</div>
+            <div className='col-span-2'>Actions</div>
           </div>
 
           {loading ? (
@@ -301,7 +341,7 @@ export default function AdminCommandes() {
                 return (
                   <div key={c.id}
                     className='grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 px-5 py-4 hover:bg-gray-50 transition-colors items-center'>
-                    <div className='md:col-span-4'>
+                    <div className='md:col-span-3'>
                       <p className='font-semibold text-gray-900 text-sm truncate'>{c.annonce?.titre ?? 'Équipement'}</p>
                       <p className='text-xs text-gray-400 mt-0.5 flex items-center gap-1'>
                         <Calendar className='w-3 h-3' />
@@ -330,11 +370,18 @@ export default function AdminCommandes() {
                         {cfg.label}
                       </span>
                     </div>
-                    <div className='md:col-span-1'>
+
+                    {/* ✅ Actions */}
+                    <div className='md:col-span-2 flex items-center gap-1.5'>
                       <button onClick={() => setModalCmd(c)}
                         className='p-2 hover:bg-[#1DBF73]/10 rounded-xl transition-colors group' title='Voir détail'>
                         <Eye className='w-4 h-4 text-gray-400 group-hover:text-[#1DBF73] transition-colors' />
                       </button>
+
+                      {/* ✅ Bouton livraison — seulement si payée */}
+                      {c.statut === 'payee' && (
+                        <BoutonLivree commandeId={c.id} onLivree={handleLivree} />
+                      )}
                     </div>
                   </div>
                 );
@@ -359,10 +406,51 @@ export default function AdminCommandes() {
         )}
       </div>
 
-      {/* Modal détail commande */}
+      {/* Modal */}
       <AnimatePresence>
-        {modalCmd && <CommandeModal commande={modalCmd} onClose={() => setModalCmd(null)} />}
+        {modalCmd && (
+          <CommandeModal
+            commande={modalCmd}
+            onClose={() => setModalCmd(null)}
+            onLivree={handleLivree}
+          />
+        )}
       </AnimatePresence>
     </div>
   );
 }
+
+// ✅ Bouton livraison isolé avec son propre état loading
+const BoutonLivree = ({ commandeId, onLivree }) => {
+  const [loading, setLoading] = useState(false);
+
+  const handle = async () => {
+    if (!window.confirm('Confirmer la livraison de cette commande ?')) return;
+    setLoading(true);
+    try {
+      await marquerCommandeLivree(commandeId);
+      onLivree(commandeId);
+    } catch (err) {
+      alert('Erreur : ' + (err.message || 'Une erreur est survenue'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={handle}
+      disabled={loading}
+      title='Marquer livrée'
+      className='flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white text-xs font-bold rounded-xl shadow hover:shadow-md disabled:opacity-50 transition-all'
+    >
+      {loading
+        ? <Loader2 className='w-3.5 h-3.5 animate-spin' />
+        : <PackageCheck className='w-3.5 h-3.5' />
+      }
+      {!loading && 'Livrer'}
+    </motion.button>
+  );
+};

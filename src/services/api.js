@@ -506,6 +506,14 @@ export const getKycDocumentUrl = (id) => {
   return `${API_URL}/admin/kyc/document/${id}`;
 };
 
+export const marquerCommandeLivree = async (commandeId) => {
+  const res = await fetch(`${API_URL}/admin/commandes/${commandeId}/livrer`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -535,4 +543,5 @@ export default {
   suspendUser, reactivateUser, deleteAdminUser,
   getImageUrl,
   getKycDocumentUrl,
+  marquerCommandeLivree,
 };
