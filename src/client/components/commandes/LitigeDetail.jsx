@@ -42,6 +42,14 @@ const STATUS_LITIGE = {
     text: 'text-gray-600',
     icon: ShieldCheck,
     desc: 'Le litige a été clos par l\'initiateur.'
+  },
+  en_attente: {         
+    label: 'Litige ouvert',
+    color: 'from-orange-400 to-red-500',
+    bg: 'bg-orange-50 border-orange-200',
+    text: 'text-orange-700',
+    icon: Clock,
+    desc: 'Notre équipe examine actuellement votre demande.'
   }
 };
 
@@ -134,10 +142,10 @@ const LitigeDetail = () => {
               <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Détails du problème</span>
             </div>
             <h3 className="font-bold text-gray-900 mb-2 capitalize">
-              {litige.motif?.replace('_', ' ')}
+              {litige.motif?.replace(/_/g, ' ')}
             </h3>
             <p className="text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-dashed border-gray-200">
-              {litige.description || "Aucune description supplémentaire fournie."}
+              {litige.preuves || "Aucune preuve fournie."}
             </p>
           </div>
 
