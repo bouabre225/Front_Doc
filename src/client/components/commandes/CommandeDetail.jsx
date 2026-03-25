@@ -376,6 +376,26 @@ const handlePay = async () => {
                 <p className='text-xs text-center text-gray-400 mb-4'>
                   📧 Une facture a été envoyée à <span className='font-semibold text-gray-600'>{commande.acheteur?.email}</span>
                 </p>
+
+                {/* ✅ Bouton litige dans la section succès */}
+                {isAcheteur && (
+                  <button
+                    onClick={() => setShowLitige(true)}
+                    className='w-full py-3 mb-3 border-2 border-orange-200 text-orange-600 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-orange-50 transition-all text-sm'
+                  >
+                    <AlertCircle className='w-4 h-4' />
+                    Signaler un problème / Ouvrir un litige
+                  </button>
+                )}
+                {isAcheteur && (
+                  <Link
+                    to={`/messages?userId=${commande.vendeur_id}`}
+                    className='w-full py-3 mb-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl flex items-center justify-center gap-2 hover:border-[#1DBF73]/50 hover:text-[#1DBF73] transition-all text-sm'
+                  >
+                    <MessageCircle className='w-4 h-4' />
+                    Contacter le vendeur
+                  </Link>
+                )}
                 <div className='flex gap-3'>
                   <Link
                     to='/explore'
