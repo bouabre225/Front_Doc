@@ -64,7 +64,7 @@ function ClientApp() {
           <Route path='/messages' element={<Messages />} />
           <Route path='/commandes' element={<Commandes />} />
           <Route path='/commandes/:id' element={<CommandeDetail />} />
-          <Rpute path='/litiges/:id' element={<LitigeDetail />} />
+          <Route path='/litiges/:id' element={<LitigeDetail />} />
           <Route path='/seller/kyc' element={<SellerKyc />} />
           <Route path='/terms' element={<TermsOfService />} />
           <Route path='/privacy' element={<PrivacyPolicy />} />
