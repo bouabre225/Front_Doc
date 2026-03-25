@@ -167,9 +167,9 @@ function Profile() {
 
   if (loading) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen flex flex-col bg-gray-50'>
         <Header />
-        <div className='flex items-center justify-center py-40'>
+        <div className='flex items-center flex-grow justify-center py-40'>
           <div className='w-12 h-12 border-4 border-[#1DBF73] rounded-full border-t-transparent animate-spin' />
         </div>
         <Footer />
@@ -179,9 +179,9 @@ function Profile() {
 
   if (error) {
     return (
-      <div className='min-h-screen bg-gray-50'>
+      <div className='min-h-screen flex flex-col bg-gray-50'>
         <Header />
-        <div className='flex flex-col items-center justify-center py-40 gap-4'>
+        <div className='flex flex-grow items-center justify-center py-40 gap-4'>
           <AlertCircle className='w-12 h-12 text-red-400' />
           <p className='text-gray-700 font-medium'>{error}</p>
         </div>
