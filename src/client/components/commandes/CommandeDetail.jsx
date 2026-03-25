@@ -634,18 +634,31 @@ const handlePay = async () => {
       {showLitige && (
         <ConfirmModal
           title='Ouvrir un litige'
-          message='Décrivez le problème rencontré. Notre équipe vous contactera sous 24h.'
+          message='Sélectionnez le motif de votre litige. Notre équipe vous contactera sous 24h.'
           onConfirm={handleLitige}
           onCancel={() => { setShowLitige(false); setLitigeMotif(''); }}
           loading={actionLoading}
           danger
         >
-          <textarea
+          {/*Select au lieu de textarea */}
+          <select
             value={litigeMotif}
             onChange={e => setLitigeMotif(e.target.value)}
-            placeholder='Décrivez votre problème en détail...'
-            rows={4}
-            className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all resize-none'
+            className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all'
+          >
+            <option value=''>-- Choisir un motif --</option>
+            <option value='non_conforme'>Produit non conforme à l'annonce</option>
+            <option value='defectueux'>Produit défectueux</option>
+            <option value='perdu'>Colis perdu / non reçu</option>
+          </select>
+        
+          {/* Zone de détails optionnelle */}
+          <textarea
+            value={litigeMotif === '' ? '' : undefined}
+            onChange={() => {}}
+            placeholder='Détails supplémentaires (optionnel)...'
+            rows={3}
+            className='w-full mt-3 px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-400 transition-all resize-none'
           />
         </ConfirmModal>
       )}
