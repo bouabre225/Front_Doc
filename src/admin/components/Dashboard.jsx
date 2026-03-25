@@ -104,13 +104,15 @@ export default function AdminDashboard() {
       // Commandes
       if (commandesRes.status === 'fulfilled') {
         const d = commandesRes.value;
-        setCommandes(d?.data?.data ?? d?.data ?? d ?? []);
+        const list = d?.data?.data ?? d?.data ?? d ?? [];
+        setCommandes(Array.isArray(list) ? list : []);
       }
 
       // Annonces
       if (annoncesRes.status === 'fulfilled') {
         const d = annoncesRes.value;
-        setAnnonces(d?.data?.data ?? d?.data ?? d ?? []);
+        const list = d?.data?.data ?? d?.data ?? d ?? [];
+        setAnnonces(Array.isArray(list) ? list : []);
       }
 
     } finally {
@@ -121,15 +123,21 @@ export default function AdminDashboard() {
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
-  // ─── Stats calculées ──────────────────────────────────────────────────
-  const litigesOuverts    = litiges.filter(l => l.statut === 'en_attente' || l.statut === 'en_cours').length;
-  const litigesResolus    = litiges.filter(l => l.statut === 'resolu').length;
-  const commandesPayees   = commandes.filter(c => c.statut === 'payee' || c.statut === 'livree').length;
-  const commandesAttente  = commandes.filter(c => c.statut === 'en_attente').length;
-  const montantTotal      = commandes
-    .filter(c => c.statut === 'payee' || c.statut === 'livree')
+  // ─── Stats calculées ──────────────────────────────────────────────────────────
+  const litigesOuverts   = litiges.filter(l => ['en_attente', 'en_cours'].includes(l.statut)).length;
+  const litigesResolus   = litiges.filter(l => l.statut === 'resolu').length;
+  const commandesPayees  = commandes.filter(c => c.statut === 'payee').length;
+  const commandesLivrees = commandes.filter(c => c.statut === 'livree').length;
+  const commandesAttente = commandes.filter(c => c.statut === 'en_attente').length;
+
+  // ✅ Volume = payées + livrées
+  const montantTotal = commandes
+    .filter(c => ['payee', 'livree'].includes(c.statut))
     .reduce((sum, c) => sum + Number(c.montant || 0), 0);
-  const annoncesActives   = annonces.filter(a => a.statut === 'active' || a.statut === 'publiee' || a.statut === 'disponible').length;
+
+  const annoncesActives = annonces.filter(a =>
+    ['active', 'publiee', 'disponible'].includes(a.statut)
+  ).length;
 
   // Dernières commandes (5)
   const dernieresCommandes = [...commandes]
@@ -257,7 +265,7 @@ export default function AdminDashboard() {
             value={commandes.length}
             color='#1DBF73'
             bgColor='rgba(29,191,115,0.1)'
-            sub={`${commandesPayees} payées`}
+            sub={`${commandesPayees} payées · ${commandesLivrees} livrées`}
             loading={loading}
           />
           <StatCard
