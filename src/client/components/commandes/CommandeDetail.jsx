@@ -579,8 +579,8 @@ const handlePay = async () => {
                 Contacter  {isAcheteur ? 'le vendeur' : 'l\'acheteur'}
               </Link>
 
-              {/* Ouvrir un litige — acheteur + payee */}
-              {isAcheteur && commande.statut === 'payee' && (
+              {/* Ouvrir un litige — acheteur + livraison */}
+              {isAcheteur && commande.statut === 'livree' && (
                 <button
                   onClick={() => setShowLitige(true)}
                   className='w-full py-3 border-2 border-orange-200 text-orange-600 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-orange-50 transition-all text-sm'
