@@ -29,9 +29,7 @@ function Equipment() {
   const { id }       = useParams();
   const navigate     = useNavigate();
   const { addToCart, isInCart } = useCart();
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-  const isOwnAnnonce = currentUser.id === annonce?.vendeur_id;    
-
+  
   const [annonce,       setAnnonce]       = useState(null);
   const [loading,       setLoading]       = useState(true);
   const [error,         setError]         = useState('');
@@ -44,6 +42,9 @@ function Equipment() {
       return favs.includes(id);
     } catch { return false; }
   });
+
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const isOwnAnnonce = currentUser.id === annonce?.vendeur_id;    
 
   useEffect(() => {
     const fetch = async () => {
