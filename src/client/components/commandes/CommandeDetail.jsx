@@ -20,14 +20,14 @@ const STATUT_CONFIG = {
     text:  'text-yellow-700',
     icon:  Clock,
   },
-  payee: {                                          // ← ajoute
+  payee: {                                         
     label: 'Paiement confirmé',
     color: 'from-[#1DBF73] to-[#09B1BA]',
     bg:    'bg-green-50 border-green-200',
     text:  'text-green-700',
     icon:  CheckCircle,
   },
-  expediee: {                                       // ← ajoute
+  expediee: {                                      
     label: 'Expédiée',
     color: 'from-blue-400 to-blue-600',
     bg:    'bg-blue-50 border-blue-200',
@@ -651,7 +651,7 @@ const handlePay = async () => {
             <option value='defectueux'>Produit défectueux</option>
             <option value='perdu'>Colis perdu / non reçu</option>
           </select>
-        
+
           {/* Zone de détails optionnelle */}
           <textarea
             value={litigeMotif === '' ? '' : undefined}

@@ -182,7 +182,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
 const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('toutes'); // toutes | non_lues | lues
+  const [filter, setFilter] = useState('toutes');
   const [typeFilter, setTypeFilter] = useState('tous');
   const [filterOpen, setFilterOpen] = useState(false);
 
