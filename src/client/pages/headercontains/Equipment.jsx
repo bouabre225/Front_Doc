@@ -314,7 +314,7 @@ function Equipment() {
               {[
                 { icon: Package,  color: 'bg-[#1DBF73]/10', iconColor: 'text-[#1DBF73]',   label: 'État',       value: annonce.etat },
                 { icon: Layers,   color: 'bg-[#09B1BA]/10', iconColor: 'text-[#09B1BA]',   label: 'Quantité',   value: `${annonce.quantite} dispo.` },
-                { icon: User,     color: 'bg-purple-50',    iconColor: 'text-purple-400',   label: 'Vendeur',    value: annonce.vendeur?.nom || '—' },
+                {/*{ icon: User,     color: 'bg-purple-50',    iconColor: 'text-purple-400',   label: 'Vendeur',    value: annonce.vendeur?.nom || '—' },*/},
                 { icon: Calendar, color: 'bg-orange-50',    iconColor: 'text-orange-400',   label: 'Publié le',  value: annonce.created_at ? new Date(annonce.created_at).toLocaleDateString('fr-FR') : '—' },
               ].map(({ icon: Icon, color, iconColor, label, value }) => (
                 <div key={label} className='flex items-center gap-3 p-4 bg-white border border-gray-100 shadow-sm rounded-2xl'>
