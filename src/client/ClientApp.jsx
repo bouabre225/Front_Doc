@@ -16,6 +16,7 @@ import Notifications from './components/notifications/Notifications';
 import Messages from './components/messages/Messages';
 import CommandeDetail from './components/commandes/CommandeDetail';
 import Commandes from './components/commandes/Commandes';
+import LitigeDetail from './components/commandes/LitigeDetail';
 import SellerKyc from './pages/SellerKyc';
 import Cart from './components/cart/Cart';
 import TermsOfService from './pages/headercontains/TermsOfService';
@@ -63,6 +64,7 @@ function ClientApp() {
           <Route path='/messages' element={<Messages />} />
           <Route path='/commandes' element={<Commandes />} />
           <Route path='/commandes/:id' element={<CommandeDetail />} />
+          <Rpute path='/litiges/:id' element={<LitigeDetail />} />
           <Route path='/seller/kyc' element={<SellerKyc />} />
           <Route path='/terms' element={<TermsOfService />} />
           <Route path='/privacy' element={<PrivacyPolicy />} />
