@@ -23,8 +23,16 @@ const Cart = () => {
 
   const handleCommander = async () => {
     const token = localStorage.getItem('auth_token');
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+
     if (!token) {
       navigate('/login', { state: { from: '/cart' } });
+      return;
+    }
+
+    const propresArticles = cart.filter(item => item.vendeur_id === currentUser.id);
+    if (propresArticles.length > 0) {
+      setError(`Vous ne pouvez pas commander vos propres articles : ${propresArticles.map(i => i.titre).join(', ')}`);
       return;
     }
 
