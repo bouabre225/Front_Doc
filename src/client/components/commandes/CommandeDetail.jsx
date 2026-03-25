@@ -221,7 +221,10 @@ const handlePay = async () => {
 };
 
   const handleLitige = async () => {
-    if (!litigeMotif.trim()) return;
+    if (!litigeMotif.trim()) {
+      setError('Veuillez sélectionner un motif.');
+      return;
+    }
     setActionLoading(true);
     try {
       await createLitige({ commande_id: id, motif: litigeMotif });

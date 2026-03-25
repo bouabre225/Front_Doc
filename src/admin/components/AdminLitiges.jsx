@@ -37,15 +37,11 @@ Number(p || 0).toLocaleString('fr-FR') + ' FCFA';
 
 
 const STATUT_CONFIG = {
-
-en_attente: { label: 'En attente', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', dot: 'bg-yellow-400' },
-
-en_cours: { label: 'En cours', color: 'bg-blue-100 text-blue-700 border-blue-200', dot: 'bg-blue-400' },
-
-resolu: { label: 'Résolu', color: 'bg-green-100 text-green-700 border-green-200', dot: 'bg-green-400' },
-
-rejete: { label: 'Rejeté', color: 'bg-red-100 text-red-700 border-red-200', dot: 'bg-red-400' },
-
+  ouvert:     { label: 'En attente', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', dot: 'bg-yellow-400' }, // ✅ ajoute
+  en_attente: { label: 'En attente', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', dot: 'bg-yellow-400' },
+  en_cours:   { label: 'En cours',   color: 'bg-blue-100 text-blue-700 border-blue-200',       dot: 'bg-blue-400'   },
+  resolu:     { label: 'Résolu',     color: 'bg-green-100 text-green-700 border-green-200',    dot: 'bg-green-400'  },
+  rejete:     { label: 'Rejeté',     color: 'bg-red-100 text-red-700 border-red-200',          dot: 'bg-red-400'    },
 };
 
 
@@ -524,7 +520,7 @@ className='overflow-hidden'
 
 <div className='flex gap-3'>
 
-{litige.statut === 'en_attente' && (
+{(litige.statut === 'en_attente' || litige.statut === 'ouvert') && (
 
 <button
 
@@ -552,7 +548,7 @@ Prendre en charge
 
 )}
 
-{(litige.statut === 'en_attente' || litige.statut === 'en_cours') && (
+{(litige.statut === 'en_attente' || litige.statut === 'ouvert' || litige.statut === 'en_cours') && (
 
 <button
 
