@@ -29,6 +29,8 @@ function Equipment() {
   const { id }       = useParams();
   const navigate     = useNavigate();
   const { addToCart, isInCart } = useCart();
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const isOwnAnnonce = currentUser.id === annonce?.vendeur_id;    
 
   const [annonce,       setAnnonce]       = useState(null);
   const [loading,       setLoading]       = useState(true);
@@ -366,45 +368,41 @@ function Equipment() {
 
             {/* Boutons actions */}
             <div className='flex gap-3 pt-1'>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleAddToCart}
-                disabled={stockDispo === 0}
-                className={`flex-1 py-4 font-semibold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 ${
-                  stockDispo === 0
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    : alreadyInCart
-                    ? 'bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white hover:shadow-xl'
-                    : 'bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white hover:shadow-xl'
-                }`}
-              >
-                <AnimatePresence mode='wait'>
-                  {addedToCart ? (
-                    <motion.span
-                      key='added'
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      className='flex items-center gap-2'
-                    >
-                      <Check className='w-5 h-5' /> Ajouté au panier !
-                    </motion.span>
-                  ) : (
-                    <motion.span
-                      key='add'
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      className='flex items-center gap-2'
-                    >
-                      <ShoppingCart className='w-5 h-5' />
-                      {stockDispo === 0 ? 'Rupture de stock' : alreadyInCart ? 'Déjà dans le panier' : 'Ajouter au panier'}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </motion.button>
 
+              {/* ✅ Si c'est sa propre annonce → message au lieu du bouton panier */}
+              {isOwnAnnonce ? (
+                <div className='flex-1 py-4 bg-gray-100 text-gray-500 font-semibold rounded-2xl flex items-center justify-center gap-2 text-sm'>
+                  <Package className='w-5 h-5' />
+                  Votre annonce
+                </div>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleAddToCart}
+                  disabled={stockDispo === 0}
+                  className={`flex-1 py-4 font-semibold rounded-2xl shadow-lg transition-all flex items-center justify-center gap-2 ${
+                    stockDispo === 0
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white hover:shadow-xl'
+                  }`}
+                >
+                  <AnimatePresence mode='wait'>
+                    {addedToCart ? (
+                      <motion.span key='added' initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className='flex items-center gap-2'>
+                        <Check className='w-5 h-5' /> Ajouté au panier !
+                      </motion.span>
+                    ) : (
+                      <motion.span key='add' initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className='flex items-center gap-2'>
+                        <ShoppingCart className='w-5 h-5' />
+                        {stockDispo === 0 ? 'Rupture de stock' : alreadyInCart ? 'Déjà dans le panier' : 'Ajouter au panier'}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+              )}
+
+              {/* Favori — toujours visible */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -414,15 +412,18 @@ function Equipment() {
                 <Heart className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
               </motion.button>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={handleContact}
-                className='px-5 py-4 border-2 border-[#1DBF73] text-[#1DBF73] font-semibold rounded-2xl hover:bg-[#1DBF73]/5 transition-all flex items-center gap-2 text-sm'
-              >
-                <MessageSquare className='w-4 h-4' />
-                Contacter
-              </motion.button>
+              {/* Contacter — masqué si c'est sa propre annonce */}
+              {!isOwnAnnonce && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleContact}
+                  className='px-5 py-4 border-2 border-[#1DBF73] text-[#1DBF73] font-semibold rounded-2xl hover:bg-[#1DBF73]/5 transition-all flex items-center gap-2 text-sm'
+                >
+                  <MessageSquare className='w-4 h-4' />
+                  Contacter
+                </motion.button>
+              )}
             </div>
 
             {/* Lien vers panier si déjà ajouté */}
