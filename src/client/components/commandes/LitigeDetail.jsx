@@ -171,7 +171,7 @@ const LitigeDetail = () => {
              </div>
              <button className="w-full py-3.5 bg-gray-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-gray-800 transition-all shadow-md">
                 <MessageCircle className="w-4 h-4" />
-                Discuter avec le médiateur
+                <a href='mailto:docspaceafrica@gmail.com'>Discuter avec le médiateur</a>
              </button>
           </div>
         </div>
