@@ -215,13 +215,17 @@ const Messages = () => {
     setSending(true);
 
     try {
-      await sendMessage({
+      const response = await sendMessage({
         recepteur_id: selectedConv.id,
         contenu:      text,
-        annonce_id:   initAnnonceId || undefined, // ← passe l'annonce au premier message
+        annonce_id:   initAnnonceId || undefined,
       });
-      await fetchMessages(selectedConv.id);
-      await fetchConversations();
+      
+      // Remplace le message optimiste par le vrai message du serveur
+      const realMessage = response?.data || { ...optimistic, id: response?.id, _optimistic: false };
+      setMessages(prev => 
+        prev.map(m => m.id === optimistic.id ? realMessage : m)
+      );
     } catch {
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
       setInput(text);
