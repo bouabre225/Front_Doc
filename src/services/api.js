@@ -215,7 +215,7 @@ export const updateAnnonce = async (id, payload) => {
 };
 
 export const deleteAnnonce = async (id) => {
-  const res = await fetch(`${API_URL}/annonces/${id}`, {
+  const res = await fetch(`${API_URL}/admin/annonces/${id}`, {
     method: 'DELETE',
     headers: authHeaders(),
   });
@@ -226,7 +226,7 @@ export const uploadAnnonceImages = async (annonceId, files) => {
   const results = [];
   for (const file of files) {
     const formData = new FormData();
-    formData.append('image', file); // ← 'image' pas 'images[]'
+    formData.append('image', file);
     const res = await fetch(`${API_URL}/annonces/${annonceId}/images`, {
       method: 'POST',
       headers: {
