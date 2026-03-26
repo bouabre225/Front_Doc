@@ -233,12 +233,22 @@ const Messages = () => {
         annonce_id:   initAnnonceId || undefined,
       });
       
+      console.log('[sendMessage] Response:', response);
+      
       // Remplace le message optimiste par le vrai message du serveur
-      const realMessage = response?.data || { ...optimistic, id: response?.id, _optimistic: false };
+      const realMessage = response?.data || { 
+        ...optimistic, 
+        id: response?.id || optimistic.id,
+        _optimistic: false 
+      };
+      
+      console.log('[sendMessage] Real message:', realMessage);
+      
       setMessages(prev => 
         prev.map(m => m.id === optimistic.id ? realMessage : m)
       );
-    } catch {
+    } catch (error) {
+      console.error('[sendMessage] Error:', error);
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
       setInput(text);
     } finally {
