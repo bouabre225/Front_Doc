@@ -169,8 +169,15 @@ const Messages = () => {
         });
       }
 
-      // Toujours rafraîchir la liste (badges non lus)
-      fetchConversations();
+      // Met à jour UNIQUEMENT le badge non lus de la conversation
+      setConversations(prev => 
+        prev.map(c => {
+          if (String(c.id) === String(e.expediteur_id)) {
+            return { ...c, non_lus: (c.non_lus || 0) + 1 };
+          }
+          return c;
+        })
+      );
     });
 
     // ✅ Quitte UNIQUEMENT au démontage total du composant
