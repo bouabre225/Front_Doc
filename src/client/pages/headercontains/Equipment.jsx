@@ -151,21 +151,6 @@ function Equipment() {
 
         {/* Fil d'Ariane + retour */}
         <div className='flex items-center justify-between mb-6'>
-          <div className='flex items-center gap-2 text-sm text-gray-500'>
-            <Link to='/' className='hover:text-[#1DBF73] transition-colors'>Accueil</Link>
-            <span>/</span>
-            <Link to='/explore' className='hover:text-[#1DBF73] transition-colors'>Explorer</Link>
-            {annonce.categorie && (
-              <>
-                <span>/</span>
-                <Link to={`/categories/${annonce.categorie?.toLowerCase().replace(/\s+/g, '-')}`} className='hover:text-[#1DBF73] transition-colors'>
-                  {annonce.categorie}
-                </Link>
-              </>
-            )}
-            <span>/</span>
-            <span className='text-gray-900 font-medium line-clamp-1 max-w-[160px]'>{annonce.titre}</span>
-          </div>
           <button
             onClick={() => navigate(-1)}
             className='flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1DBF73] transition-colors'
