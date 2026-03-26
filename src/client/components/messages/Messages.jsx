@@ -153,16 +153,24 @@ const Messages = () => {
   useEffect(() => {
     if (!currentUser?.id) return;
 
+    console.log('[Messages] Subscribing to channel:', `conversation.${currentUser.id}`);
     const channel = echo.private(`conversation.${currentUser.id}`);
 
     channel.listen('.nouveau.message', (e) => {
-      console.log('[WS] message reçu :', e); // ← garde pour vérifier
+      console.log('[WS] Message received ✅:', e);
+      console.log('[WS] Current selectedConv:', selectedConvRef.current);
+      console.log('[WS] Comparison:', {
+        incoming_expediteur_id: String(e.expediteur_id),
+        current_conv_id: String(selectedConvRef.current?.id),
+        match: String(e.expediteur_id) === String(selectedConvRef.current?.id)
+      });
 
       // Utilise la ref pour lire selectedConv sans closure stale
       const conv = selectedConvRef.current;
 
       if (conv && String(e.expediteur_id) === String(conv.id)) {
         // Message de la conversation ouverte → ajoute en temps réel
+        console.log('[WS] Message added to chat');
         setMessages(prev => {
           if (prev.find(m => m.id === e.id)) return prev; // anti-doublon
           return [...prev, e];
@@ -173,6 +181,7 @@ const Messages = () => {
       setConversations(prev => 
         prev.map(c => {
           if (String(c.id) === String(e.expediteur_id)) {
+            console.log('[WS] Unread count updated for:', c.id);
             return { ...c, non_lus: (c.non_lus || 0) + 1 };
           }
           return c;
@@ -180,8 +189,11 @@ const Messages = () => {
       );
     });
 
+    console.log('[Messages] Channel subscribed');
+
     // ✅ Quitte UNIQUEMENT au démontage total du composant
     return () => {
+      console.log('[Messages] Leaving channel:', `conversation.${currentUser.id}`);
       echo.leave(`conversation.${currentUser.id}`);
     };
   }, [currentUser.id]); // ← SEULEMENT currentUser.id, jamais selectedConv

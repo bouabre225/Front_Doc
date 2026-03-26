@@ -59,25 +59,34 @@ const Header = () => {
   useEffect(() => {
     if (!currentUser) return;
     
+    console.log('[Header] Subscribing to message notifications for user:', currentUser.id);
+    
     // Charge les conversations au démarrage
     const fetchMessageCount = async () => {
       try {
         const data = await getConversations();
         const convs = Array.isArray(data) ? data : [];
         const total = convs.reduce((sum, c) => sum + (c.non_lus || 0), 0);
+        console.log('[Header] Message count updated:', total);
         setMessageCount(total);
-      } catch { /**/ }
+      } catch (error) {
+        console.error('[Header] Error fetching message count:', error);
+      }
     };
     fetchMessageCount();
     
     // Écoute les nouveaux messages en temps réel via Pusher
     const channel = echo.private(`conversation.${currentUser.id}`);
-    channel.listen('.nouveau.message', () => {
+    channel.listen('.nouveau.message', (data) => {
+      console.log('[Header] New message received via WebSocket:', data);
       // Rafraîchit les conversations pour mettre à jour les compteurs "non lus"
       fetchMessageCount();
     });
     
+    console.log('[Header] Channel subscribed');
+    
     return () => {
+      console.log('[Header] Leaving channel');
       echo.leave(`conversation.${currentUser.id}`);
     };
   }, [currentUser]);
