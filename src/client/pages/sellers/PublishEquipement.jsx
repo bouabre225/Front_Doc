@@ -88,28 +88,82 @@ const PublishEquipment = () => {
 
   const kycDoc    = kycStatus?.kyc_document;
 
+  const compressImage = (file) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+
+          // ✅ Limite la taille max à 1200px
+          const MAX = 1200;
+          let { width, height } = img;
+          if (width > MAX || height > MAX) {
+            if (width > height) { height = Math.round(height * MAX / width); width = MAX; }
+            else { width = Math.round(width * MAX / height); height = MAX; }
+          }
+
+          canvas.width  = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // ✅ Convertit en JPEG (résout HEIC + rotation EXIF)
+          canvas.toBlob(
+            (blob) => {
+              const compressed = new File(
+                [blob],
+                file.name.replace(/\.[^.]+$/, '.jpg'), // ← extension .jpg
+                { type: 'image/jpeg' }
+              );
+              resolve(compressed);
+            },
+            'image/jpeg',
+            0.85 // qualité 85%
+          );
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   // ─── Images ────────────────────────────────────────────────────────────
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
     if (images.length + files.length > 10) {
       alert('Maximum 10 images');
       return;
     }
-    const newImages = files.map(file => ({
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-    setImages(prev => [...prev, ...newImages]);
-  };
 
-  const removeImage = (index) => {
-    setImages(prev => {
-      const updated = [...prev];
-      URL.revokeObjectURL(updated[index].preview);
-      updated.splice(index, 1);
-      return updated;
-    });
-  };
+    // ✅ Compresse chaque image (résout caméra, HEIC, rotation)
+    const processed = await Promise.all(
+        files.map(async (file) => {
+          try {
+            const compressed = await compressImage(file);
+            return {
+              file:    compressed,
+              preview: URL.createObjectURL(compressed),
+            };
+          } catch {
+            // Fallback si la compression échoue
+            return {
+              file,
+              preview: URL.createObjectURL(file),
+            };
+          }
+        })
+      );
+
+      setImages(prev => [...prev, ...processed]);
+
+      // ✅ Reset l'input pour permettre de re-sélectionner le même fichier
+      e.target.value = '';
+    };
 
   // ─── Form ──────────────────────────────────────────────────────────────
   const handleChange = (e) => {
@@ -472,7 +526,9 @@ const PublishEquipment = () => {
                   <label className='block mb-2 text-sm font-semibold text-gray-700'>
                     Images <span className='text-gray-400 font-normal'>(optionnel, max 10)</span>
                   </label>
-                  <div className='relative p-10 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#1DBF73] transition-all cursor-pointer group'>
+                  <div className='relative p-10 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#1DBF73] transition-all group'>
+
+                    {/* Input galerie */}
                     <input
                       type='file'
                       multiple
@@ -480,13 +536,28 @@ const PublishEquipment = () => {
                       onChange={handleImageUpload}
                       className='absolute inset-0 w-full h-full opacity-0 cursor-pointer'
                     />
+
                     <div className='text-center pointer-events-none'>
                       <Upload className='w-10 h-10 mx-auto mb-3 text-gray-300 group-hover:text-[#1DBF73] transition-colors' />
-                      <p className='text-sm font-semibold text-gray-500 group-hover:text-[#1DBF73] transition-colors'>
-                        Glissez vos images ou cliquez pour choisir
+                      <p className='text-sm font-semibold text-gray-500 group-hover:text-[#1DBF73]'>
+                        Galerie ou appareil photo
                       </p>
-                      <p className='text-xs text-gray-400 mt-1'>JPG, PNG — Max 10 images</p>
+                      <p className='text-xs text-gray-400 mt-1'>JPG, PNG, HEIC — Max 10 images</p>
                     </div>
+                  </div>
+
+                  {/* Bouton caméra séparé — mobile uniquement */}
+                  <div className='md:hidden mt-3'>
+                    <label className='flex items-center justify-center gap-2 w-full py-3 border-2 border-[#1DBF73]/40 text-[#1DBF73] font-semibold rounded-xl cursor-pointer hover:bg-[#1DBF73]/5 transition-all text-sm'>
+                      📷 Prendre une photo
+                      <input
+                        type='file'
+                        accept='image/*'
+                        capture='environment'
+                        onChange={handleImageUpload}
+                        className='hidden'
+                      />
+                    </label>
                   </div>
 
                   {images.length > 0 && (
