@@ -10,13 +10,13 @@ const TermsOfService = () => {
         <ArrowLeft size={16} /> Retour
       </span>
       <header className="border-b pb-6 mb-8">
-        <h1 className="text-3xl font-bold text-blue-900">Conditions Générales d'Utilisation</h1>
+        <h1 className="text-3xl font-bold text-green-900">Conditions Générales d'Utilisation</h1>
         <p className="text-sm text-gray-500 mt-2">Version 1.0 — En vigueur au 18 mars 2026</p>
       </header>
 
       <section className="space-y-6">
         <div>
-          <h2 className="text-xl font-semibold text-blue-800 mb-2 font-mono uppercase tracking-wide">1. Présentation de docSpace</h2>
+          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">1. Présentation de docSpace</h2>
           <p>
             <strong>docSpace</strong> est une plateforme intermédiaire mettant en relation des professionnels de santé, 
             des structures de soins et des particuliers pour la transaction d'équipements médicaux neufs ou d'occasion. 
@@ -25,7 +25,7 @@ const TermsOfService = () => {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-blue-800 mb-2 font-mono uppercase tracking-wide">2. Éligibilité</h2>
+          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">2. Éligibilité</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>L'utilisateur doit être âgé d'au moins 18 ans.</li>
             <li>Les professionnels doivent justifier de leur droit d'exercice (SIRET, numéro d'Ordre) lors de la procédure de vérification KYC.</li>
@@ -34,17 +34,17 @@ const TermsOfService = () => {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-blue-800 mb-2 font-mono uppercase tracking-wide">3. Obligations du Vendeur (docSeller)</h2>
+          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">3. Obligations du Vendeur (docSeller)</h2>
           <p>Le vendeur s'engage à :</p>
           <ul className="list-disc pl-6 space-y-2">
             <li>Garantir la conformité réglementaire (Marquage CE, normes ISO) du matériel.</li>
-            <li>Fournir des photos réelles et une description honnête de l'état (neuf, très bon état, usagé).</li>
+            <li>Fournir des photos réelles et une description honnête de l'état (neuf, occasion ou reconditionné).</li>
             <li>Assurer la décontamination et la désinfection du matériel d'occasion avant expédition.</li>
           </ul>
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-blue-800 mb-2 font-mono uppercase tracking-wide">4. Transactions et Paiements</h2>
+          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">4. Transactions et Paiements</h2>
           <p>
             Les paiements sont sécurisés via FedaPay. 
             Les fonds sont séquestrés par docSpace et ne sont libérés au vendeur qu'après :
@@ -55,13 +55,13 @@ const TermsOfService = () => {
           </ol>
         </div>
 
-        <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500 italic">
+        <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500 italic">
           <strong>Note importante :</strong> docSpace décline toute responsabilité quant à l'usage clinique des dispositifs médicaux achetés. 
           Il incombe à l'acheteur de vérifier la sécurité du matériel avant toute utilisation sur un patient.
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold text-blue-800 mb-2 font-mono uppercase tracking-wide">5. Droit Applicable</h2>
+          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">5. Droit Applicable</h2>
           <p>
             Les présentes CGU sont régies par le droit français. En cas de litige, et après tentative de résolution à l'amiable, 
             compétence exclusive est attribuée aux tribunaux compétents.
