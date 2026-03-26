@@ -6,7 +6,7 @@ import {
   MessageCircle, Package, CheckCheck, Check, X
 } from 'lucide-react';
 import { getConversations, getConversation, sendMessage, getImageUrl } from '../../../services/api';
-import echo from '../../../echo';
+import websocket from '../../../services/websocket';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -149,52 +149,63 @@ const Messages = () => {
    // return () => clearInterval(pollRef.current);
   //}, [selectedConv, fetchMessages, fetchConversations]);
 
-  // ✅ Remplace l'ancien useEffect WebSocket par celui-ci
+  // ✅ WebSocket listener using native connection
   useEffect(() => {
     if (!currentUser?.id) return;
 
-    console.log('[Messages] Subscribing to channel:', `conversation.${currentUser.id}`);
-    const channel = echo.private(`conversation.${currentUser.id}`);
+    const setupWebSocket = async () => {
+      try {
+        const channelName = `private-conversation.${currentUser.id}`;
+        console.log('[Messages] Connecting WebSocket and subscribing to:', channelName);
+        
+        await websocket.subscribe(channelName);
+        
+        // Listen for new messages
+        const unsubscribe = websocket.listen(
+          channelName,
+          'nouveau.message',
+          (eventData) => {
+            console.log('[WS] Message received ✅:', eventData);
+            
+            const e = eventData;
+            const conv = selectedConvRef.current;
 
-    channel.listen('.nouveau.message', (e) => {
-      console.log('[WS] Message received ✅:', e);
-      console.log('[WS] Current selectedConv:', selectedConvRef.current);
-      console.log('[WS] Comparison:', {
-        incoming_expediteur_id: String(e.expediteur_id),
-        current_conv_id: String(selectedConvRef.current?.id),
-        match: String(e.expediteur_id) === String(selectedConvRef.current?.id)
-      });
+            if (conv && String(e.expediteur_id) === String(conv.id)) {
+              console.log('[WS] Message added to chat');
+              setMessages(prev => {
+                if (prev.find(m => m.id === e.id)) return prev;
+                return [...prev, e];
+              });
+            }
 
-      // Utilise la ref pour lire selectedConv sans closure stale
-      const conv = selectedConvRef.current;
-
-      if (conv && String(e.expediteur_id) === String(conv.id)) {
-        // Message de la conversation ouverte → ajoute en temps réel
-        console.log('[WS] Message added to chat');
-        setMessages(prev => {
-          if (prev.find(m => m.id === e.id)) return prev; // anti-doublon
-          return [...prev, e];
-        });
-      }
-
-      // Met à jour UNIQUEMENT le badge non lus de la conversation
-      setConversations(prev => 
-        prev.map(c => {
-          if (String(c.id) === String(e.expediteur_id)) {
-            console.log('[WS] Unread count updated for:', c.id);
-            return { ...c, non_lus: (c.non_lus || 0) + 1 };
+            // Update unread count
+            setConversations(prev => 
+              prev.map(c => {
+                if (String(c.id) === String(e.expediteur_id)) {
+                  console.log('[WS] Unread count updated for:', c.id);
+                  return { ...c, non_lus: (c.non_lus || 0) + 1 };
+                }
+                return c;
+              })
+            );
           }
-          return c;
-        })
-      );
+        );
+
+        return unsubscribe;
+      } catch (error) {
+        console.error('[Messages] WebSocket error:', error);
+      }
+    };
+
+    let unsubscribe;
+    setupWebSocket().then((unsub) => {
+      unsubscribe = unsub;
     });
 
-    console.log('[Messages] Channel subscribed');
-
-    // ✅ Quitte UNIQUEMENT au démontage total du composant
     return () => {
-      console.log('[Messages] Leaving channel:', `conversation.${currentUser.id}`);
-      echo.leave(`conversation.${currentUser.id}`);
+      if (unsubscribe) unsubscribe();
+    };
+  }, [currentUser?.id]);
     };
   }, [currentUser.id]); // ← SEULEMENT currentUser.id, jamais selectedConv
 
