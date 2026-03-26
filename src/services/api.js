@@ -151,8 +151,15 @@ export const disable2fa = async (code) => {
 
 // ─── Annonces ────────────────────────────────────────────────────────────────
 
-export const getAnnonces = async (page = 1) => {
-  const res = await fetch(`${API_URL}/annonces?page=${page}`, {
+export const getAnnonces = async (q, page = 1, params = {}) => {
+  const query = new URLSearchParams({
+    q,
+    page,
+    per_page: 12,
+    ...params, //categorie, etat, sort, search
+  }).toString();
+  
+  const res = await fetch(`${API_URL}/annonces?${query}`, {
     headers: { 'Accept': 'application/json' },
   });
   return handleResponse(res);

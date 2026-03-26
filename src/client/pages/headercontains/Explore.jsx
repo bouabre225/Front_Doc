@@ -146,9 +146,25 @@ const Explore = () => {
     setLoading(true);
     setError('');
     try {
+      const params = {};
+
+      // Envoie la catégorie à l'API
+      if (selectedCategory !== 'Toutes') {
+        params.categorie = selectedCategory;
+      }
+
+      // Envoie l'état à l'API
+      if (selectedCondition !== 'Tous') {
+        params.etat = selectedCondition;
+      }
+
+      // Envoie le tri
+      if (sortBy === 'prix_asc')  params.sort = 'prix_asc';
+      if (sortBy === 'prix_desc') params.sort = 'prix_desc';
+
       const data = searchQuery.trim()
-        ? await searchAnnonces(searchQuery.trim(), currentPage)
-        : await getAnnonces(currentPage);
+        ? await searchAnnonces(searchQuery.trim(), currentPage, params) //passe params
+        : await getAnnonces(currentPage, params); //passe les params
 
       const raw   = data.data ?? data ?? [];
       const items = Array.isArray(raw) ? raw : [];
@@ -156,43 +172,24 @@ const Explore = () => {
       setLastPage(data.last_page || 1);
       setTotal(data.total || items.length);
 
-      // Filtrage côté client (catégorie + état)
-      let filtered = items;
-
-      if (selectedCategory !== 'Toutes') {
-        filtered = filtered.filter(a => {
-          if (!a.categorie) return false;
-          const catAnnonce = a.categorie.toLowerCase().trim();
-          const catSelectionnee = selectedCategory.toLowerCase().trim();
-          
-          // Gère le cas "Autre" vs "Autres"
-          if (catSelectionnee.includes('autre')) {
-            return catAnnonce.includes('autre');
-          }
-          return catAnnonce === catSelectionnee;
-        });
+      //Plus de filtrage côté client — l'API s'en charge
+      // Tri local seulement si recherche (searchAnnonces ne supporte pas les params)
+      let filtered = [...items];
+      if (searchQuery.trim()) {
+        if (sortBy === 'prix_asc')  filtered.sort((a, b) => Number(a.prix_vendeur) - Number(b.prix_vendeur));
+        if (sortBy === 'prix_desc') filtered.sort((a, b) => Number(b.prix_vendeur) - Number(a.prix_vendeur));
+        if (selectedCategory !== 'Toutes') {
+          filtered = filtered.filter(a => a.categorie?.toLowerCase().includes(selectedCategory.toLowerCase()));
+        }
+        if (selectedCondition !== 'Tous') {
+          filtered = filtered.filter(a => {
+            if (!a.etat) return false;
+            const e = a.etat.toLowerCase();
+            const s = selectedCondition.toLowerCase();
+            return s.includes('recon') ? e.includes('recon') : e === s;
+          });
+        }
       }
-
-      if (selectedCondition !== 'Tous') {
-        filtered = filtered.filter(a => {
-          if (!a.etat) return false;
-          const etatAnnonce = a.etat.toLowerCase().trim();
-          const etatSelectionne = selectedCondition.toLowerCase().trim();
-          
-          // Utilise .includes pour reconditionné (gère les accents ou variations)
-          if (etatSelectionne.includes('recon')) {
-              return etatAnnonce.includes('recon');
-          }
-          return etatAnnonce === etatSelectionne;
-        });
-      }
-
-      // Tri
-      filtered = [...filtered].sort((a, b) => {
-        if (sortBy === 'prix_asc')  return Number(a.prix_vendeur) - Number(b.prix_vendeur);
-        if (sortBy === 'prix_desc') return Number(b.prix_vendeur) - Number(a.prix_vendeur);
-        return new Date(b.created_at) - new Date(a.created_at);
-      });
 
       setAnnonces(filtered);
     } catch {
