@@ -5,7 +5,7 @@ import {
   Package, ChevronLeft, ChevronRight, MapPin, Tag, User, X,
   Shield, Calendar, Box, DollarSign, Image as ImageIcon
 } from 'lucide-react';
-import { getAnnonces, deleteAnnonce, getImageUrl } from '../../services/api';
+import { getAnnonces, deleteAdminAnnonce, getImageUrl } from '../../services/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -197,7 +197,7 @@ export default function AdminAnnonces() {
     setDeleting(id);
     setError('');
     try {
-      await deleteAnnonce(id);
+      await deleteAdminAnnonce(id);
       setAnnonces(prev => prev.filter(a => a.id !== id));
       setTotal(prev => prev - 1);
       setSuccess('Annonce supprimée.');
