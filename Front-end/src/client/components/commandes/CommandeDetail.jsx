@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { getCommandeById, cancelCommande, payCommande, createLitige } from '../../../services/api';
+import { getCommandeById, cancelCommande, payCommande, createLitige, getMe } from '../../../services/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -112,7 +112,7 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel, loading, danger = f
 const CommandeDetail = () => {
   const { id }      = useParams();
   const navigate    = useNavigate();
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const [currentUser, setCurrentUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
 
   const [commande,      setCommande]      = useState(null);
   const [loading,       setLoading]       = useState(true);
@@ -129,6 +129,12 @@ const CommandeDetail = () => {
   useEffect(() => {
     if (!localStorage.getItem('auth_token')) { navigate('/login'); return; }
     fetchCommande();
+    // Rafraîchir le profil utilisateur pour avoir les données à jour (ex: téléphone)
+    getMe().then(res => {
+      const user = res.user ?? res.data ?? res;
+      setCurrentUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
+    }).catch(() => {});
   }, [id]);
 
   const fetchCommande = async () => {

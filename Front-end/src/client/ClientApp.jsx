@@ -1,6 +1,7 @@
 ﻿import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { LangProvider } from './context/LangContext';
+import { initEcho, destroyEcho } from '../services/api';
 import Home from './pages/Home';
 import Explore from './pages/headercontains/Explore';
 import Equipment from './pages/headercontains/Equipment';
@@ -39,6 +40,15 @@ function AdminGuard() {
 // ─── App client ───────────────────────────────────────────────────────────────
 
 function ClientApp() {
+  // Initialiser Reverb au montage
+  useEffect(() => {
+    initEcho();
+    // Nettoyer Reverb à la déconnexion
+    return () => {
+      destroyEcho();
+    };
+  }, []);
+
   return (
     <LangProvider>
       <div className='min-h-screen bg-gray-50'>

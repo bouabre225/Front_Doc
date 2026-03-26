@@ -1,6 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8002/api';
+const REVERB_HOST = import.meta.env.VITE_REVERB_HOST ?? 'localhost';
+const REVERB_PORT = import.meta.env.VITE_REVERB_PORT ?? 8080;
+const REVERB_SCHEME = import.meta.env.VITE_REVERB_SCHEME ?? 'http';
+const REVERB_APP_KEY = import.meta.env.VITE_REVERB_APP_KEY ?? 'your-app-key';
 
 const getToken = () => localStorage.getItem('auth_token');
+const getMeLocal = () => JSON.parse(localStorage.getItem('user') || '{}');
 
 const authHeaders = (extra = {}) => ({
   'Accept': 'application/json',
@@ -503,12 +508,96 @@ export const deleteAdminUser = async (id) => {
 };
 
 
+// ─── WebSocket Echo (Pusher via Reverb) ───────────────────────────────────────
+
+// Import Echo
+import Echo from 'laravel-echo';
+
+let echoInstance = null;
+
+// Initialiser Echo avec Pusher (compatible Reverb)
+export const initEcho = () => {
+  if (echoInstance) return echoInstance;
+
+  const token = getToken();
+  const user = getMeLocal();
+
+  echoInstance = new Echo({
+    broadcaster: 'pusher',
+    key: REVERB_APP_KEY,
+    cluster: 'mt1',
+    wsHost: REVERB_HOST,
+    wsPort: REVERB_PORT,
+    wssPort: REVERB_PORT,
+    forceTLS: REVERB_SCHEME === 'https',
+    enabledTransports: ['ws', 'wss'],
+    authorizer: (channel, options) => {
+      return {
+        authorize: (socketId, callback) => {
+          // Authentifier le canal privé avec le token
+          const endpoint = `${API_URL}/broadcasting/auth`;
+          fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ socket_id: socketId, channel_name: channel.name }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              callback(false, data);
+            })
+            .catch((err) => {
+              callback(true, err);
+            });
+        },
+      };
+    },
+  });
+
+  return echoInstance;
+};
+
+// Se.abonner à un canal conversation
+export const listenToConversation = (conversationId, callback) => {
+  const echo = initEcho();
+  // Le canal doit être "conversation.{userId}" selon le backend
+  echo.private(`conversation.${conversationId}`).listen('.nouveau.message', callback);
+};
+
+// Se désabonner d'un canal conversation
+export const stopListeningToConversation = (conversationId) => {
+  const echo = initEcho();
+  echo.private(`conversation.${conversationId}`).stopListening('.nouveau.message');
+};
+
+// Se.abonner à tous les messages entrants (écouteur global)
+export const listenToIncomingMessages = (callback) => {
+  const echo = initEcho();
+  const user = getMeLocal();
+  // Se.abonner au propre canal de l'utilisateur
+  echo.private(`user.${user.id}`).listen('.nouveau.message', callback);
+};
+
+// Nettoyer les écouteurs
+export const destroyEcho = () => {
+  if (echoInstance) {
+    echoInstance.disconnect();
+    echoInstance = null;
+  }
+};
+
+
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
   if (imagePath.startsWith('http')) return imagePath;
-  return `http://localhost:8000/storage/${imagePath}`;
+  const baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8002/api';
+  const storageUrl = baseUrl.replace(/\/api$/, '/storage');
+  return `${storageUrl}/${imagePath}`;
 };
 
 export default {
@@ -530,4 +619,11 @@ export default {
   getAdminCommandes, getAdminUsers,
   suspendUser, reactivateUser, deleteAdminUser,
   getImageUrl,
+
+  // WebSocket
+  initEcho,
+  listenToConversation,
+  stopListeningToConversation,
+  listenToIncomingMessages,
+  destroyEcho,
 };
