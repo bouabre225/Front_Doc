@@ -1,8 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8002/api';
-const REVERB_HOST = import.meta.env.VITE_REVERB_HOST ?? 'localhost';
-const REVERB_PORT = import.meta.env.VITE_REVERB_PORT ?? 8080;
-const REVERB_SCHEME = import.meta.env.VITE_REVERB_SCHEME ?? 'http';
-const REVERB_APP_KEY = import.meta.env.VITE_REVERB_APP_KEY ?? 'your-app-key';
+const API_URL = import.meta.env.VITE_API_URL;
+const REVERB_HOST = import.meta.env.VITE_REVERB_HOST;
+const REVERB_PORT = import.meta.env.VITE_REVERB_PORT;
+const REVERB_SCHEME = import.meta.env.VITE_REVERB_SCHEME;
+const REVERB_APP_KEY = import.meta.env.VITE_REVERB_APP_KEY;
 
 const getToken = () => localStorage.getItem('auth_token');
 const getMeLocal = () => JSON.parse(localStorage.getItem('user') || '{}');
