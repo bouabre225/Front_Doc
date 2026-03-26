@@ -160,15 +160,31 @@ const Explore = () => {
       let filtered = items;
 
       if (selectedCategory !== 'Toutes') {
-        filtered = filtered.filter(a =>
-          a.categorie?.toLowerCase() === selectedCategory.toLowerCase()
-        );
+        filtered = filtered.filter(a => {
+          if (!a.categorie) return false;
+          const catAnnonce = a.categorie.toLowerCase().trim();
+          const catSelectionnee = selectedCategory.toLowerCase().trim();
+          
+          // Gère le cas "Autre" vs "Autres"
+          if (catSelectionnee.includes('autre')) {
+            return catAnnonce.includes('autre');
+          }
+          return catAnnonce === catSelectionnee;
+        });
       }
 
       if (selectedCondition !== 'Tous') {
-        filtered = filtered.filter(a =>
-          a.etat?.toLowerCase() === selectedCondition.toLowerCase()
-        );
+        filtered = filtered.filter(a => {
+          if (!a.etat) return false;
+          const etatAnnonce = a.etat.toLowerCase().trim();
+          const etatSelectionne = selectedCondition.toLowerCase().trim();
+          
+          // Utilise .includes pour reconditionné (gère les accents ou variations)
+          if (etatSelectionne.includes('recon')) {
+              return etatAnnonce.includes('recon');
+          }
+          return etatAnnonce === etatSelectionne;
+        });
       }
 
       // Tri
