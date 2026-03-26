@@ -167,6 +167,13 @@ export const getAnnonces = async (page = 1, params = {}) => {
   return handleResponse(res);
 };
 
+export const getCountsParCategorie = async () => {
+  const res = await fetch(`${API_URL}/annonces/counts-categorie`, {
+    headers: { 'Accept': 'application/json' },
+  });
+  return handleResponse(res);
+};
+
 export const getMyAnnonces = async () => {
   const res = await fetch(`${API_URL}/annonces?my=true`, {
     headers: authHeaders(),
@@ -550,7 +557,7 @@ export default {
   getAdminLitiges, prendreEnChargeLitige, resoldreLitige,
   getAdminCommandes, getAdminUsers,
   suspendUser, reactivateUser, deleteAdminUser,
-  getImageUrl,
+  getImageUrl, getCountsParCategorie,
   getKycDocumentUrl,
   marquerCommandeLivree,
 };
