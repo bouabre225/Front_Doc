@@ -4,7 +4,7 @@ import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, Filter, MapPin, Star, Search, SlidersHorizontal, X } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { getAnnonces, searchAnnonces, getImageUrl } from '../../../services/api';
+import { getAnnonces, searchAnnonces, getImageUrl, getCountsParCategorie } from '../../../services/api';
 
 // ─── Config catégories (UI seulement) ───────────────────────────────────────
 
@@ -451,18 +451,21 @@ const Categories = () => {
     if (slug) return;
     const fetchCounts = async () => {
       try {
-        const data = await getAnnonces(1);
-        const list = data.data ?? data ?? [];
-        const arr  = Array.isArray(list) ? list : [];
+        const data = await getCountsParCategorie();
+        // data = { "Imagerie Médicale": 5, "Cardiologie": 3, ... }
+
         const c = {};
-        arr.forEach(a => {
-          if (!a.categorie) return;
+        Object.entries(data).forEach(([categorie, total]) => {
+          if (!categorie) return;
+          const catNorm = categorie.toLowerCase().trim();
+
+          // Matching par nom exact
           const key = Object.keys(CATEGORIES_CONFIG).find(k =>
-            CATEGORIES_CONFIG[k].name.toLowerCase() === a.categorie.toLowerCase() ||
-            k === a.categorie.toLowerCase().replace(' ', '-')
+            CATEGORIES_CONFIG[k].name.toLowerCase() === catNorm
           );
-          if (key) c[key] = (c[key] || 0) + 1;
+          if (key) c[key] = total;
         });
+
         setCounts(c);
       } catch {
         //
