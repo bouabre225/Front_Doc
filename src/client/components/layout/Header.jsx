@@ -7,6 +7,7 @@ import { useLang } from '../../context/LangContext';
 import { useCart } from '../../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
 import { logoutUser, getNotificationsCount, getConversations } from '../../../services/api';
+import echo from '../../../echo';
 
 const Header = () => {
   const { t, currentLang, setCurrentLang, langList } = useLang();
@@ -57,6 +58,8 @@ const Header = () => {
 
   useEffect(() => {
     if (!currentUser) return;
+    
+    // Charge les conversations au démarrage
     const fetchMessageCount = async () => {
       try {
         const data = await getConversations();
@@ -66,8 +69,17 @@ const Header = () => {
       } catch { /**/ }
     };
     fetchMessageCount();
-    const interval = setInterval(fetchMessageCount, 30000);
-    return () => clearInterval(interval);
+    
+    // Écoute les nouveaux messages en temps réel via Pusher
+    const channel = echo.private(`conversation.${currentUser.id}`);
+    channel.listen('.nouveau.message', () => {
+      // Rafraîchit les conversations pour mettre à jour les compteurs "non lus"
+      fetchMessageCount();
+    });
+    
+    return () => {
+      echo.leave(`conversation.${currentUser.id}`);
+    };
   }, [currentUser]);
 
   // ─── Scroll ──────────────────────────────────────────────────────────────
