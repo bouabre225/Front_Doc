@@ -215,7 +215,7 @@ export const updateAnnonce = async (id, payload) => {
 };
 
 export const deleteAnnonce = async (id) => {
-  const res = await fetch(`${API_URL}/admin/annonces/${id}`, {
+  const res = await fetch(`${API_URL}/annonces/${id}`, {
     method: 'DELETE',
     headers: authHeaders(),
   });
@@ -437,6 +437,14 @@ export const createLitige = async (payload) => {
 
 export const getKycPending = async () => {
   const res = await fetch(`${API_URL}/admin/kyc/pending`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const deleteAdminAnnonce = async (id) => {
+  const res = await fetch(`${API_URL}/admin/annonces/${id}`, {
+    method: 'DELETE',
     headers: authHeaders(),
   });
   return handleResponse(res);
