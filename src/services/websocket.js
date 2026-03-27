@@ -78,34 +78,39 @@ class WebSocketService {
   /**
    * Handle incoming messages
    */
-  _handleMessage(message) {
-    console.log('[WebSocket] Message received:', message);
+    _handleMessage(message) {
+  console.log('[WebSocket] Message received:', message);
 
-    // Subscribe success
-    if (message.event === 'pusher:subscription_succeeded') {
-      const channel = message.channel;
-      console.log('[WebSocket] Subscribed to channel:', channel);
-      this._emit('subscribed', { channel });
-      return;
-    }
-
-    // Trigger custom events
-    if (message.event && !message.event.startsWith('pusher:')) {
-      const listeners = this.listeners[message.channel] || [];
-      const parsedData = typeof message.data === 'string'
-        ? JSON.parse(message.data)
-        : (message.data || {});
-      console.log('[WebSocket] Triggering event:', message.event, 'with data:', parsedData);
-      listeners.forEach(callback => {
-        try {
-          callback({ event: message.event, data: parsedData });
-        } catch (error) {
-          console.error('[WebSocket] Listener error:', error);
-        }
-      });
-    }
+  // Gérer les deux noms d'événements possibles de Reverb
+  if (
+    message.event === 'pusher:subscription_succeeded' ||
+    message.event === 'pusher_internal:subscription_succeeded'
+  ) {
+    const channel = message.channel;
+    console.log('[WebSocket] Subscribed to channel:', channel);
+    this._emit('subscribed', { channel });
+    return;
   }
 
+  // Ignorer TOUS les événements pusher: et pusher_internal:
+  if (
+    message.event &&
+    !message.event.startsWith('pusher:') &&
+    !message.event.startsWith('pusher_internal:')
+  ) {
+    const listeners = this.listeners[message.channel] || [];
+    const parsedData = typeof message.data === 'string'
+      ? JSON.parse(message.data)
+      : (message.data || {});
+    listeners.forEach(callback => {
+      try {
+        callback({ event: message.event, data: parsedData });
+      } catch (error) {
+        console.error('[WebSocket] Listener error:', error);
+      }
+    });
+  }
+}
   /**
    * Subscribe to a private channel
    */
