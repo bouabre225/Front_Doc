@@ -28,7 +28,7 @@ const TermsOfService = () => {
           <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">2. Éligibilité</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>L'utilisateur doit être âgé d'au moins 18 ans.</li>
-            <li>Les professionnels doivent justifier de leur droit d'exercice (SIRET, numéro d'Ordre) lors de la procédure de vérification KYC.</li>
+            <li>Les professionnels doivent justifier de leur identité lors de la procédure de vérification KYC.</li>
             <li>L'utilisation de faux documents entraîne une suspension immédiate du compte.</li>
           </ul>
         </div>
@@ -63,7 +63,7 @@ const TermsOfService = () => {
         <div>
           <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">5. Droit Applicable</h2>
           <p>
-            Les présentes CGU sont régies par le droit français. En cas de litige, et après tentative de résolution à l'amiable, 
+            Les présentes CGU sont régies par le droit béninois. En cas de litige, et après tentative de résolution à l'amiable, 
             compétence exclusive est attribuée aux tribunaux compétents.
           </p>
         </div>
