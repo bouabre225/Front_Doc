@@ -226,7 +226,7 @@ export const uploadAnnonceImages = async (annonceId, files) => {
   const results = [];
   for (const file of files) {
     const formData = new FormData();
-    formData.append('image', file); // ← 'image' pas 'images[]'
+    formData.append('image', file);
     const res = await fetch(`${API_URL}/annonces/${annonceId}/images`, {
       method: 'POST',
       headers: {
@@ -437,6 +437,14 @@ export const createLitige = async (payload) => {
 
 export const getKycPending = async () => {
   const res = await fetch(`${API_URL}/admin/kyc/pending`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const deleteAdminAnnonce = async (id) => {
+  const res = await fetch(`${API_URL}/admin/annonces/${id}`, {
+    method: 'DELETE',
     headers: authHeaders(),
   });
   return handleResponse(res);
