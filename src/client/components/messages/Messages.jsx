@@ -158,7 +158,7 @@ const Messages = () => {
         const channelName = `private-conversation.${currentUser.id}`;
         
         await websocket.subscribe(channelName);
-        
+
         // Listen for new messages
         const unsubscribe = websocket.listen(
           channelName,
@@ -176,7 +176,7 @@ const Messages = () => {
             }
 
             // Update unread count
-            setConversations(prev => 
+            setConversations(prev =>
               prev.map(c => {
                 if (String(c.id) === String(e.expediteur_id)) {
                   return { ...c, non_lus: (c.non_lus || 0) + 1 };
@@ -240,10 +240,10 @@ const Messages = () => {
       
       
       // Remplace le message optimiste par le vrai message du serveur
-      const realMessage = response?.data || { 
-        ...optimistic, 
+      const realMessage = response?.data || {
+        ...optimistic,
         id: response?.id || optimistic.id,
-        _optimistic: false 
+        _optimistic: false
       };
       
       
