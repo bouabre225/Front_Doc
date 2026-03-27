@@ -11,6 +11,7 @@ class WebSocketService {
     this.host = import.meta.env.VITE_REVERB_HOST;
     this.port = import.meta.env.VITE_REVERB_PORT;
     this.scheme = import.meta.env.VITE_REVERB_SCHEME;
+    this.socketId = null;
     this.listeners = {};
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 10;
@@ -19,6 +20,7 @@ class WebSocketService {
 
   /**
    * Connect to Reverb WebSocket server
+   * Resolves only after pusher:connection_established (real socket_id received)
    */
   connect() {
     return new Promise((resolve, reject) => {
@@ -31,14 +33,25 @@ class WebSocketService {
         this.ws = new WebSocket(this.url);
 
         this.ws.onopen = () => {
-          console.log('[WebSocket] ✅ Connected');
+          console.log('[WebSocket] Socket opened, waiting for connection_established...');
           this.reconnectAttempts = 0;
-          resolve(true);
         };
 
         this.ws.onmessage = (event) => {
           try {
             const message = JSON.parse(event.data);
+
+            // Capture real socket_id from Reverb before anything else
+            if (message.event === 'pusher:connection_established') {
+              const data = typeof message.data === 'string'
+                ? JSON.parse(message.data)
+                : message.data;
+              this.socketId = data.socket_id;
+              console.log('[WebSocket] ✅ Connected, socket_id:', this.socketId);
+              resolve(true);
+              return;
+            }
+
             this._handleMessage(message);
           } catch (error) {
             console.error('[WebSocket] Parse error:', error);
@@ -52,6 +65,7 @@ class WebSocketService {
 
         this.ws.onclose = () => {
           console.log('[WebSocket] Closed, reconnecting...');
+          this.socketId = null;
           this._attemptReconnect();
         };
       } catch (error) {
@@ -97,11 +111,11 @@ class WebSocketService {
    */
   subscribe(channelName) {
     return new Promise(async (resolve, reject) => {
-      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.socketId) {
         await this.connect();
       }
 
-      console.log('[WebSocket] Subscribing to:', channelName);
+      console.log('[WebSocket] Subscribing to:', channelName, 'with socket_id:', this.socketId);
 
       // Get auth token from API
       try {
@@ -115,7 +129,7 @@ class WebSocketService {
             },
             body: JSON.stringify({
               channel_name: channelName,
-              socket_id: this._generateSocketId(),
+              socket_id: this.socketId,
             }),
           }
         );
@@ -236,21 +250,13 @@ class WebSocketService {
   }
 
   /**
-   * Generate a random socket ID
-   */
-  _generateSocketId() {
-    const timestamp = Date.now().toString(36);
-    const random = Math.random().toString(36).substr(2, 9);
-    return `${timestamp}.${random}`;
-  }
-
-  /**
    * Close connection
    */
   disconnect() {
     if (this.ws) {
       this.ws.close();
       this.ws = null;
+      this.socketId = null;
     }
   }
 }
