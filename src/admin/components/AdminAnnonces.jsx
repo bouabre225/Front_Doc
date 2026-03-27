@@ -175,10 +175,12 @@ export default function AdminAnnonces() {
   const fetchAnnonces = useCallback(async (p = 1) => {
     setLoading(true);
     try {
-      const params = { page: p, per_page: 12 };
+      //page en premier argument, params en second
+      const params = { per_page: 12 };
       if (search)            params.search = search;
       if (filter !== 'tous') params.statut = filter;
-      const res  = await getAnnonces(params);
+
+      const res  = await getAnnonces(p, params); // p en premier
       const data = res?.data ?? res;
       setAnnonces(Array.isArray(data) ? data : data?.data ?? []);
       setLastPage(res?.last_page ?? res?.data?.last_page ?? 1);
