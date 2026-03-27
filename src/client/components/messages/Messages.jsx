@@ -192,8 +192,8 @@ const Messages = () => {
         );
 
         return unsubscribe;
-      } catch () {
-        //console.error('[Messages] WebSocket error:');
+      } catch (error) {
+        console.error('[Messages] WebSocket error:', error);
       }
     };
 
@@ -257,7 +257,7 @@ const Messages = () => {
         prev.map(m => m.id === optimistic.id ? realMessage : m)
       );
     } catch (error) {
-      //console.error('[sendMessage] Error:', error);
+      console.error('[sendMessage] Error:', error);
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
       setInput(text);
     } finally {
