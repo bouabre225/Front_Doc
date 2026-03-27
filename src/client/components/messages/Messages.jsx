@@ -205,9 +205,7 @@ const Messages = () => {
     return () => {
       if (unsubscribe) unsubscribe();
     };
-  }, [currentUser?.id]);
-    };
-  }, [currentUser.id]); // ← SEULEMENT currentUser.id, jamais selectedConv
+  }, [currentUser?.id]); // ← SEULEMENT currentUser.id, jamais selectedConv
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });

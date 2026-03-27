@@ -76,12 +76,15 @@ class WebSocketService {
     }
 
     // Trigger custom events
-    if (message.event && message.event.startsWith('nouveau.')) {
+    if (message.event && !message.event.startsWith('pusher:')) {
       const listeners = this.listeners[message.channel] || [];
-      console.log('[WebSocket] Triggering event:', message.event, 'with data:', message.data);
+      const parsedData = typeof message.data === 'string'
+        ? JSON.parse(message.data)
+        : (message.data || {});
+      console.log('[WebSocket] Triggering event:', message.event, 'with data:', parsedData);
       listeners.forEach(callback => {
         try {
-          callback(message.data);
+          callback({ event: message.event, data: parsedData });
         } catch (error) {
           console.error('[WebSocket] Listener error:', error);
         }
@@ -165,9 +168,9 @@ class WebSocketService {
     }
 
     // Filter by event name
-    const wrappedCallback = (data) => {
-      if (data.event === event) {
-        callback(data.data || data);
+    const wrappedCallback = ({ event: msgEvent, data }) => {
+      if (msgEvent === event) {
+        callback(data);
       }
     };
 
