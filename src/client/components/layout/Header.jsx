@@ -7,7 +7,7 @@ import { useLang } from '../../context/LangContext';
 import { useCart } from '../../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
 import { logoutUser, getNotificationsCount, getConversations } from '../../../services/api';
-import echo from '../../../echo';
+import websocket from '../../../services/websocket';
 
 const Header = () => {
   const { t, currentLang, setCurrentLang, langList } = useLang();
@@ -59,26 +59,52 @@ const Header = () => {
   useEffect(() => {
     if (!currentUser) return;
     
+    console.log('[Header] Setting up WebSocket for user:', currentUser.id);
+    
     // Charge les conversations au démarrage
     const fetchMessageCount = async () => {
       try {
         const data = await getConversations();
         const convs = Array.isArray(data) ? data : [];
         const total = convs.reduce((sum, c) => sum + (c.non_lus || 0), 0);
+        console.log('[Header] Message count updated:', total);
         setMessageCount(total);
-      } catch { /**/ }
+      } catch (error) {
+        console.error('[Header] Error fetching message count:', error);
+      }
     };
     fetchMessageCount();
     
-    // Écoute les nouveaux messages en temps réel via Pusher
-    const channel = echo.private(`conversation.${currentUser.id}`);
-    channel.listen('.nouveau.message', () => {
-      // Rafraîchit les conversations pour mettre à jour les compteurs "non lus"
-      fetchMessageCount();
+    // Subscribe to WebSocket
+    const setupWebSocket = async () => {
+      try {
+        const channelName = `private-conversation.${currentUser.id}`;
+        console.log('[Header] Subscribing to:', channelName);
+        
+        await websocket.subscribe(channelName);
+        
+        const unsubscribe = websocket.listen(
+          channelName,
+          'nouveau.message',
+          (data) => {
+            console.log('[Header] New message received via WebSocket:', data);
+            fetchMessageCount();
+          }
+        );
+        
+        return unsubscribe;
+      } catch (error) {
+        console.error('[Header] WebSocket setup error:', error);
+      }
+    };
+    
+    let unsubscribe;
+    setupWebSocket().then((unsub) => {
+      unsubscribe = unsub;
     });
     
     return () => {
-      echo.leave(`conversation.${currentUser.id}`);
+      if (unsubscribe) unsubscribe();
     };
   }, [currentUser]);
 
