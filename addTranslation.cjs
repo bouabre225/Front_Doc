@@ -33,7 +33,7 @@ function processFile(filePath) {
   );
 
   fs.writeFileSync(filePath, content);
-  console.log(`✅ Mis à jour : ${filePath}`);
+  //console.log(`✅ Mis à jour : ${filePath}`);
 }
 
 function walkDir(dir) {
@@ -48,4 +48,4 @@ function walkDir(dir) {
 }
 
 walkDir(targetDir);
-console.log('\n Terminé ! Tous les fichiers ont été mis à jour.');
+//console.log('\n Terminé ! Tous les fichiers ont été mis à jour.');
