@@ -14,12 +14,24 @@ const echo = new Echo({
     authEndpoint: `${import.meta.env.VITE_API_URL}/broadcasting/auth`,
     auth: {
         headers: {
-            // ✅ Fonction fléchée → token lu dynamiquement à chaque auth
             get Authorization() {
                 return 'Bearer ' + localStorage.getItem('auth_token');
             },
         },
     },
+});
+
+// Debug logging
+echo.connector.socket.on('connect', () => {
+    console.log('[WebSocket] Connected ✅');
+});
+
+echo.connector.socket.on('disconnect', () => {
+    console.log('[WebSocket] Disconnected ❌');
+});
+
+echo.connector.socket.on('error', (error) => {
+    console.error('[WebSocket] Error:', error);
 });
 
 export default echo;
