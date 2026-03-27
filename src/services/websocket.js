@@ -27,13 +27,13 @@ class WebSocketService {
       const protocol = this.scheme === 'https' ? 'wss' : 'ws';
       this.url = `${protocol}://${this.host}:${this.port}/app/${this.appKey}?protocol=7&client=js&version=1.0&flash=false`;
 
-      console.log('[WebSocket] Connecting to:', this.url);
+      //console.log('[WebSocket] Connecting to:', this.url);
 
       try {
         this.ws = new WebSocket(this.url);
 
         this.ws.onopen = () => {
-          console.log('[WebSocket] Socket opened, waiting for connection_established...');
+          //console.log('[WebSocket] Socket opened, waiting for connection_established...');
           this.reconnectAttempts = 0;
         };
 
@@ -47,29 +47,29 @@ class WebSocketService {
                 ? JSON.parse(message.data)
                 : message.data;
               this.socketId = data.socket_id;
-              console.log('[WebSocket] ✅ Connected, socket_id:', this.socketId);
+              //console.log('[WebSocket] ✅ Connected, socket_id:', this.socketId);
               resolve(true);
               return;
             }
 
             this._handleMessage(message);
-          } catch (error) {
-            console.error('[WebSocket] Parse error:', error);
+          } catch ({/**/}) {
+            //console.error('[WebSocket] Parse error:', error);
           }
         };
 
         this.ws.onerror = (error) => {
-          console.error('[WebSocket] ❌ Error:', error);
+          //console.error('[WebSocket] ❌ Error:', error);
           reject(error);
         };
 
         this.ws.onclose = () => {
-          console.log('[WebSocket] Closed, reconnecting...');
+          //console.log('[WebSocket] Closed, reconnecting...');
           this.socketId = null;
           this._attemptReconnect();
         };
       } catch (error) {
-        console.error('[WebSocket] Connection error:', error);
+        //console.error('[WebSocket] Connection error:', error);
         reject(error);
       }
     });
@@ -79,12 +79,12 @@ class WebSocketService {
    * Handle incoming messages
    */
   _handleMessage(message) {
-    console.log('[WebSocket] Message received:', message);
+    //console.log('[WebSocket] Message received:', message);
 
     // Subscribe success
     if (message.event === 'pusher:subscription_succeeded') {
       const channel = message.channel;
-      console.log('[WebSocket] Subscribed to channel:', channel);
+      //console.log('[WebSocket] Subscribed to channel:', channel);
       this._emit('subscribed', { channel });
       return;
     }
@@ -95,12 +95,12 @@ class WebSocketService {
       const parsedData = typeof message.data === 'string'
         ? JSON.parse(message.data)
         : (message.data || {});
-      console.log('[WebSocket] Triggering event:', message.event, 'with data:', parsedData);
+      //console.log('[WebSocket] Triggering event:', message.event, 'with data:', parsedData);
       listeners.forEach(callback => {
         try {
           callback({ event: message.event, data: parsedData });
         } catch (error) {
-          console.error('[WebSocket] Listener error:', error);
+          //console.error('[WebSocket] Listener error:', error);
         }
       });
     }
@@ -115,7 +115,7 @@ class WebSocketService {
         await this.connect();
       }
 
-      console.log('[WebSocket] Subscribing to:', channelName, 'with socket_id:', this.socketId);
+      //console.log('[WebSocket] Subscribing to:', channelName, 'with socket_id:', this.socketId);
 
       // Get auth token from API
       try {
@@ -139,7 +139,7 @@ class WebSocketService {
         }
 
         const authData = await response.json();
-        console.log('[WebSocket] Auth received for channel:', channelName);
+        //console.log('[WebSocket] Auth received for channel:', channelName);
 
         // Send subscribe message
         this.ws.send(
@@ -166,7 +166,7 @@ class WebSocketService {
           reject(new Error('Subscription timeout'));
         }, 10000);
       } catch (error) {
-        console.error('[WebSocket] Subscribe error:', error);
+        //console.error('[WebSocket] Subscribe error:', error);
         reject(error);
       }
     });

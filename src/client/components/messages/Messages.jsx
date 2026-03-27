@@ -156,7 +156,7 @@ const Messages = () => {
     const setupWebSocket = async () => {
       try {
         const channelName = `private-conversation.${currentUser.id}`;
-        console.log('[Messages] Connecting WebSocket and subscribing to:', channelName);
+        //console.log('[Messages] Connecting WebSocket and subscribing to:', channelName);
         
         await websocket.subscribe(channelName);
         
@@ -165,13 +165,13 @@ const Messages = () => {
           channelName,
           'nouveau.message',
           (eventData) => {
-            console.log('[WS] Message received ✅:', eventData);
+            //console.log('[WS] Message received ✅:', eventData);
             
             const e = eventData;
             const conv = selectedConvRef.current;
 
             if (conv && String(e.expediteur_id) === String(conv.id)) {
-              console.log('[WS] Message added to chat');
+              //console.log('[WS] Message added to chat');
               setMessages(prev => {
                 if (prev.find(m => m.id === e.id)) return prev;
                 return [...prev, e];
@@ -182,7 +182,7 @@ const Messages = () => {
             setConversations(prev => 
               prev.map(c => {
                 if (String(c.id) === String(e.expediteur_id)) {
-                  console.log('[WS] Unread count updated for:', c.id);
+                  //console.log('[WS] Unread count updated for:', c.id);
                   return { ...c, non_lus: (c.non_lus || 0) + 1 };
                 }
                 return c;
@@ -192,8 +192,8 @@ const Messages = () => {
         );
 
         return unsubscribe;
-      } catch (error) {
-        console.error('[Messages] WebSocket error:', error);
+      } catch () {
+        //console.error('[Messages] WebSocket error:');
       }
     };
 
@@ -242,7 +242,7 @@ const Messages = () => {
         annonce_id:   initAnnonceId || undefined,
       });
       
-      console.log('[sendMessage] Response:', response);
+      //console.log('[sendMessage] Response:', response);
       
       // Remplace le message optimiste par le vrai message du serveur
       const realMessage = response?.data || { 
@@ -251,13 +251,13 @@ const Messages = () => {
         _optimistic: false 
       };
       
-      console.log('[sendMessage] Real message:', realMessage);
+      //console.log('[sendMessage] Real message:', realMessage);
       
       setMessages(prev => 
         prev.map(m => m.id === optimistic.id ? realMessage : m)
       );
     } catch (error) {
-      console.error('[sendMessage] Error:', error);
+      //console.error('[sendMessage] Error:', error);
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
       setInput(text);
     } finally {

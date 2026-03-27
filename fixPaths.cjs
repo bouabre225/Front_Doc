@@ -24,7 +24,7 @@ function fixFile(filePath) {
   );
 
   fs.writeFileSync(filePath, content);
-  console.log(`✅ Corrigé : ${filePath} → ${correctPath}`);
+  //console.log(`✅ Corrigé : ${filePath} → ${correctPath}`);
 }
 
 function walkDir(dir) {
@@ -39,4 +39,4 @@ function walkDir(dir) {
 }
 
 walkDir(targetDir);
-console.log('\n🎉 Tous les chemins sont corrigés !');
+//console.log('\n🎉 Tous les chemins sont corrigés !');
