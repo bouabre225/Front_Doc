@@ -74,12 +74,12 @@ class WebSocketService {
    * Handle incoming messages
    */
   _handleMessage(message) {
-    // console.log('[WebSocket] Message received:', message);
+    console.log('[WebSocket] Message received:', message);
 
     // Subscribe success
     if (message.event === 'pusher:subscription_succeeded') {
       const channel = message.channel;
-      // console.log('[WebSocket] Subscribed to channel:', channel);
+      console.log('[WebSocket] Subscribed to channel:', channel);
       this._emit('subscribed', { channel });
       return;
     }
@@ -90,7 +90,7 @@ class WebSocketService {
       const parsedData = typeof message.data === 'string'
         ? JSON.parse(message.data)
         : (message.data || {});
-      // console.log('[WebSocket] Triggering event:', message.event, 'with data:', parsedData);
+      console.log('[WebSocket] Triggering event:', message.event, 'with data:', parsedData);
       listeners.forEach(callback => {
         try {
           callback({ event: message.event, data: parsedData });
@@ -110,7 +110,7 @@ class WebSocketService {
         await this.connect();
       }
 
-      // console.log('[WebSocket] Subscribing to:', channelName, 'with socket_id:', this.socketId);
+      console.log('[WebSocket] Subscribing to:', channelName, 'with socket_id:', this.socketId);
 
       // Get auth token from API
       try {
@@ -134,7 +134,7 @@ class WebSocketService {
         }
 
         const authData = await response.json();
-        // console.log('[WebSocket] Auth received for channel:', channelName);
+        console.log('[WebSocket] Auth received for channel:', channelName);
 
         // Send subscribe message
         this.ws.send(
