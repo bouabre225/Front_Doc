@@ -159,7 +159,7 @@ function Profile() {
       await deleteAnnonce(id);
       setMyAnnonces(prev => prev.filter(a => a.id !== id));
     } catch (err) {
-      alert('Erreur : ' + err.message);
+      //alert('Erreur : ' + err.message);
     }
   };
 
