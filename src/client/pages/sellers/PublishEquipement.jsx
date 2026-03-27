@@ -136,7 +136,7 @@ const PublishEquipment = () => {
     if (!files.length) return;
 
     if (images.length + files.length > 10) {
-      alert('Maximum 10 images');
+      //alert('Maximum 10 images');
       return;
     }
 

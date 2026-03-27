@@ -23,15 +23,15 @@ const echo = new Echo({
 
 // Debug logging
 echo.connector.socket.on('connect', () => {
-    console.log('[WebSocket] Connected ✅');
+    //console.log('[WebSocket] Connected ✅');
 });
 
 echo.connector.socket.on('disconnect', () => {
-    console.log('[WebSocket] Disconnected ❌');
+    //console.log('[WebSocket] Disconnected ❌');
 });
 
-echo.connector.socket.on('error', (error) => {
-    console.error('[WebSocket] Error:', error);
+echo.connector.socket.on('error', () => {
+    //console.error('[WebSocket] Error');
 });
 
 export default echo;

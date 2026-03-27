@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ShoppingCart, Search, RefreshCw, Eye, AlertCircle,
+  ShoppingCart, Search, RefreshCw, Eye, Circle,
   ChevronLeft, ChevronRight, Calendar,
   User, Package, X, MapPin, PackageCheck, Loader2
 } from 'lucide-react';
@@ -39,7 +39,7 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
       onLivree(c.id);
       onClose();
     } catch (err) {
-      alert('Erreur : ' + (err.message || 'Une erreur est survenue'));
+      ('Erreur : ' + (err.message || 'Une erreur est survenue'));
     } finally {
       setLoading(false);
     }
@@ -282,7 +282,7 @@ export default function AdminCommandes() {
           {error && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className='flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700'>
-              <AlertCircle className='w-4 h-4 shrink-0' />{error}
+              <Circle className='w-4 h-4 shrink-0' />{error}
             </motion.div>
           )}
         </AnimatePresence>
@@ -431,7 +431,7 @@ const BoutonLivree = ({ commandeId, onLivree }) => {
       await marquerCommandeLivree(commandeId);
       onLivree(commandeId);
     } catch (err) {
-      alert('Erreur : ' + (err.message || 'Une erreur est survenue'));
+      ('Erreur : ' + (err.message || 'Une erreur est survenue'));
     } finally {
       setLoading(false);
     }
