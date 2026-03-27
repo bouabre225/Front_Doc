@@ -237,7 +237,7 @@ export default function AdminAnnonces() {
           </button>
         </div>
 
-        {/* Alertes */}
+        {/* es */}
         <AnimatePresence>
           {success && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -248,7 +248,7 @@ export default function AdminAnnonces() {
           {error && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className='flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700'>
-              <AlertCircle className='w-4 h-4 shrink-0' />{error}
+              <Circle className='w-4 h-4 shrink-0' />{error}
             </motion.div>
           )}
         </AnimatePresence>

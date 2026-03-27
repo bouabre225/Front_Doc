@@ -59,7 +59,7 @@ const Header = () => {
   useEffect(() => {
     if (!currentUser) return;
     
-    console.log('[Header] Setting up WebSocket for user:', currentUser.id);
+    //console.log('[Header] Setting up WebSocket for user:', currentUser.id);
     
     // Charge les conversations au démarrage
     const fetchMessageCount = async () => {
@@ -67,10 +67,10 @@ const Header = () => {
         const data = await getConversations();
         const convs = Array.isArray(data) ? data : [];
         const total = convs.reduce((sum, c) => sum + (c.non_lus || 0), 0);
-        console.log('[Header] Message count updated:', total);
+        //console.log('[Header] Message count updated:', total);
         setMessageCount(total);
       } catch (error) {
-        console.error('[Header] Error fetching message count:', error);
+        //console.error('[Header] Error fetching message count:', error);
       }
     };
     fetchMessageCount();
@@ -79,7 +79,7 @@ const Header = () => {
     const setupWebSocket = async () => {
       try {
         const channelName = `private-conversation.${currentUser.id}`;
-        console.log('[Header] Subscribing to:', channelName);
+        //console.log('[Header] Subscribing to:', channelName);
         
         await websocket.subscribe(channelName);
         
@@ -87,14 +87,14 @@ const Header = () => {
           channelName,
           'nouveau.message',
           (data) => {
-            console.log('[Header] New message received via WebSocket:', data);
+            //console.log('[Header] New message received via WebSocket:', data);
             fetchMessageCount();
           }
         );
         
         return unsubscribe;
-      } catch (error) {
-        console.error('[Header] WebSocket setup error:', error);
+      } catch () {
+        //console.error('[Header] WebSocket setup error:');
       }
     };
     
