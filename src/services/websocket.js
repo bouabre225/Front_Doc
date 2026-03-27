@@ -241,8 +241,8 @@ class WebSocketService {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
       console.log(
-       // `[WebSocket] Reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${this.reconnectDelay}ms`
-     // );
+        `[WebSocket] Reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${this.reconnectDelay}ms`
+      );
       setTimeout(() => this.connect().catch(() => {}), this.reconnectDelay);
     } else {
       console.error('[WebSocket] Max reconnect attempts reached');
