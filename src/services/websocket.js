@@ -27,13 +27,11 @@ class WebSocketService {
       const protocol = this.scheme === 'https' ? 'wss' : 'ws';
       this.url = `${protocol}://${this.host}:${this.port}/app/${this.appKey}?protocol=7&client=js&version=1.0&flash=false`;
 
-      console.log('[WebSocket] Connecting to:', this.url);
 
       try {
         this.ws = new WebSocket(this.url);
 
         this.ws.onopen = () => {
-          console.log('[WebSocket] Socket opened, waiting for connection_established...');
           this.reconnectAttempts = 0;
         };
 
@@ -47,29 +45,26 @@ class WebSocketService {
                 ? JSON.parse(message.data)
                 : message.data;
               this.socketId = data.socket_id;
-              console.log('[WebSocket] ✅ Connected, socket_id:', this.socketId);
               resolve(true);
               return;
             }
 
             this._handleMessage(message);
-          } catch (error) {
-            console.error('[WebSocket] Parse error:', error);
+          } catch (test) {
+            console.error(test);
           }
         };
 
         this.ws.onerror = (error) => {
-          console.error('[WebSocket] ❌ Error:', error);
           reject(error);
         };
 
         this.ws.onclose = () => {
-          console.log('[WebSocket] Closed, reconnecting...');
           this.socketId = null;
           this._attemptReconnect();
         };
       } catch (error) {
-        console.error('[WebSocket] Connection error:', error);
+        //console.error('[WebSocket] Connection error:', error);
         reject(error);
       }
     });
@@ -99,8 +94,8 @@ class WebSocketService {
       listeners.forEach(callback => {
         try {
           callback({ event: message.event, data: parsedData });
-        } catch (error) {
-          console.error('[WebSocket] Listener error:', error);
+        } catch (test) {
+          console.error(test);
         }
       });
     }
@@ -166,7 +161,7 @@ class WebSocketService {
           reject(new Error('Subscription timeout'));
         }, 10000);
       } catch (error) {
-        console.error('[WebSocket] Subscribe error:', error);
+        //console.error('[WebSocket] Subscribe error:', error);
         reject(error);
       }
     });
@@ -240,9 +235,6 @@ class WebSocketService {
   _attemptReconnect() {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      console.log(
-        `[WebSocket] Reconnect attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${this.reconnectDelay}ms`
-      );
       setTimeout(() => this.connect().catch(() => {}), this.reconnectDelay);
     } else {
       console.error('[WebSocket] Max reconnect attempts reached');
