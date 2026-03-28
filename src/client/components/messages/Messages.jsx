@@ -346,7 +346,7 @@ const Messages = () => {
 
       {/* ── Zone chat ─────────────────────────────────────────────────────── */}
       <div className={`
-        flex flex-col flex-1 overflow-hidden relative
+        flex flex-col flex-1 min-h-0
         ${!mobileShowChat ? 'hidden md:flex' : 'flex'}
       `}>
         {!selectedConv ? (
@@ -366,7 +366,7 @@ const Messages = () => {
         ) : (
           <>
             {/* ✅ Header sticky */}
-            <div className='flex items-center gap-3 px-4 py-3.5 bg-white border-b border-gray-100 shadow-sm shrink-0 sticky top-0 z-10'>
+            <div className='flex items-center gap-3 px-4 py-3.5 bg-white border-b border-gray-100 shadow-sm shrink-0'>
               <button
                 onClick={() => { setMobileShowChat(false); setSelectedConv(null); selectedConvRef.current = null; }}
                 className='md:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors'
@@ -393,7 +393,7 @@ const Messages = () => {
             <div
               ref={messagesRef}
               onScroll={handleScroll}
-              className='flex-1 overflow-y-auto px-4 py-5 bg-gray-50'
+              className='flex-1 overflow-y-auto px-4 py-5 bg-gray-50 min-h-0'
             >
               {loadingMsgs ? (
                 <div className='flex items-center justify-center py-20'>
