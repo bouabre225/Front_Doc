@@ -305,6 +305,7 @@ const Messages = () => {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder='Rechercher...'
+              style={{ fontSize: '16px' }}
               className='w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
             />
             {search && (
@@ -403,7 +404,7 @@ const Messages = () => {
         ) : (
           <>
             {/* Header chat */}
-            <div className='flex items-center gap-3 px-4 py-3.5 bg-white border-b border-gray-100 shadow-sm shrink-0'>
+            <div className='flex items-center gap-3 px-4 py-3.5 bg-white border-b border-gray-100 shadow-sm shrink-0 sticky top-0 z-10'>
               {/* Mobile: retour liste */}
               <button
                 onClick={() => { setMobileShowChat(false); setSelectedConv(null); }}
@@ -546,7 +547,7 @@ const Messages = () => {
                     onKeyDown={handleKeyDown}
                     placeholder={`Message à ${selectedConv.name}...`}
                     rows={1}
-                    style={{ resize: 'none' }}
+                    style={{ resize: 'none', fontSize: '16px' }}
                     className='w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all max-h-32 overflow-y-auto'
                     onInput={e => {
                       e.target.style.height = 'auto';
