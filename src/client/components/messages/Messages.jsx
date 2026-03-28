@@ -6,7 +6,7 @@ import {
   MessageCircle, Package, CheckCheck, Check, X
 } from 'lucide-react';
 import { getConversations, getConversation, sendMessage, getImageUrl } from '../../../services/api';
-import websocket from '../../../services/websocket';
+import echo from '../../../echo';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -61,10 +61,10 @@ const Messages = () => {
   const navigate       = useNavigate();
   const [searchParams] = useSearchParams();
   const initUserId     = searchParams.get('userId') || null;
-  const initAnnonceId = searchParams.get('annonceId') || null;
+  const initAnnonceId  = searchParams.get('annonceId') || null;
   const initVendeurNom = searchParams.get('vendeurNom') || 'Vendeur';
 
-  const currentUser    = JSON.parse(localStorage.getItem('user') || '{}');
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
   const [conversations,  setConversations]  = useState([]);
   const [selectedConv,   setSelectedConv]   = useState(null);
@@ -76,20 +76,18 @@ const Messages = () => {
   const [sending,        setSending]        = useState(false);
   const [mobileShowChat, setMobileShowChat] = useState(false);
   const [showScrollBtn,  setShowScrollBtn]  = useState(false);
+
   const selectedConvRef = useRef(null);
+  const bottomRef       = useRef(null);
+  const inputRef        = useRef(null);
+  const messagesRef     = useRef(null);
 
-  const bottomRef   = useRef(null);
-  const inputRef    = useRef(null);
-  const messagesRef = useRef(null);
-  //const pollRef     = useRef(null);
-
+  // ─── Chargement conversations ─────────────────────────────────────────────
   const fetchConversations = useCallback(async () => {
     try {
       const data = await getConversations();
       setConversations(Array.isArray(data) ? data : []);
-    } catch {
-        //
-    }
+    } catch { /**/ }
     finally { setLoadingConvs(false); }
   }, []);
 
@@ -98,13 +96,13 @@ const Messages = () => {
     fetchConversations();
   }, [fetchConversations, navigate]);
 
-// Remplace cet useEffect dans Messages.jsx
+  // ─── Ouverture auto si userId en param ───────────────────────────────────
   useEffect(() => {
     if (!initUserId || loadingConvs) return;
 
     const conv = conversations.find(c => c.id === initUserId);
     if (conv) {
-      openConversation(conv); // ← openConversation sync déjà la ref
+      openConversation(conv);
     } else {
       const newConv = {
         id:              initUserId,
@@ -114,13 +112,49 @@ const Messages = () => {
         dernier_message: null,
       };
       setSelectedConv(newConv);
-      selectedConvRef.current = newConv; // ← sync la ref ici aussi
+      selectedConvRef.current = newConv;
       setMobileShowChat(true);
       setMessages([]);
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [initUserId, loadingConvs]); // ← dépend de loadingConvs pas conversations
+  }, [initUserId, loadingConvs]);
 
+  // ─── WebSocket Echo — UN SEUL useEffect ──────────────────────────────────
+  useEffect(() => {
+    if (!currentUser?.id) return;
+
+    const channel = echo.private(`conversation.${currentUser.id}`);
+
+    channel.listen('.nouveau.message', (e) => {
+      console.log('[WS] message reçu :', e);
+
+      const conv = selectedConvRef.current;
+
+      // ✅ Ajoute le message si la conversation est ouverte
+      if (conv && String(e.expediteur_id) === String(conv.id)) {
+        setMessages(prev => {
+          if (prev.find(m => m.id === e.id)) return prev;
+          return [...prev, e];
+        });
+      }
+
+      // ✅ Met à jour le badge non lus dans la sidebar
+      setConversations(prev =>
+        prev.map(c =>
+          String(c.id) === String(e.expediteur_id)
+            ? { ...c, non_lus: (c.non_lus || 0) + 1, dernier_message: e.created_at }
+            : c
+        )
+      );
+    });
+
+    // ✅ Quitte uniquement au démontage total
+    return () => {
+      echo.leave(`conversation.${currentUser.id}`);
+    };
+  }, [currentUser?.id]); // ← JAMAIS selectedConv ici
+
+  // ─── Chargement messages ──────────────────────────────────────────────────
   const fetchMessages = useCallback(async (userId) => {
     setLoadingMsgs(true);
     try {
@@ -130,79 +164,17 @@ const Messages = () => {
     finally { setLoadingMsgs(false); }
   }, []);
 
-  // Remplace ta fonction openConversation par celle-ci
+  // ─── Ouverture conversation ───────────────────────────────────────────────
   const openConversation = (conv) => {
     setSelectedConv(conv);
-    selectedConvRef.current = conv; // ← sync la ref
+    selectedConvRef.current = conv;
     setMobileShowChat(true);
     fetchMessages(conv.id);
     setConversations(prev => prev.map(c => c.id === conv.id ? { ...c, non_lus: 0 } : c));
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
-  //useEffect(() => {
-  //  if (!selectedConv) return;
-   // pollRef.current = setInterval(() => {
-   //   fetchMessages(selectedConv.id);
-   //   fetchConversations();
-   // }, 2000);
-   // return () => clearInterval(pollRef.current);
-  //}, [selectedConv, fetchMessages, fetchConversations]);
-
-  // ✅ WebSocket listener using native connection
-  useEffect(() => {
-    if (!currentUser?.id) return;
-
-    const setupWebSocket = async () => {
-      try {
-        const channelName = `private-conversation.${currentUser.id}`;
-        
-        await websocket.subscribe(channelName);
-
-        // Listen for new messages
-        const unsubscribe = websocket.listen(
-          channelName,
-          'nouveau.message',
-          (eventData) => {
-            
-            const e = eventData;
-            const conv = selectedConvRef.current;
-
-            if (conv && String(e.expediteur_id) === String(conv.id)) {
-              setMessages(prev => {
-                if (prev.find(m => m.id === e.id)) return prev;
-                return [...prev, e];
-              });
-            }
-
-            // Update unread count
-            setConversations(prev =>
-              prev.map(c => {
-                if (String(c.id) === String(e.expediteur_id)) {
-                  return { ...c, non_lus: (c.non_lus || 0) + 1 };
-                }
-                return c;
-              })
-            );
-          }
-        );
-
-        return unsubscribe;
-      } catch (error) {
-        console.error('[Messages] WebSocket error:', error);
-      }
-    };
-
-    let unsubscribe;
-    setupWebSocket().then((unsub) => {
-      unsubscribe = unsub;
-    });
-
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, [currentUser?.id]); // ← SEULEMENT currentUser.id, jamais selectedConv
-
+  // ─── Scroll auto vers le bas ──────────────────────────────────────────────
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -213,12 +185,13 @@ const Messages = () => {
     setShowScrollBtn(el.scrollHeight - el.scrollTop - el.clientHeight > 200);
   };
 
+  // ─── Envoi message ────────────────────────────────────────────────────────
   const handleSend = async () => {
     const text = input.trim();
     if (!text || !selectedConv || sending) return;
 
     const optimistic = {
-      id: `opt-${Date.now()}`,
+      id:            `opt-${Date.now()}`,
       expediteur_id: currentUser.id,
       recepteur_id:  selectedConv.id,
       contenu:       text,
@@ -237,21 +210,15 @@ const Messages = () => {
         contenu:      text,
         annonce_id:   initAnnonceId || undefined,
       });
-      
-      
-      // Remplace le message optimiste par le vrai message du serveur
+
       const realMessage = response?.data || {
         ...optimistic,
-        id: response?.id || optimistic.id,
-        _optimistic: false
+        id:          response?.id || optimistic.id,
+        _optimistic: false,
       };
-      
-      
-      setMessages(prev => 
-        prev.map(m => m.id === optimistic.id ? realMessage : m)
-      );
-    } catch (error) {
-      console.error('[sendMessage] Error:', error);
+
+      setMessages(prev => prev.map(m => m.id === optimistic.id ? realMessage : m));
+    } catch {
       setMessages(prev => prev.filter(m => m.id !== optimistic.id));
       setInput(text);
     } finally {
@@ -270,20 +237,17 @@ const Messages = () => {
 
   const totalUnread = conversations.reduce((sum, c) => sum + (c.non_lus || 0), 0);
 
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className='flex h-screen bg-gray-50 overflow-hidden'>
 
-      {/* ── Sidebar ─────────────────────────────────────────────────────── */}
+      {/* ── Sidebar ──────────────────────────────────────────────────────── */}
       <div className={`
         flex flex-col w-full md:w-80 lg:w-96 bg-white border-r border-gray-100 shrink-0
         ${mobileShowChat ? 'hidden md:flex' : 'flex'}
       `}>
-        {/* Top */}
-        <div className='flex items-center gap-3 px-4 py-4 border-b border-gray-100'>
-          <button
-            onClick={() => navigate(-1)}
-            className='p-2 hover:bg-gray-100 rounded-xl transition-colors shrink-0'
-          >
+        <div className='flex items-center gap-3 px-4 py-4 border-b border-gray-100 shrink-0'>
+          <button onClick={() => navigate(-1)} className='p-2 hover:bg-gray-100 rounded-xl transition-colors shrink-0'>
             <ArrowLeft className='w-5 h-5 text-gray-600' />
           </button>
           <div className='flex items-center gap-2 flex-1 min-w-0'>
@@ -296,8 +260,7 @@ const Messages = () => {
           </div>
         </div>
 
-        {/* Search */}
-        <div className='px-4 py-3'>
+        <div className='px-4 py-3 shrink-0'>
           <div className='relative'>
             <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
             <input
@@ -306,7 +269,7 @@ const Messages = () => {
               onChange={e => setSearch(e.target.value)}
               placeholder='Rechercher...'
               style={{ fontSize: '16px' }}
-              className='w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
+              className='w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
             />
             {search && (
               <button onClick={() => setSearch('')} className='absolute right-3 top-1/2 -translate-y-1/2'>
@@ -316,7 +279,6 @@ const Messages = () => {
           </div>
         </div>
 
-        {/* Conversations */}
         <div className='flex-1 overflow-y-auto'>
           {loadingConvs ? (
             <div className='p-4 space-y-3'>
@@ -382,7 +344,7 @@ const Messages = () => {
         </div>
       </div>
 
-      {/* ── Zone chat ────────────────────────────────────────────────────── */}
+      {/* ── Zone chat ─────────────────────────────────────────────────────── */}
       <div className={`
         flex flex-col flex-1 overflow-hidden relative
         ${!mobileShowChat ? 'hidden md:flex' : 'flex'}
@@ -403,23 +365,20 @@ const Messages = () => {
           </div>
         ) : (
           <>
-            {/* Header chat */}
+            {/* ✅ Header sticky */}
             <div className='flex items-center gap-3 px-4 py-3.5 bg-white border-b border-gray-100 shadow-sm shrink-0 sticky top-0 z-10'>
-              {/* Mobile: retour liste */}
               <button
-                onClick={() => { setMobileShowChat(false); setSelectedConv(null); }}
+                onClick={() => { setMobileShowChat(false); setSelectedConv(null); selectedConvRef.current = null; }}
                 className='md:hidden p-1.5 hover:bg-gray-100 rounded-lg transition-colors'
               >
                 <ArrowLeft className='w-5 h-5 text-gray-600' />
               </button>
-              {/* Desktop: retour page précédente */}
               <button
                 onClick={() => navigate(-1)}
                 className='hidden md:flex p-1.5 hover:bg-gray-100 rounded-lg transition-colors'
               >
                 <ArrowLeft className='w-5 h-5 text-gray-500' />
               </button>
-
               <Avatar name={selectedConv.name} avatar={selectedConv.avatar} online />
               <div className='flex-1 min-w-0'>
                 <p className='font-bold text-gray-900 truncate'>{selectedConv.name}</p>
@@ -430,7 +389,7 @@ const Messages = () => {
               </div>
             </div>
 
-            {/* Messages area */}
+            {/* Messages */}
             <div
               ref={messagesRef}
               onScroll={handleScroll}
@@ -521,7 +480,7 @@ const Messages = () => {
               )}
             </div>
 
-            {/* Scroll to bottom btn */}
+            {/* Scroll btn */}
             <AnimatePresence>
               {showScrollBtn && (
                 <motion.button
@@ -536,7 +495,7 @@ const Messages = () => {
               )}
             </AnimatePresence>
 
-            {/* Input zone */}
+            {/* ✅ Input zone */}
             <div className='px-4 py-3.5 bg-white border-t border-gray-100 shrink-0'>
               <div className='flex items-end gap-3'>
                 <div className='flex-1'>
@@ -547,8 +506,8 @@ const Messages = () => {
                     onKeyDown={handleKeyDown}
                     placeholder={`Message à ${selectedConv.name}...`}
                     rows={1}
-                    style={{ resize: 'none', fontSize: '16px' }}
-                    className='w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all max-h-32 overflow-y-auto'
+                    style={{ resize: 'none', fontSize: '16px' }} // ✅ pas de zoom iOS
+                    className='w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all max-h-32 overflow-y-auto'
                     onInput={e => {
                       e.target.style.height = 'auto';
                       e.target.style.height = Math.min(e.target.scrollHeight, 128) + 'px';
