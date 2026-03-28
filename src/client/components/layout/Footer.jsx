@@ -30,7 +30,7 @@ const Footer = () => {
               Marketplace d'équipements médicaux d'occasion certifiés.
             </p>
             <div className='flex items-center gap-2'>
-              {SOCIAL_LINKS.map(({ icon: Icon, href, label }) => (
+              {/*{SOCIAL_LINKS.map(({ icon: Icon, href, label }) => (
                 <a
                   key={label}
                   href={href}
@@ -41,7 +41,7 @@ const Footer = () => {
                 >
                   <Icon className='w-4 h-4' />
                 </a>
-              ))}
+              ))}*/}
             </div>  
           </div>
 
@@ -75,13 +75,13 @@ const Footer = () => {
               <li>
                 <a href='mailto:docspaceafrica@gmail.com' className='flex items-center gap-2 text-gray-600 hover:text-[#1DBF73] transition-colors'>
                   <Mail className='w-4 h-4 text-[#1DBF73]' />
-                  docspaceafrica@gmail.com
+                  docspaceafrica@gmail.com  
                 </a>
               </li>
               <li>
-                <a href='tel:+22900000000' className='flex items-center gap-2 text-gray-600 hover:text-[#1DBF73] transition-colors'>
+                <a href='tel:+2290196811213' className='flex items-center gap-2 text-gray-600 hover:text-[#1DBF73] transition-colors'>
                   <Phone className='w-4 h-4 text-[#1DBF73]' />
-                  +229 XX XX XX XX
+                  +229 01 96 81 12 13
                 </a>
               </li>
               <li className='flex items-center gap-2 text-gray-600'>
