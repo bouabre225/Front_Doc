@@ -1,6 +1,6 @@
+// echo.js — supprime ou protège les lignes de debug
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
-
 window.Pusher = Pusher;
 
 const echo = new Echo({
@@ -21,17 +21,13 @@ const echo = new Echo({
     },
 });
 
-// Debug logging
-echo.connector.socket.on('connect', () => {
-    //console.log('[WebSocket] Connected ✅');
+// ✅ Protège les listeners avec optional chaining
+echo.connector.socket?.on('connect', () => {
+    console.log('[Echo] Connected ✅');
 });
 
-echo.connector.socket.on('disconnect', () => {
-    //console.log('[WebSocket] Disconnected ❌');
-});
-
-echo.connector.socket.on('error', () => {
-    //console.error('[WebSocket] Error');
+echo.connector.socket?.on('disconnect', () => {
+    console.log('[Echo] Disconnected ❌');
 });
 
 export default echo;
