@@ -212,21 +212,17 @@ const NotificationsPage = () => {
   const handleRead = async (id) => {
     try {
       await markNotificationRead(id);
-      setNotifications(prev =>
-        prev.map(n => n.id === id ? { ...n, lu: true } : n)
-      );
-    } catch {
-        //
-    }
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, lu: true } : n));
+      window.dispatchEvent(new Event('notif-read'));
+    } catch { /**/ }
   };
 
   const handleReadAll = async () => {
     try {
       await markAllNotificationsRead();
       setNotifications(prev => prev.map(n => ({ ...n, lu: true })));
-    } catch {
-        //
-    }
+      window.dispatchEvent(new Event('notif-read'));
+    } catch { /**/ }
   };
 
   const handleDelete = async (id) => {
