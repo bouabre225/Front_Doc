@@ -329,7 +329,7 @@ const handlePay = async () => {
         </AnimatePresence>
 
         {/* ── Section succès paiement ─────────────────────────────────────── */}
-        {commande?.statut === 'payee' && (
+        {commande?.statut === 'payee' && isAcheteur && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -418,7 +418,7 @@ const handlePay = async () => {
           </motion.div>
         )}
 
-        {commande && commande.statut !== 'payee' && (
+        {commande && (commande.statut !== 'payee' || isVendeur) && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -491,6 +491,48 @@ const handlePay = async () => {
                 <p className='text-xs text-gray-400 mt-0.5 truncate'>{commande.vendeur?.email}</p>
               </div>
             </div>
+
+            {/*Informations de livraison */}
+            {(isAcheteur || isVendeur) && (commande.adresse_livraison || commande.telephone_livraison) && (
+              <div className='bg-white rounded-2xl border border-gray-100 p-5'>
+                <div className='flex items-center gap-2 mb-3'>
+                  <Package className='w-4 h-4 text-[#1DBF73]' />
+                  <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>
+                    Informations de livraison
+                  </span>
+                </div>
+                <div className='space-y-3'>
+                  {commande.adresse_livraison && (
+                    <div className='flex items-start gap-3 p-3 bg-gray-50 rounded-xl'>
+                      <div className='w-8 h-8 bg-[#1DBF73]/10 rounded-lg flex items-center justify-center shrink-0'>
+                        <span className='text-base'>📍</span>
+                      </div>
+                      <div>
+                        <p className='text-xs text-gray-400 font-medium'>Adresse de livraison</p>
+                        <p className='text-sm font-semibold text-gray-800 mt-0.5'>
+                          {commande.adresse_livraison}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  {commande.telephone_livraison && (
+                    <div className='flex items-start gap-3 p-3 bg-gray-50 rounded-xl'>
+                      <div className='w-8 h-8 bg-[#09B1BA]/10 rounded-lg flex items-center justify-center shrink-0'>
+                        <span className='text-base'>📞</span>
+                      </div>
+                      <div>
+                        <p className='text-xs text-gray-400 font-medium'>
+                          {isVendeur ? 'Téléphone acheteur' : 'Votre téléphone de contact'}
+                        </p>
+                        <p className='text-sm font-semibold text-gray-800 mt-0.5'>
+                          {commande.telephone_livraison}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Dates */}
             <div className='bg-white rounded-2xl border border-gray-100 p-5'>
