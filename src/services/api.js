@@ -531,7 +531,7 @@ export const getKycDocumentUrl = (id) => {
 };
 
 export const marquerCommandeLivree = async (commandeId) => {
-  const res = await fetch(`${API_URL}/admin/commandes/${commandeId}/livrer`, {
+  const res = await fetch(`${API_URL}/commandes/${commandeId}/livrer`, {
     method: 'PATCH',
     headers: authHeaders(),
   });
