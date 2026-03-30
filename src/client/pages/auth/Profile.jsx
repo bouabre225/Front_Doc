@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { getMe, getCommandes, getMyAnnonces, deleteAnnonce, logoutUser, getImageUrl, getKycStatus, updateProfile, getCommandesRecues } from '../../../services/api';
+import { getMe, getCommandes, getMyAnnonces, deleteAnnonce, logoutUser, getImageUrl, getKycStatus, updateProfile, getCommandesRecues, marquerCommandeLivree } from '../../../services/api';
 
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -160,6 +160,20 @@ function Profile() {
       setMyAnnonces(prev => prev.filter(a => a.id !== id));
     } catch (err) {
       //alert('Erreur : ' + err.message);
+    }
+  };
+
+  const handleMarquerLivree = async (e, commandeId) => {
+    e.preventDefault(); 
+    e.stopPropagation();
+    if (!window.confirm('Confirmer la livraison de cette commande ?')) return;
+    try {
+      await marquerCommandeLivree(commandeId);
+      setMyCommandes(prev =>
+        prev.map(c => c.id === commandeId ? { ...c, statut: 'livree' } : c)
+      );
+    } catch (err) {
+      //alert('Erreur : ' + (err.message || 'Une erreur est survenue'));
     }
   };
 
@@ -448,35 +462,51 @@ function Profile() {
                 {/* ── Achats (acheteur) ─────────────────────────────────── */}
                 {activeTab === 'achats' && (
                   <div>
-                    <h2 className='mb-6 text-xl font-bold text-gray-800'>Historique des achats</h2>
+                    <h2 className='mb-6 text-xl font-bold text-gray-800'>Commandes reçues</h2>
                     {myCommandes.length === 0 ? (
                       <div className='py-20 text-center'>
                         <ShoppingBag className='w-16 h-16 mx-auto mb-4 text-gray-200' />
-                        <p className='text-gray-500 mb-4'>Aucun achat pour le moment.</p>
-                        <Link to='/explore' className='inline-block px-6 py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl'>
-                          Explorer les équipements
-                        </Link>
+                        <p className='text-gray-500'>Aucune commande reçue.</p>
                       </div>
                     ) : (
                       <div className='space-y-3'>
                         {myCommandes.map((cmd) => (
-                          <Link key={cmd.id} to={`/commandes/${cmd.id}`} className='block p-4 border border-gray-100 rounded-2xl hover:border-[#1DBF73]/30 hover:shadow-sm transition-all'>
-                            <div className='flex items-center justify-between'>
-                              <div>
-                                <p className='font-semibold text-gray-900 text-sm'>
+                          <Link
+                            key={cmd.id}
+                            to={`/commandes/${cmd.id}`}
+                            className='block p-4 border border-gray-100 rounded-2xl hover:border-[#1DBF73]/30 hover:shadow-sm transition-all'
+                          >
+                            <div className='flex items-center justify-between gap-3'>
+                              <div className='flex-1 min-w-0'>
+                                <p className='font-semibold text-gray-900 text-sm truncate'>
                                   {cmd.annonce?.titre || `Commande #${String(cmd.id ?? '').slice(0, 8)}`}
                                 </p>
                                 <p className='text-xs text-gray-400 mt-0.5 flex items-center gap-1'>
                                   <Calendar className='w-3 h-3' />
                                   {new Date(cmd.created_at).toLocaleDateString('fr-FR')}
+                                  {cmd.acheteur?.nom && (
+                                    <span className='ml-1'>· {cmd.acheteur.nom}</span>
+                                  )}
                                 </p>
                               </div>
-                              <div className='flex flex-col items-end gap-2'>
+                              <div className='flex flex-col items-end gap-2 shrink-0'>
                                 <StatutBadge statut={cmd.statut} />
-                                {cmd.prix_total != null && !isNaN(Number(cmd.prix_total)) && (
+                                {cmd.montant != null && !isNaN(Number(cmd.montant)) && (
                                   <p className='text-sm font-bold text-[#1DBF73]'>
-                                    {Number(cmd.prix_total).toLocaleString('fr-FR')} FCFA
+                                    {Number(cmd.montant).toLocaleString('fr-FR')} FCFA
                                   </p>
+                                )}
+                                {/* ✅ Bouton livraison — seulement si payée */}
+                                {cmd.statut === 'payee' && (
+                                  <motion.button
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                    onClick={(e) => handleMarquerLivree(e, cmd.id)}
+                                    className='flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white text-xs font-bold rounded-xl shadow hover:shadow-md transition-all'
+                                  >
+                                    <Truck className='w-3.5 h-3.5' />
+                                    Marquer livrée
+                                  </motion.button>
                                 )}
                               </div>
                             </div>
