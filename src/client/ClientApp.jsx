@@ -21,6 +21,7 @@ import SellerKyc from './pages/SellerKyc';
 import Cart from './components/cart/Cart';
 import TermsOfService from './pages/headercontains/TermsOfService';
 import PrivacyPolicy from './pages/headercontains/PrivacyPolicy';
+import ScrollTop from './components/common/ScrollTop';
 
 // ─── Guard : déconnecte automatiquement un admin qui accède au client ─────────
 
@@ -46,6 +47,7 @@ function ClientApp() {
     <LangProvider>
       <div className='min-h-screen bg-gray-50'>
         <AdminGuard />
+        <ScrollTop />
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/explore' element={<Explore />} />
