@@ -195,22 +195,29 @@ export default function AdminAnnonces() {
 
   useEffect(() => { fetchAnnonces(1); }, [filter]);
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, force = false) => {
     setDeleting(id);
     setError('');
     try {
-      await deleteAdminAnnonce(id);
-      // ✅ Met à jour la liste locale immédiatement
+      await deleteAdminAnnonce(id, force);
       setAnnonces(prev => prev.filter(a => a.id !== id));
       setTotal(prev => prev - 1);
       setSuccess('Annonce supprimée.');
       setConfirmDel(null);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      // ✅ Affiche l'erreur réelle
-      console.error('[handleDelete] erreur:', err);
-      setError(err.message || 'Erreur lors de la suppression.');
-      setConfirmDel(null); // ✅ ferme la modal même en cas d'erreur
+      setConfirmDel(null);
+
+      //Si des commandes actives → propose une suppression forcée
+      if (err.message?.includes('commande')) {
+        if (window.confirm(
+          `${err.message}\n\nVoulez-vous forcer la suppression malgré les commandes actives ?`
+        )) {
+          handleDelete(id, true); // ← relance avec force=true
+        }
+      } else {
+        setError(err.message || 'Erreur lors de la suppression.');
+      }
     } finally {
       setDeleting(null);
     }
