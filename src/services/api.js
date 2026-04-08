@@ -442,8 +442,9 @@ export const getKycPending = async () => {
   return handleResponse(res);
 };
 
-export const deleteAdminAnnonce = async (id) => {
-  const res = await fetch(`${API_URL}/admin/annonces/${id}`, {
+export const deleteAdminAnnonce = async (id, force = false) => {
+  const url = `${API_URL}/admin/annonces/${id}${force ? '?force=true' : ''}`;
+  const res = await fetch(url, {
     method: 'DELETE',
     headers: authHeaders(),
   });
