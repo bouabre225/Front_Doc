@@ -200,13 +200,17 @@ export default function AdminAnnonces() {
     setError('');
     try {
       await deleteAdminAnnonce(id);
+      // ✅ Met à jour la liste locale immédiatement
       setAnnonces(prev => prev.filter(a => a.id !== id));
       setTotal(prev => prev - 1);
       setSuccess('Annonce supprimée.');
       setConfirmDel(null);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
+      // ✅ Affiche l'erreur réelle
+      console.error('[handleDelete] erreur:', err);
       setError(err.message || 'Erreur lors de la suppression.');
+      setConfirmDel(null); // ✅ ferme la modal même en cas d'erreur
     } finally {
       setDeleting(null);
     }
@@ -248,7 +252,7 @@ export default function AdminAnnonces() {
           {error && (
             <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
               className='flex items-center gap-2 p-3 mb-4 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700'>
-              <Circle className='w-4 h-4 shrink-0' />{error}
+              <AlertCircle className='w-4 h-4 shrink-0' />{error}
             </motion.div>
           )}
         </AnimatePresence>
