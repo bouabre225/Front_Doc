@@ -199,21 +199,21 @@ export default function AdminAnnonces() {
     setDeleting(id);
     setError('');
     try {
-      await deleteAdminAnnonce(id, force);
+      const result = await deleteAdminAnnonce(id, force);
+      console.log('[handleDelete] résultat:', result); // ← debug
       setAnnonces(prev => prev.filter(a => a.id !== id));
       setTotal(prev => prev - 1);
       setSuccess('Annonce supprimée.');
       setConfirmDel(null);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
+      console.error('[handleDelete] erreur:', err); // ← debug
       setConfirmDel(null);
-
-      //Si des commandes actives → propose une suppression forcée
       if (err.message?.includes('commande')) {
         if (window.confirm(
           `${err.message}\n\nVoulez-vous forcer la suppression malgré les commandes actives ?`
         )) {
-          handleDelete(id, true); // ← relance avec force=true
+          handleDelete(id, true);
         }
       } else {
         setError(err.message || 'Erreur lors de la suppression.');
