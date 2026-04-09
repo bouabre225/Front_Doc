@@ -8,6 +8,8 @@ import {
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { getAnnonces, searchAnnonces, getImageUrl } from '../../../services/api';
+import ImageViewer from '../../components/common/ImageViewer';
+import { useImageViewer } from '../../../hooks/useImageViewer';
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -140,6 +142,8 @@ const Explore = () => {
     try { return JSON.parse(localStorage.getItem('favorites') || '[]'); }
     catch { return []; }
   });
+
+  const { viewer, openViewer, closeViewer } = useImageViewer();
 
   // ─── Fetch ──────────────────────────────────────────────────────────────
   const fetchAnnonces = useCallback(async () => {
@@ -415,10 +419,20 @@ const Explore = () => {
                           <img
                             src={getImageUrl(item.images[0].image_url)}
                             alt={item.titre}
-                            className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-105'
+                            className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-105 cursor-zoom-in'
+                            onClick={e => { e.preventDefault(); e.stopPropagation(); openViewer(item.images, 0, item.titre); }}                          
                           />
                         ) : (
                           <div className='flex items-center justify-center w-full h-full text-5xl'>🏥</div>
+                        )}
+
+                        {viewer.open && (
+                          <ImageViewer
+                            images={viewer.images}
+                            initialIndex={viewer.index}
+                            titre={viewer.titre}
+                            onClose={closeViewer}
+                          />
                         )}
 
                         {/* Favori */}

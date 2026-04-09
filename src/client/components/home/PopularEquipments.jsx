@@ -5,6 +5,8 @@ import Card from '../common/Card';
 import { Link } from 'react-router-dom';
 import { getAnnonces, getImageUrl } from '../../../services/api';
 import { useCart } from '../../context/CartContext';
+import ImageViewer from '../common/ImageViewer';
+import { useImageViewer } from '../../../hooks/useImageViewer';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -39,6 +41,8 @@ const SkeletonCard = () => (
 
 const PopularEquipments = () => {
   const { addToCart, isInCart } = useCart();
+
+  const { viewer, openViewer, closeViewer } = useImageViewer();
 
   const [equipments, setEquipments] = useState([]);
   const [loading,    setLoading]    = useState(true);
@@ -141,12 +145,22 @@ const PopularEquipments = () => {
                         <img
                           src={getImageUrl(equipment.images[0].image_url)}
                           alt={equipment.titre}
-                          className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110'
+                          className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110 cursor-zoom-in'
+                          onClick={e => { e.preventDefault(); e.stopPropagation(); openViewer(equipment.images, 0, equipment.titre); }}
                         />
                       ) : (
                         <div className='flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-100 to-gray-200'>
                           <span className='text-5xl'>🏥</span>
                         </div>
+                      )}
+
+                      {viewer.open && (
+                        <ImageViewer
+                          images={viewer.images}
+                          initialIndex={viewer.index}
+                          titre={viewer.titre}
+                          onClose={closeViewer}
+                        />
                       )}
 
                       {/* Badges haut gauche */}
