@@ -153,7 +153,7 @@ const Contact = () => {
       icon:  Phone,
       label: 'Téléphone',
       value: '+229 01 96 81 12 13',
-      href:  'tel:+22901234567',
+      href:  'tel:+2290196811213',
       color: 'from-[#09B1BA] to-[#1DBF73]',
     },
     {
