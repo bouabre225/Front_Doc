@@ -420,7 +420,7 @@ const Explore = () => {
                             src={getImageUrl(item.images[0].image_url)}
                             alt={item.titre}
                             className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-105 cursor-zoom-in'
-                            onClick={e => { e.preventDefault(); e.stopPropagation(); openViewer(item.images, 0, item.titre); }}                          
+                            onClick={() => openViewer(item.images, 0, item.titre)}                          
                           />
                         ) : (
                           <div className='flex items-center justify-center w-full h-full text-5xl'>🏥</div>
