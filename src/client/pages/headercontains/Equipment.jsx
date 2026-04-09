@@ -154,18 +154,22 @@ function Equipment() {
     return () => window.removeEventListener('keydown', handleKey);
   }, [images.length, onClose]);
 
+  const clickHandler = (e) => {
+    e.stopPropagation();
+    onClose();
+  };
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={onClose}
+        onClick={clickHandler}
         className='fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm p-4'
       >
         {/* Bouton fermer */}
         <button
-          onClick={onClose}
+          onClick={clickHandler}
           className='absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all z-10'
         >
           <X className='w-5 h-5 text-white' />
