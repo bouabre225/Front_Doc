@@ -146,7 +146,7 @@ const PopularEquipments = () => {
                           src={getImageUrl(equipment.images[0].image_url)}
                           alt={equipment.titre}
                           className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110 cursor-zoom-in'
-                          onClick={e => { e.preventDefault(); e.stopPropagation(); openViewer(equipment.images, 0, equipment.titre); }}
+                          onClick={() => openViewer(equipment.images, 0, equipment.titre)}
                         />
                       ) : (
                         <div className='flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-100 to-gray-200'>
