@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, MapPin, Heart, ShoppingCart, MessageSquare,
   Check, Package, Calendar, User, Layers, AlertCircle,
-  ChevronLeft, ChevronRight, Minus, Plus, ShieldCheck, ArrowLeft
+  ChevronLeft, ChevronRight, Minus, Plus, ShieldCheck, ArrowLeft, X
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
@@ -29,6 +29,9 @@ function Equipment() {
   const { id }       = useParams();
   const navigate     = useNavigate();
   const { addToCart, isInCart } = useCart();
+
+  const [viewerOpen,  setViewerOpen]  = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
   
   const [annonce,       setAnnonce]       = useState(null);
   const [loading,       setLoading]       = useState(true);
@@ -135,6 +138,118 @@ function Equipment() {
     );
   }
 
+  // ─── Modal visualiseur d'images ───────────────────────────────────────────────
+
+  const ImageViewer = ({ images, initialIndex, onClose, getImageUrl, titre }) => {
+  const [current, setCurrent] = useState(initialIndex);
+
+  // Navigation clavier
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (e.key === 'ArrowRight') setCurrent(i => Math.min(images.length - 1, i + 1));
+      if (e.key === 'ArrowLeft')  setCurrent(i => Math.max(0, i - 1));
+      if (e.key === 'Escape')     onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [images.length, onClose]);
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className='fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/95 backdrop-blur-sm p-4'
+      >
+        {/* Bouton fermer */}
+        <button
+          onClick={onClose}
+          className='absolute top-4 right-4 w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-all z-10'
+        >
+          <X className='w-5 h-5 text-white' />
+        </button>
+
+        {/* Compteur */}
+        <div className='absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-white/10 rounded-full text-white text-sm font-medium'>
+          {current + 1} / {images.length}
+        </div>
+
+        {/* Image principale */}
+        <motion.div
+          key={current}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.2 }}
+          onClick={e => e.stopPropagation()}
+          className='relative w-full max-w-4xl max-h-[75vh] flex items-center justify-center'
+        >
+          <img
+            src={getImageUrl(images[current]?.image_url)}
+            alt={`${titre} - ${current + 1}`}
+            className='max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl'
+          />
+
+          {/* Flèche gauche */}
+          {current > 0 && (
+            <button
+            type='button'
+              onClick={e => { e.stopPropagation(); setCurrent(i => i - 1); }}
+              className='absolute left-2 w-11 h-11 bg-white/10 hover:bg-white/25 rounded-full flex items-center justify-center transition-all backdrop-blur-sm'
+            >
+              <ChevronLeft className='w-6 h-6 text-white' />
+            </button>
+          )}
+
+          {/* Flèche droite */}
+          {current < images.length - 1 && (
+            <button
+              type='button'
+              onClick={e => { e.stopPropagation(); setCurrent(i => i + 1); }}
+              className='absolute right-2 w-11 h-11 bg-white/10 hover:bg-white/25 rounded-full flex items-center justify-center transition-all backdrop-blur-sm'
+            >
+              <ChevronRight className='w-6 h-6 text-white' />
+            </button>
+          )}
+        </motion.div>
+
+        {/* Thumbnails */}
+        {images.length > 1 && (
+          <div
+            onClick={e => e.stopPropagation()}
+            className='flex gap-2 mt-4 overflow-x-auto max-w-full px-4 pb-2'
+          >
+            {images.map((img, i) => (
+              <button
+                key={i}
+                type='button'
+                onClick={() => setCurrent(i)}
+                className={`shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                  i === current
+                    ? 'border-[#1DBF73] opacity-100 scale-105'
+                    : 'border-transparent opacity-50 hover:opacity-80'
+                }`}
+              >
+                <img
+                  src={getImageUrl(img.image_url)}
+                  alt=''
+                  className='w-full h-full object-cover'
+                />
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Titre */}
+        <p className='mt-3 text-white/60 text-sm text-center max-w-md truncate'>
+          {titre}
+        </p>
+      </motion.div>
+    </AnimatePresence>
+  );
+  };
+
   const images      = annonce.images || [];
   const avis        = annonce.avis || [];
   const noteMoyenne = avis.length > 0
@@ -144,6 +259,7 @@ function Equipment() {
   const alreadyInCart = isInCart(annonce.id);
 
   return (
+    
     <div className='min-h-screen bg-gray-50'>
       <Header />
 
@@ -164,7 +280,10 @@ function Equipment() {
 
           {/* ── Galerie ──────────────────────────────────────────────── */}
           <div className='space-y-4'>
-            <div className='relative overflow-hidden bg-gray-100 rounded-2xl h-64 sm:h-80 lg:h-96 group'>
+            <div 
+              className='relative overflow-hidden bg-gray-100 rounded-2xl h-64 sm:h-80 lg:h-96 group cursor-zoom-in'
+              onClick={() => { if (images.length > 0) { setViewerIndex(selectedImage); setViewerOpen(true); }}}
+            >
               {images[selectedImage] ? (
                 <img
                   src={getImageUrl(images[selectedImage].image_url)}
@@ -175,6 +294,24 @@ function Equipment() {
                 <div className='flex items-center justify-center w-full h-full'>
                   <span className='text-8xl'>🏥</span>
                 </div>
+              )}
+
+              {/* ✅ Indicateur zoom */}
+              {images.length > 0 && (
+                <div className='absolute bottom-3 right-3 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-lg text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1'>
+                  <span>🔍</span> Agrandir
+                </div>
+              )}
+
+              {/* ✅ Image Viewer Modal */}
+              {viewerOpen && images.length > 0 && (
+                <ImageViewer
+                  images={images}
+                  initialIndex={viewerIndex}
+                  onClose={() => setViewerOpen(false)}
+                  getImageUrl={getImageUrl}
+                  titre={annonce.titre}
+                />
               )}
 
               {/* Badge état */}
