@@ -25,7 +25,7 @@ const SLUG_TO_CATEGORIE = {
   'monitoring':         'Monitoring',
   'laboratoire':        'Laboratoire',
   'chirurgie':          'Chirurgie',
-  'imagerie':           'Imagerie',
+  'imagerie':           'Imagerie Médicale',
   'ophtalmologie':      'Ophtalmologie',
   'pieces_rechange':    'Pièces de rechange', 
   'autres':             'Autres'
