@@ -25,9 +25,10 @@ const SLUG_TO_CATEGORIE = {
   'monitoring':         'Monitoring',
   'laboratoire':        'Laboratoire',
   'chirurgie':          'Chirurgie',
-  'imagerie':           'Ophtalmologie',
-  'pieces_rechange': 'Pièces de rechange', 
-  'autres' :          'Autres'
+  'imagerie':           'Imagerie',
+  'ophtalmologie':      'Ophtalmologie',
+  'pieces_rechange':    'Pièces de rechange', 
+  'autres':             'Autres'
 };
 
 const CategoryCards = () => {
