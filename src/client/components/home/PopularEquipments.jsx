@@ -112,7 +112,7 @@ const PopularEquipments = () => {
             </h2>
             <p className='text-lg text-gray-600'>Les plus récemment ajoutés</p>
           </div>
-          <Link to='/explore'>
+          <Link to='/explore' className='hidden md:block text-center'>
             <motion.button
               whileHover={{ scale: 1.05, x: 5 }}
               whileTap={{ scale: 0.95 }}
@@ -246,6 +246,19 @@ const PopularEquipments = () => {
               </motion.div>
             ))
           }
+        </div>
+        {/* Bouton "Voir plus" visible seulement sur mobile — après la grille */}
+        <div className='flex justify-center mt-10 md:hidden'>
+          <Link to='/explore'>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className='flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all'
+            >
+              Voir plus
+              <ArrowRight className='w-5 h-5' />
+            </motion.button>
+          </Link>
         </div>
       </div>
     </section>
