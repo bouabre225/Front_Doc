@@ -18,7 +18,7 @@ const CATEGORIES = [
         color: 'from-purple-500/80 to-indigo-500/80',
     },
     {
-        slug: 'medecine-generale',
+        slug: 'medecine_generale',
         name: 'Médecine Générale',
         image: 'https://images.unsplash.com/photo-1584362917165-526a968579e8?w=400&h=300&fit=crop',
         color: 'from-blue-500/80 to-cyan-500/80',
