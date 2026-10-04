@@ -39,7 +39,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.acceptTerms) {
-      setError("Veuillez accepter les conditions d'utilisation.");
+      setError("Veuillez accepter les conditions d'utilisation et la politique de confidentialité.");
       return;
     }
     setLoading(true);
@@ -53,6 +53,7 @@ const Register = () => {
         mot_de_passe_confirmation: formData.mot_de_passe,
         telephone: formData.telephone,
         pays: formData.pays,
+        acceptTerms: true,
         ...(userType === 'seller' ? { type_compte: formData.type_compte } : {}),
       };
 

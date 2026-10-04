@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
+import { SkeletonProfile } from '../../components/common/Skeleton';
 import { getMe, getCommandes, getMyAnnonces, deleteAnnonce, logoutUser, getImageUrl, getKycStatus, updateProfile, getCommandesRecues, marquerCommandeLivree } from '../../../services/api';
 import { COUNTRIES } from '../../constants/countries';
 
@@ -189,8 +190,8 @@ function Profile() {
     return (
       <div className='min-h-screen flex flex-col bg-gray-50'>
         <Header />
-        <div className='flex items-center flex-grow justify-center py-40'>
-          <div className='w-12 h-12 border-4 border-[#1DBF73] rounded-full border-t-transparent animate-spin' />
+        <div className='flex-grow'>
+          <SkeletonProfile />
         </div>
         <Footer />
       </div>

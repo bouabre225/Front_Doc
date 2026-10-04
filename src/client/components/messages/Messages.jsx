@@ -6,6 +6,7 @@ import {
   MessageCircle, Package, CheckCheck, Check, X
 } from 'lucide-react';
 import { getConversations, getConversation, sendMessage, getImageUrl, parseList, safeParse } from '../../../services/api';
+import { SkeletonConversations, SkeletonChat } from '../common/Skeleton';
 import echo from '../../../echo';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -281,17 +282,7 @@ const Messages = () => {
 
         <div className='flex-1 overflow-y-auto'>
           {loadingConvs ? (
-            <div className='p-4 space-y-3'>
-              {[1,2,3,4].map(i => (
-                <div key={i} className='flex items-center gap-3 p-3 animate-pulse'>
-                  <div className='w-10 h-10 bg-gray-200 rounded-full shrink-0' />
-                  <div className='flex-1 space-y-2'>
-                    <div className='h-3 bg-gray-200 rounded w-3/4' />
-                    <div className='h-2.5 bg-gray-100 rounded w-1/2' />
-                  </div>
-                </div>
-              ))}
-            </div>
+            <SkeletonConversations count={5} />
           ) : filteredConvs.length === 0 ? (
             <div className='flex flex-col items-center justify-center h-full p-8 text-center'>
               <div className='w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-3'>
@@ -396,9 +387,7 @@ const Messages = () => {
               className='flex-1 overflow-y-auto px-4 py-5 bg-gray-50 min-h-0'
             >
               {loadingMsgs ? (
-                <div className='flex items-center justify-center py-20'>
-                  <div className='w-8 h-8 border-2 border-[#1DBF73] rounded-full border-t-transparent animate-spin' />
-                </div>
+                <SkeletonChat count={5} />
               ) : messages.length === 0 ? (
                 <div className='flex flex-col items-center justify-center py-20 text-center'>
                   <div className='w-12 h-12 bg-white rounded-2xl shadow flex items-center justify-center mb-3'>
