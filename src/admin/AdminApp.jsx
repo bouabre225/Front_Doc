@@ -8,6 +8,7 @@ import AdminLitiges  from './components/AdminLitiges';
 import AdminUsers    from './components/AdminUsers';
 import AdminAnnonces from './components/AdminAnnonces';
 import AdminCommandes from './components/AdminCommandes';
+import AdminStats from './components/AdminStats';
 import { getMe } from '../services/api';
 
 function AdminApp() {
@@ -59,6 +60,7 @@ function AdminApp() {
       <Route path="/users"     element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
       <Route path="/annonces"  element={<ProtectedRoute><AdminAnnonces /></ProtectedRoute>} />
       <Route path="/commandes" element={<ProtectedRoute><AdminCommandes /></ProtectedRoute>} />
+      <Route path="/stats" element={<ProtectedRoute><AdminStats /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
     </Routes>

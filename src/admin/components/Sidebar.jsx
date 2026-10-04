@@ -7,6 +7,7 @@ import {
   Stethoscope,
   ShoppingCart,
   AlertCircle,
+  BarChart3,
   LogOut,
   Shield,
 } from 'lucide-react';
@@ -49,6 +50,11 @@ export default function AdminSidebar({ kycCount = 0, litigeCount = 0 }) {
       path:  '/admin/litiges',
       badge: litigeCount,
       badgeColor: '#ef4444',
+    },
+    {
+      title: 'Statistiques',
+      icon:  BarChart3,
+      path:  '/admin/stats',
     },
   ];
 

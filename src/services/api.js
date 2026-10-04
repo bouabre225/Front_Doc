@@ -559,6 +559,14 @@ export const getAdminUsers = async (params = {}) => {
   return handleResponse(res);
 };
 
+export const getAdminStats = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/admin/stats${query ? '?' + query : ''}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
 export const suspendUser = async (id) => {
   const res = await fetch(`${API_URL}/admin/users/${id}/suspend`, {
     method: 'PATCH',
@@ -622,7 +630,7 @@ export default {
   getLitiges, getLitigeById, createLitige,
   getKycPending, decideKyc,
   getAdminLitiges, prendreEnChargeLitige, resoldreLitige,
-  getAdminCommandes, getAdminUsers,
+  getAdminCommandes, getAdminUsers, getAdminStats,
   suspendUser, reactivateUser, deleteAdminUser,
   getImageUrl, getCountsParCategorie,
   getKycDocumentUrl,
