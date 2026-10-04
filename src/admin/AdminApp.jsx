@@ -8,17 +8,30 @@ import AdminLitiges  from './components/AdminLitiges';
 import AdminUsers    from './components/AdminUsers';
 import AdminAnnonces from './components/AdminAnnonces';
 import AdminCommandes from './components/AdminCommandes';
+import { getMe } from '../services/api';
 
 function AdminApp() {
-  const isAdminAuthenticated = () => {
-    try {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      return user.role === 'admin';
-    } catch { return false; }
-  };
+  const [checking, setChecking] = React.useState(true);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = localStorage.getItem('auth_token');
+        if (!token) { if (!cancelled) { setIsAdmin(false); setChecking(false); } return; }
+        const me = await getMe();
+        const user = me?.user ?? me?.data ?? me;
+        if (!cancelled) setIsAdmin(user?.role === 'admin');
+      } catch { if (!cancelled) setIsAdmin(false); }
+      finally { if (!cancelled) setChecking(false); }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const ProtectedRoute = ({ children }) => {
-    return isAdminAuthenticated()
+    if (checking) return <div className='p-10 text-center'>Vérification...</div>;
+    return isAdmin
       ? <AdminLayout>{children}</AdminLayout>
       : <Navigate to="/admin/login" replace />;
   };

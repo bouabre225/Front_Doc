@@ -119,24 +119,29 @@ const DecisionModal = ({ kyc, onConfirm, onClose, loading }) => {
 
 const DocumentModal = ({ kyc, onClose }) => {
   const [src, setSrc] = useState(null);
+  const [mime, setMime] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/admin/kyc/document/${kyc.id}`, {
+    let url = null;
+    let cancelled = false;
+    fetch(`${import.meta.env.VITE_API_URL || 'https://docspace.bj/api'}/admin/kyc/document/${kyc.id}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem('auth_token')}` }
     })
       .then(res => res.blob())
       .then(blob => {
-        setSrc(URL.createObjectURL(blob));
+        if (cancelled) return;
+        setMime(blob.type || '');
+        url = URL.createObjectURL(blob);
+        setSrc(url);
         setLoading(false);
       })
       .catch(() => {
-        setError(true);
-        setLoading(false);
+        if (!cancelled) { setError(true); setLoading(false); }
       });
 
-    return () => { if (src) URL.revokeObjectURL(src); };
+    return () => { cancelled = true; if (url) URL.revokeObjectURL(url); };
   }, [kyc.id]);
 
   return (
@@ -188,11 +193,17 @@ const DocumentModal = ({ kyc, onClose }) => {
             </div>
           )}
           {src && !loading && (
-            <img
-              src={src}
-              alt='Document KYC'
-              className='max-w-full max-h-[60vh] rounded-xl object-contain shadow-sm'
-            />
+            mime.includes('pdf') ? (
+              <iframe src={src} title='Document KYC' className='w-full h-[60vh] rounded-xl bg-white' />
+            ) : mime.startsWith('image/') ? (
+              <img
+                src={src}
+                alt='Document KYC'
+                className='max-w-full max-h-[60vh] rounded-xl object-contain shadow-sm'
+              />
+            ) : (
+              <a href={src} download={`kyc-${kyc.id}`} className='px-4 py-2 text-sm font-semibold text-white bg-[#1DBF73] rounded-xl'>Télécharger le document</a>
+            )
           )}
         </div>
 

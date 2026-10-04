@@ -6,7 +6,7 @@ import Button from '../common/Button';
 import { useLang } from '../../context/LangContext';
 import { useCart } from '../../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
-import { logoutUser, getNotificationsCount, getConversations } from '../../../services/api';
+import { logoutUser, getNotificationsCount, getConversations, parseList } from '../../../services/api';
 import echo from '../../../echo'; 
 
 const Header = () => {
@@ -61,7 +61,7 @@ const Header = () => {
   const fetchMessageCount = async () => {
     try {
       const data = await getConversations();
-      const convs = Array.isArray(data) ? data : [];
+      const convs = parseList(data, ['conversations']);
       const total = convs.reduce((sum, c) => sum + (c.non_lus || 0), 0);
       setMessageCount(total);
     } catch { /**/ }

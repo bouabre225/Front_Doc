@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Trash2, CheckCircle, XCircle, Filter, RefreshCw, MapPin, Package } from 'lucide-react';
+import { getImageUrl, deleteAdminAnnonce } from '../../services/api';
 
-const API_URL = 'https://docspace.bj/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://docspace.bj/api';
 const getToken = () => localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
 
 export default function ManageEquipments() {
@@ -42,11 +43,10 @@ export default function ManageEquipments() {
     if (!window.confirm('Supprimer cette annonce ?')) return;
     setActionLoading(id);
     try {
-      const res = await fetch(`${API_URL}/annonces/${id}`, {
-        method: 'DELETE',
-        headers: { 'Accept': 'application/json', 'Authorization': `Bearer ${getToken()}` }
-      });
-      if (res.ok) setAnnonces(prev => prev.filter(a => a.id !== id));
+      await deleteAdminAnnonce(id);
+      setAnnonces(prev => prev.filter(a => a.id !== id));
+    } catch (e) {
+      alert(e.message || 'Suppression impossible');
     } finally {
       setActionLoading(null);
     }
@@ -134,7 +134,7 @@ export default function ManageEquipments() {
                           <div className='flex items-center gap-3'>
                             <div className='flex-shrink-0 w-10 h-10 overflow-hidden bg-gray-100 rounded-xl'>
                               {a.images?.[0] ? (
-                                <img src={`http://localhost:8000/storage/${a.images[0].image_url}`}
+                                <img src={getImageUrl(a.images[0]?.image_url ?? a.images[0])}
                                   alt='' className='object-cover w-full h-full' />
                               ) : (
                                 <div className='flex items-center justify-center w-full h-full text-lg'>🏥</div>
@@ -190,7 +190,7 @@ export default function ManageEquipments() {
                     <div className='flex items-start gap-3'>
                       <div className='flex-shrink-0 w-12 h-12 overflow-hidden bg-gray-100 rounded-xl'>
                         {a.images?.[0] ? (
-                          <img src={`http://localhost:8000/storage/${a.images[0].image_url}`}
+                          <img src={getImageUrl(a.images[0]?.image_url ?? a.images[0])}
                             alt='' className='object-cover w-full h-full' />
                         ) : (
                           <div className='flex items-center justify-center w-full h-full text-xl'>🏥</div>

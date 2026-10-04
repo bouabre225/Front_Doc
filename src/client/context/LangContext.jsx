@@ -5,7 +5,7 @@ const LangContext = createContext();
 
 export const LangProvider = ({ children }) => {
   const [currentLang, setCurrentLang] = useState('fr');
-  const t = translations[currentLang];
+  const t = translations[currentLang] ?? translations.fr;
   const langList = Object.values(translations);
 
   return (

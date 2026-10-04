@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { getCommandeById, cancelCommande, payCommande, createLitige } from '../../../services/api';
+import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande } from '../../../services/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -133,6 +133,7 @@ const CommandeDetail = () => {
   const [showPay,     setShowPay]     = useState(false);
   const [showLitige,  setShowLitige]  = useState(false);
   const [litigeMotif, setLitigeMotif] = useState('');
+  const [litigeDetails, setLitigeDetails] = useState('');
 
   useEffect(() => {
     if (!localStorage.getItem('auth_token')) { navigate('/login'); return; }
@@ -157,17 +158,14 @@ const CommandeDetail = () => {
     const fedaStatus = searchParams.get('status');
     if (!fedaStatus || !commande || commande.statut !== 'en_attente') return;
 
+    const controller = new AbortController();
+    let cancelled = false;
     // Vérifier directement côté serveur
     const verify = async () => {
+      if (cancelled) return;
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/commandes/${id}/verify`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-            'Content-Type': 'application/json',
-          }
-        });
-        const data = await res.json();
+        const data = await verifyCommande(id);
+        if (cancelled) return;
         if (data.statut === 'payee') {
           fetchCommande();
           setSuccess('✅ Paiement confirmé ! Votre facture a été envoyée par email.');
@@ -180,8 +178,8 @@ const CommandeDetail = () => {
     const interval = setInterval(verify, 3000);
     const timeout  = setTimeout(() => clearInterval(interval), 60000);
 
-    return () => { clearInterval(interval); clearTimeout(timeout); };
-  }, [commande?.statut, id, searchParams]);
+    return () => { cancelled = true; controller.abort(); clearInterval(interval); clearTimeout(timeout); };
+  }, [commande?.statut, id]);
 
 
   const handleCancel = async () => {
@@ -209,8 +207,9 @@ const handlePay = async () => {
 
     setShowPay(false);
 
-    // Ouvre FedaPay dans un nouvel onglet
-    window.open(data.payment_url ?? `https://process.fedapay.com/${data.token}`, '_blank');
+    const payUrl = data.payment_url ?? `https://process.fedapay.com/${data.token}`;
+    // Redirection same-tab : évite le blocage popup
+    window.location.href = payUrl;
 
   } catch (err) {
     setError(err.message || 'Erreur lors du paiement.');
@@ -227,10 +226,11 @@ const handlePay = async () => {
     }
     setActionLoading(true);
     try {
-      await createLitige({ commande_id: id, motif: litigeMotif });
+      await createLitige({ commande_id: id, motif: litigeMotif, preuves: litigeDetails.trim() || undefined });
       setSuccess('Litige ouvert avec succès. Notre équipe vous contactera.');
       setShowLitige(false);
       setLitigeMotif('');
+      setLitigeDetails('');
       fetchCommande();
     } catch (err) {
       setError(err.message || 'Erreur lors de l\'ouverture du litige.');
@@ -432,7 +432,7 @@ const handlePay = async () => {
                 </div>
                 <div>
                   <p className={`font-bold text-sm ${cfg.text}`}>{cfg.label}</p>
-                  <p className='text-xs text-gray-400'>Commande #{commande.id.slice(0, 8).toUpperCase()}</p>
+                  <p className='text-xs text-gray-400'>Commande #{String(commande.id ?? "").slice(0, 8).toUpperCase()}</p>
                 </div>
               </div>
             </div>
@@ -681,7 +681,7 @@ const handlePay = async () => {
           title='Ouvrir un litige'
           message='Sélectionnez le motif de votre litige. Notre équipe vous contactera sous 24h.'
           onConfirm={handleLitige}
-          onCancel={() => { setShowLitige(false); setLitigeMotif(''); }}
+          onCancel={() => { setShowLitige(false); setLitigeMotif(''); setLitigeDetails(''); }}
           loading={actionLoading}
           danger
         >
@@ -699,8 +699,8 @@ const handlePay = async () => {
 
           {/* Zone de détails optionnelle */}
           <textarea
-            value={litigeMotif === '' ? '' : undefined}
-            onChange={() => {}}
+            value={litigeDetails}
+            onChange={(e) => setLitigeDetails(e.target.value)}
             placeholder='Détails supplémentaires (optionnel)...'
             rows={3}
             className='w-full mt-3 px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-400 transition-all resize-none'

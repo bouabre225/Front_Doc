@@ -42,12 +42,12 @@ function Equipment() {
   const [addedToCart,   setAddedToCart]   = useState(false);
   const [isFavorite,    setIsFavorite]    = useState(() => {
     try {
-      const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-      return favs.includes(id);
+      const favs = JSON.parse(localStorage.getItem('favorites') || '[]').map(String);
+      return favs.includes(String(id));
     } catch { return false; }
   });
 
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const currentUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
   const isOwnAnnonce = currentUser.id === annonce?.vendeur_id;    
 
   useEffect(() => {
@@ -69,8 +69,9 @@ function Equipment() {
 
   // ─── Favoris ────────────────────────────────────────────────────────────
   const handleFavorite = () => {
-    const favs = JSON.parse(localStorage.getItem('favorites') || '[]');
-    const updated = isFavorite ? favs.filter(f => f !== id) : [...favs, id];
+    let favs = [];
+    try { favs = JSON.parse(localStorage.getItem('favorites') || '[]').map(String); } catch { favs = []; }
+    const updated = isFavorite ? favs.filter(f => f !== String(id)) : [...favs, String(id)];
     localStorage.setItem('favorites', JSON.stringify(updated));
     setIsFavorite(!isFavorite);
   };

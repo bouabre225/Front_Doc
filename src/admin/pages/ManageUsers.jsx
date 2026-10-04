@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Shield, ShieldOff, RefreshCw, Users, UserCheck, UserX } from 'lucide-react';
 
-const API_URL = 'https://docspace.bj/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://docspace.bj/api';
 const getToken = () => localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
 
 export default function ManageUsers() {
@@ -10,6 +10,7 @@ export default function ManageUsers() {
   const [search, setSearch] = useState('');
   const [filterRole, setFilterRole] = useState('');
   const [total, setTotal] = useState(0);
+  const [error, setError] = useState('');
 
   useEffect(() => { fetchUsers(); }, []);
 
@@ -25,17 +26,10 @@ export default function ManageUsers() {
         setUsers(list);
         setTotal(data.total || list.length);
       }
-    } catch {
-      // Fallback mockdata si route admin pas encore prête
-      const mock = [
-        { id: 1, nom: 'Kofi Mensah', email: 'kofi@email.com', role: 'vendeur', telephone: '+229 97 00 00 01', pays: 'Bénin', statut: 'actif', badge_verifie: true, created_at: '2026-01-10' },
-        { id: 2, nom: 'Amina Diallo', email: 'amina@email.com', role: 'acheteur', telephone: '+229 97 00 00 02', pays: 'Bénin', statut: 'actif', badge_verifie: false, created_at: '2026-01-15' },
-        { id: 3, nom: 'Yao Kouassi', email: 'yao@email.com', role: 'vendeur', telephone: '+225 07 00 00 03', pays: "Côte d'Ivoire", statut: 'actif', badge_verifie: true, created_at: '2026-01-20' },
-        { id: 4, nom: 'Fatou Ndiaye', email: 'fatou@email.com', role: 'acheteur', telephone: '+221 77 00 00 04', pays: 'Sénégal', statut: 'suspendu', badge_verifie: false, created_at: '2026-02-01' },
-        { id: 5, nom: 'Ibrahim Sawadogo', email: 'ibrahim@email.com', role: 'vendeur', telephone: '+226 70 00 00 05', pays: 'Burkina Faso', statut: 'actif', badge_verifie: false, created_at: '2026-02-10' },
-      ];
-      setUsers(mock);
-      setTotal(mock.length);
+    } catch (e) {
+      setError(e.message || 'Chargement impossible');
+      setUsers([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }

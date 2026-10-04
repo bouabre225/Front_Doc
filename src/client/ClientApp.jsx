@@ -8,6 +8,7 @@ import Categories from './pages/headercontains/Categories';
 import Contact from './pages/headercontains/Contact';
 import Profile from './pages/auth/Profile';
 import Login from './pages/auth/Login';
+import Login2FA from './pages/auth/Login2FA';
 import Register from './pages/auth/Register';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
@@ -58,6 +59,7 @@ function ClientApp() {
           <Route path='/cart' element={<Cart />} />
           <Route path='/profile' element={<Profile />} />
           <Route path='/login' element={<Login />} />
+          <Route path='/login/2fa' element={<Login2FA />} />
           <Route path='/register' element={<Register />} />
           <Route path='/forgot-password' element={<ForgotPassword />} />
           <Route path='/reset-password' element={<ResetPassword />} />

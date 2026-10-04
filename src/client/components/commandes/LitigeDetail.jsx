@@ -126,7 +126,7 @@ const LitigeDetail = () => {
             </div>
             <div>
               <h1 className={`text-lg font-bold ${statusCfg.text}`}>{statusCfg.label}</h1>
-              <p className="text-xs text-gray-500">Référence Litige : #{litige.id.slice(0, 8).toUpperCase()}</p>
+              <p className="text-xs text-gray-500">Référence Litige : #{String(litige.id ?? "").slice(0, 8).toUpperCase()}</p>
             </div>
           </div>
           <p className="mt-4 text-sm text-gray-600 leading-relaxed italic">
@@ -162,7 +162,7 @@ const LitigeDetail = () => {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-gray-800 group-hover:text-[#1DBF73]">Voir la commande</p>
-                    <p className="text-xs text-gray-400">#{litige.commande_id.slice(0, 8).toUpperCase()}</p>
+                    <p className="text-xs text-gray-400">#{String(litige.commande_id ?? "").slice(0, 8).toUpperCase()}</p>
                   </div>
                </div>
                <ArrowLeft className="w-4 h-4 rotate-180 text-gray-300 group-hover:text-[#1DBF73]" />

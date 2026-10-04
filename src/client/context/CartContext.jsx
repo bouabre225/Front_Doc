@@ -14,12 +14,14 @@ export const CartProvider = ({ children }) => {
   }, [cart]);
 
   const addToCart = (annonce, quantite = 1) => {
+    const stock = Number(annonce.quantite) || 999;
+    const qty = Math.min(Math.max(1, Number(quantite) || 1), stock);
     setCart(prev => {
       const exists = prev.find(i => i.id === annonce.id);
       if (exists) {
         return prev.map(i =>
           i.id === annonce.id
-            ? { ...i, quantite: Math.min(i.quantite + quantite, annonce.quantite) }
+            ? { ...i, quantite: Math.min(i.quantite + qty, Number(i.stock) || stock) }
             : i
         );
       }
@@ -30,18 +32,18 @@ export const CartProvider = ({ children }) => {
         image_url:    annonce.images?.[0]?.image_url || null,
         vendeur:      annonce.vendeur?.nom || 'Vendeur',
         vendeur_id:   annonce.vendeur_id,
-        stock:        annonce.quantite,
-        quantite,
+        stock,
+        quantite: qty,
       }];
     });
   };
 
   const removeFromCart   = (id) => setCart(prev => prev.filter(i => i.id !== id));
-  const updateQuantite   = (id, q) => setCart(prev => prev.map(i => i.id === id ? { ...i, quantite: Math.max(1, Math.min(q, i.stock)) } : i));
+  const updateQuantite   = (id, q) => setCart(prev => prev.map(i => i.id === id ? { ...i, quantite: Math.max(1, Math.min(Number(q) || 1, Number(i.stock) || 999)) } : i));
   const clearCart        = () => setCart([]);
-  const isInCart         = (id) => cart.some(i => i.id === id);
-  const totalItems       = cart.reduce((s, i) => s + i.quantite, 0);
-  const totalPrice       = cart.reduce((s, i) => s + Number(i.prix_vendeur) * i.quantite, 0);
+  const isInCart         = (id) => cart.some(i => String(i.id) === String(id));
+  const totalItems       = cart.reduce((s, i) => s + (Number(i.quantite) || 0), 0);
+  const totalPrice       = cart.reduce((s, i) => s + (Number(i.prix_vendeur) || 0) * (Number(i.quantite) || 0), 0);
 
   return (
     <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantite, clearCart, isInCart, totalItems, totalPrice }}>

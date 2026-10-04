@@ -32,7 +32,7 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
   const cfg = STATUT_CONFIG[c.statut] || STATUT_CONFIG.en_attente;
 
   const handleLivree = async () => {
-    if (!window.confirm(`Confirmer la livraison de la commande #${c.id.slice(0, 8)} ?`)) return;
+    if (!window.confirm(`Confirmer la livraison de la commande #${String(c.id ?? "").slice(0, 8)} ?`)) return;
     setLoading(true);
     try {
       await marquerCommandeLivree(c.id);
@@ -61,7 +61,7 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
             </div>
             <div>
               <h3 className='font-bold text-gray-900 text-base'>Détail commande</h3>
-              <p className='text-xs text-gray-400 font-mono'>{c.id.slice(0, 8)}...</p>
+              <p className='text-xs text-gray-400 font-mono'>{String(c.id ?? "").slice(0, 8)}...</p>
             </div>
           </div>
           <button onClick={onClose} className='w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 transition-colors'>

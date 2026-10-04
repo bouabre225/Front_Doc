@@ -1,6 +1,29 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'https://docspace.bj/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://docspace.bj/api';
 
-const getToken = () => localStorage.getItem('auth_token');
+const getToken = () => {
+  try {
+    return localStorage.getItem('auth_token');
+  } catch { return null; }
+};
+
+export const safeParse = (key, fallback) => {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw == null) return fallback;
+    return JSON.parse(raw);
+  } catch { return fallback; }
+};
+
+// Normalise les réponses Laravel : paginator, {data:[]}, {conversations:[]}, tableau brut
+export const parseList = (res, keys = []) => {
+  if (Array.isArray(res)) return res;
+  if (Array.isArray(res?.data?.data)) return res.data.data;
+  if (Array.isArray(res?.data)) return res.data;
+  for (const k of keys) {
+    if (Array.isArray(res?.[k])) return res[k];
+  }
+  return [];
+};
 
 const authHeaders = (extra = {}) => ({
   'Accept': 'application/json',
@@ -10,12 +33,23 @@ const authHeaders = (extra = {}) => ({
 });
 
 const handleResponse = async (res) => {
-  const data = await res.json();
+  const text = await res.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    const e = new Error(res.ok ? 'Réponse serveur invalide' : `Erreur serveur (${res.status})`);
+    e.status = res.status;
+    throw e;
+  }
   if (!res.ok) {
     const message =
       data?.message ||
       (data?.errors ? Object.values(data.errors).flat().join(' ') : 'Erreur serveur');
-    throw new Error(message);
+    const err = new Error(message);
+    err.status = res.status;
+    err.errors = data?.errors;
+    throw err;
   }
   return data;
 };
@@ -152,12 +186,14 @@ export const disable2fa = async (code) => {
 // ─── Annonces ────────────────────────────────────────────────────────────────
 
 export const getAnnonces = async (page = 1, params = {}) => {
-  const queryParams = { page, per_page: 12 };
+  const queryParams = { page, per_page: Math.min(Number(params.per_page) || 12, 100) };
 
   // N'ajoute les params que s'ils ont une valeur
   if (params.categorie) queryParams.categorie = params.categorie;
   if (params.etat)      queryParams.etat      = params.etat;
   if (params.sort)      queryParams.sort      = params.sort;
+  if (params.search)    queryParams.search    = params.search;
+  if (params.statut)    queryParams.statut    = params.statut;
 
   const query = new URLSearchParams(queryParams).toString();
 
@@ -181,9 +217,13 @@ export const getMyAnnonces = async () => {
   return handleResponse(res);
 };
 
-export const searchAnnonces = async (q, page = 1) => {
+export const searchAnnonces = async (q, page = 1, params = {}) => {
+  const sp = new URLSearchParams({ q, page });
+  if (params.categorie) sp.set('categorie', params.categorie);
+  if (params.etat) sp.set('etat', params.etat);
+  if (params.sort) sp.set('sort', params.sort);
   const res = await fetch(
-    `${API_URL}/annonces/search?q=${encodeURIComponent(q)}&page=${page}`,
+    `${API_URL}/annonces/search?${sp.toString()}`,
     { headers: { 'Accept': 'application/json' } }
   );
   return handleResponse(res);
@@ -284,6 +324,14 @@ export const cancelCommande = async (id) => {
 
 export const payCommande = async (id) => {
   const res = await fetch(`${API_URL}/commandes/${id}/pay`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const verifyCommande = async (id) => {
+  const res = await fetch(`${API_URL}/commandes/${id}/verify`, {
     method: 'POST',
     headers: authHeaders(),
   });
@@ -544,8 +592,10 @@ export const marquerCommandeLivree = async (commandeId) => {
 
 export const getImageUrl = (imagePath) => {
   if (!imagePath) return null;
-  if (imagePath.startsWith('http')) return imagePath;
-  return `https://docspace.bj/storage/${imagePath}`;
+  const p = String(imagePath);
+  if (p.startsWith('http') || p.startsWith('blob:') || p.startsWith('data:')) return p;
+  const base = (import.meta.env.VITE_API_URL || 'https://docspace.bj/api').replace(/\/api\/?$/, '');
+  return `${base}/storage/${p.replace(/^\/+|^(storage\/)+/, '')}`;
 };
 
 export default {
@@ -556,7 +606,7 @@ export default {
   getAnnonces, searchAnnonces, getAnnonceById, getMyAnnonces,
   createAnnonce, updateAnnonce, deleteAnnonce,
   uploadAnnonceImages, sendContact,
-  getCommandes, getCommandeById, createCommande, cancelCommande, payCommande, getCommandesRecues,
+  getCommandes, getCommandeById, createCommande, cancelCommande, payCommande, verifyCommande, getCommandesRecues,
   getConversations, getConversation, sendMessage,
   getNotifications, getNotificationsCount,
   markNotificationRead, markAllNotificationsRead, deleteNotification,

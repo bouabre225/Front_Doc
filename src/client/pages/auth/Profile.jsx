@@ -71,9 +71,9 @@ function Profile() {
       setUser(u);
       setActiveTab(u.role === 'vendeur' ? 'annonces' : 'achats');
 
-      // Commandes (filtrées par user côté back)
+      // Commandes : achats pour acheteur, reçues pour vendeur
       try {
-        const commandesData = await getCommandes();
+        const commandesData = u.role === 'vendeur' ? await getCommandesRecues() : await getCommandes();
         const raw  = commandesData?.data?.data ?? commandesData?.data ?? commandesData;
         setMyCommandes(Array.isArray(raw) ? raw : []);
       } catch (_) {
@@ -100,10 +100,15 @@ function Profile() {
       }
 
     } catch (err) {
-      setError('Session expirée. Veuillez vous reconnecter.');
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('user');
-      setTimeout(() => navigate('/login'), 2000);
+      const status = err?.status ?? err?.response?.status;
+      if (status === 401 || status === 403) {
+        setError('Session expirée. Veuillez vous reconnecter.');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+        setTimeout(() => navigate('/login'), 2000);
+      } else {
+        setError('Erreur réseau. Réessaie plus tard.');
+      }
     } finally {
       setLoading(false);
     }

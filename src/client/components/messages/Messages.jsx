@@ -5,7 +5,7 @@ import {
   Send, Search, ArrowLeft, Circle,
   MessageCircle, Package, CheckCheck, Check, X
 } from 'lucide-react';
-import { getConversations, getConversation, sendMessage, getImageUrl } from '../../../services/api';
+import { getConversations, getConversation, sendMessage, getImageUrl, parseList, safeParse } from '../../../services/api';
 import echo from '../../../echo';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -64,7 +64,7 @@ const Messages = () => {
   const initAnnonceId  = searchParams.get('annonceId') || null;
   const initVendeurNom = searchParams.get('vendeurNom') || 'Vendeur';
 
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const currentUser = safeParse('user', {});
 
   const [conversations,  setConversations]  = useState([]);
   const [selectedConv,   setSelectedConv]   = useState(null);
@@ -86,7 +86,7 @@ const Messages = () => {
   const fetchConversations = useCallback(async () => {
     try {
       const data = await getConversations();
-      setConversations(Array.isArray(data) ? data : []);
+      setConversations(parseList(data, ['conversations']));
     } catch { /**/ }
     finally { setLoadingConvs(false); }
   }, []);
@@ -159,7 +159,7 @@ const Messages = () => {
     setLoadingMsgs(true);
     try {
       const data = await getConversation(userId);
-      setMessages(Array.isArray(data) ? data : []);
+      setMessages(parseList(data, ['messages']));
     } catch { setMessages([]); }
     finally { setLoadingMsgs(false); }
   }, []);

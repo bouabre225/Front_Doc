@@ -91,8 +91,10 @@ const PublishEquipment = () => {
   const compressImage = (file) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
+      reader.onerror = () => resolve(file);
       reader.onload = (e) => {
         const img = new Image();
+        img.onerror = () => resolve(file);
         img.onload = () => {
           const canvas = document.createElement('canvas');
 
@@ -113,6 +115,7 @@ const PublishEquipment = () => {
           // ✅ Convertit en JPEG (résout HEIC + rotation EXIF)
           canvas.toBlob(
             (blob) => {
+              if (!blob) { resolve(file); return; }
               const compressed = new File(
                 [blob],
                 file.name.replace(/\.[^.]+$/, '.jpg'), // ← extension .jpg
@@ -127,6 +130,16 @@ const PublishEquipment = () => {
         img.src = e.target.result;
       };
       reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (idx) => {
+    setImages(prev => {
+      const target = prev[idx];
+      if (target?.preview?.startsWith('blob:')) {
+        try { URL.revokeObjectURL(target.preview); } catch { /* ignore */ }
+      }
+      return prev.filter((_, i) => i !== idx);
     });
   };
 
@@ -190,8 +203,10 @@ const PublishEquipment = () => {
 
     if (!formData.titre.trim())       { setError('Le titre est requis'); return; }
     if (!formData.description.trim()) { setError('La description est requise'); return; }
-    if (!formData.prix_vendeur || Number(formData.prix_vendeur) < 0) {
-      setError('Le prix est requis'); return;
+    if (formData.titre.trim().length > 200) { setError('Titre trop long (200 max)'); return; }
+    if (formData.description.trim().length > 5000) { setError('Description trop longue (5000 max)'); return; }
+    if (!formData.prix_vendeur || Number(formData.prix_vendeur) <= 0) {
+      setError('Le prix doit être supérieur à 0'); return;
     }
 
     setLoading(true);
@@ -203,7 +218,7 @@ const PublishEquipment = () => {
         prix_vendeur:    Number(formData.prix_vendeur),
         categorie:       formData.categorie,
         etat:            formData.etat,
-        quantite:        Number(formData.quantite),
+        quantite:        Math.max(1, parseInt(formData.quantite, 10) || 1),
         pays_expedition: formData.pays_expedition?.trim() || null,
       });
 
