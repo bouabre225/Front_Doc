@@ -11,6 +11,7 @@ import {
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { getMe, getCommandes, getMyAnnonces, deleteAnnonce, logoutUser, getImageUrl, getKycStatus, updateProfile, getCommandesRecues, marquerCommandeLivree } from '../../../services/api';
+import { COUNTRIES } from '../../constants/countries';
 
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -709,13 +710,16 @@ function Profile() {
                 </label>
                 <div className='relative'>
                   <MapPin className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1DBF73]' />
-                  <input
-                    type='text'
-                    value={editForm.pays}
+                  <select
+                    value={COUNTRIES.includes(editForm.pays) ? editForm.pays : ''}
                     onChange={(e) => setEditForm(prev => ({ ...prev, pays: e.target.value }))}
-                    className='w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
-                    placeholder='Bénin, France...'
-                  />
+                    className='w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all bg-white'
+                  >
+                    <option value='' disabled>Choisir un pays</option>
+                    {COUNTRIES.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 

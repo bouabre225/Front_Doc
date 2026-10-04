@@ -4,6 +4,7 @@ import { Eye, EyeOff, Mail, Lock, User, Briefcase, Phone, ArrowLeft, AlertCircle
 import { motion } from 'framer-motion';
 import { useLang } from '../../context/LangContext';
 import { registerBuyer, registerSeller } from '../../../services/api';
+import { COUNTRIES, DEFAULT_COUNTRY } from '../../constants/countries';
 
 const Register = () => {
   const { t } = useLang();
@@ -22,7 +23,7 @@ const Register = () => {
     email: '',
     mot_de_passe: '',
     telephone: '',
-    pays: '',
+    pays: DEFAULT_COUNTRY,
     type_compte: 'particulier',
     acceptTerms: false,
   });
@@ -49,8 +50,9 @@ const Register = () => {
         nom: formData.nom,
         email: formData.email,
         mot_de_passe: formData.mot_de_passe,
+        mot_de_passe_confirmation: formData.mot_de_passe,
         telephone: formData.telephone,
-        pays: formData.pays || undefined,
+        pays: formData.pays,
         ...(userType === 'seller' ? { type_compte: formData.type_compte } : {}),
       };
 
@@ -199,6 +201,24 @@ const Register = () => {
               </div>
             </div>
 
+            {/* Pays */}
+            <div className='mb-4'>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>Pays</label>
+              <div className='relative'>
+                <select
+                  name='pays'
+                  value={formData.pays}
+                  onChange={handleChange}
+                  className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all bg-white'
+                  required
+                >
+                  {COUNTRIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             {/* Type de compte (vendeur seulement) */}
             {userType === 'seller' && (
               <div className='mb-4'>
@@ -231,7 +251,7 @@ const Register = () => {
                   placeholder='••••••••'
                   className='w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   required
-                  minLength={6}
+                  minLength={10}
                 />
                 <button
                   type='button'

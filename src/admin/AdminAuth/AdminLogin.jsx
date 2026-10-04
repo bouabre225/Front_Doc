@@ -116,6 +116,7 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
   const navigate   = useNavigate();
   const [codes, setCodes] = useState(['', '', '', '', '', '']);
   const inputsRef  = useRef([]);
+  const verifyingRef = useRef(false);
 
   const handleChange = (idx, val) => {
     const v = val.replace(/\D/, '').slice(0, 1);
@@ -148,6 +149,8 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
   const handleVerify = async (code) => {
     //console.log('challenge_id:', challengeId, typeof challengeId);
     //console.log('code:', code, typeof code);
+    if (verifyingRef.current) return; // évite double submit (auto + bouton)
+    verifyingRef.current = true;
     setError('');
     setLoading(true);
     try {
@@ -163,16 +166,18 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
         //console.log('Redirect vers /admin/dashboard'); // ← et ça
         // ← attendre que le storage soit propagé
         setTimeout(() => {
-          navigate('/admin/dashboard');
+          navigate('/admin/dashboard', { replace: true });
         }, 100);
       } else {
         //console.log('Condition non remplie:', res); // ← et ça
-        setError('Code invalide. Vérifiez votre application 2FA.');
+        verifyingRef.current = false;
+        setError('Code invalide. Vérifiez votre email et réessayez.');
         setCodes(['', '', '', '', '', '']);
         inputsRef.current[0]?.focus();
       }
     } catch (err) {
       //console.log('ERREUR 2fa:', err); // ← et ça
+      verifyingRef.current = false;
       setError(err.message || 'Code incorrect ou expiré.');
       setCodes(['', '', '', '', '', '']);
       inputsRef.current[0]?.focus();
@@ -199,7 +204,7 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
           <KeyRound className='w-7 h-7 text-[#1DBF73]' />
         </div>
         <p className='text-sm text-gray-600'>
-          Entrez le code à 6 chiffres de votre application d'authentification.
+          Entrez le code à 6 chiffres envoyé par email.
         </p>
       </div>
 

@@ -1,5 +1,5 @@
 ﻿import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import AdminLogin    from './AdminAuth/AdminLogin';
 import AdminLayout   from './components/AdminLayout';
 import AdminDashboard from './components/Dashboard';
@@ -11,23 +11,36 @@ import AdminCommandes from './components/AdminCommandes';
 import { getMe } from '../services/api';
 
 function AdminApp() {
+  const location = useLocation();
   const [checking, setChecking] = React.useState(true);
   const [isAdmin, setIsAdmin] = React.useState(false);
 
-  React.useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const token = localStorage.getItem('auth_token');
-        if (!token) { if (!cancelled) { setIsAdmin(false); setChecking(false); } return; }
-        const me = await getMe();
-        const user = me?.user ?? me?.data ?? me;
-        if (!cancelled) setIsAdmin(user?.role === 'admin');
-      } catch { if (!cancelled) setIsAdmin(false); }
-      finally { if (!cancelled) setChecking(false); }
-    })();
-    return () => { cancelled = true; };
+  const checkAdmin = React.useCallback(async (signal) => {
+    try {
+      const token = localStorage.getItem('auth_token');
+      const cached = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+      if (!token) { if (!signal?.aborted) { setIsAdmin(false); setChecking(false); } return; }
+      // Réponse rapide via cache, puis validation serveur
+      if (cached?.role === 'admin' && !signal?.aborted) setIsAdmin(true);
+      const me = await getMe();
+      const user = me?.user ?? me?.data ?? me;
+      if (!signal?.aborted) setIsAdmin(user?.role === 'admin');
+    } catch { if (!signal?.aborted) {
+      const cached = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
+      setIsAdmin(cached?.role === 'admin');
+    } }
+    finally { if (!signal?.aborted) setChecking(false); }
   }, []);
+
+  // Re-vérifie à chaque navigation (login → dashboard) + changement de token
+  React.useEffect(() => {
+    const controller = new AbortController();
+    setChecking(true);
+    checkAdmin(controller.signal);
+    const onStorage = () => checkAdmin(controller.signal);
+    window.addEventListener('storage', onStorage);
+    return () => { controller.abort(); window.removeEventListener('storage', onStorage); };
+  }, [location.pathname, checkAdmin]);
 
   const ProtectedRoute = ({ children }) => {
     if (checking) return <div className='p-10 text-center'>Vérification...</div>;
