@@ -324,38 +324,6 @@ function Profile() {
                 Se déconnecter
               </button>
             </div>
-
-            {/* Stats rapides */}
-            <div className='p-4 bg-white border border-gray-100 shadow-sm rounded-2xl'>
-              <p className='text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3'>Statistiques</p>
-              <div className='grid grid-cols-2 gap-3'>
-                {isSeller ? (
-                  <>
-                    <div className='text-center p-3 bg-[#1DBF73]/5 rounded-xl'>
-                      <p className='text-2xl font-bold text-[#1DBF73]'>{myAnnonces.length}</p>
-                      <p className='text-xs text-gray-500 mt-0.5'>Annonces</p>
-                    </div>
-                    <div className='text-center p-3 bg-[#09B1BA]/5 rounded-xl'>
-                      <p className='text-2xl font-bold text-[#09B1BA]'>{myCommandes.length}</p>
-                      <p className='text-xs text-gray-500 mt-0.5'>Commandes</p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className='text-center p-3 bg-[#1DBF73]/5 rounded-xl'>
-                      <p className='text-2xl font-bold text-[#1DBF73]'>{myCommandes.length}</p>
-                      <p className='text-xs text-gray-500 mt-0.5'>Achats</p>
-                    </div>
-                    <div className='text-center p-3 bg-[#09B1BA]/5 rounded-xl'>
-                      <p className='text-2xl font-bold text-[#09B1BA]'>
-                        {myCommandes.filter(c => c.statut === 'livree').length}
-                      </p>
-                      <p className='text-xs text-gray-500 mt-0.5'>Livrés</p>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
           </div>
 
           {/* ── Contenu principal ─────────────────────────────────────────── */}
