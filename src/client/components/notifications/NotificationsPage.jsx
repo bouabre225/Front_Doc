@@ -135,7 +135,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
         )}
         {notif.reference_id && notif.type === 'message' && (
           <Link
-            to={`/messages`}
+            to={`/messages${notif.metadata?.expediteur_id ? `?userId=${notif.metadata.expediteur_id}` : ''}`}
             onClick={(e) => {
               e.stopPropagation();
               if (!notif.lu) onRead(notif.id);
