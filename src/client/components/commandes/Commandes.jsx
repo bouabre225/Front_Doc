@@ -235,6 +235,11 @@ const Commandes = () => {
                               <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
                               {cfg.label}
                             </span>
+                            {!isVendeur && ['livree', 'cloturee'].includes(commande.statut) && (
+                              <span className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-yellow-100 text-yellow-700'>
+                                ★ À noter
+                              </span>
+                            )}
                             <ChevronRight className='w-4 h-4 text-gray-300 group-hover:text-[#1DBF73] transition-colors' />
                           </div>
 

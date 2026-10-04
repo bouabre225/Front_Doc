@@ -497,6 +497,33 @@ export const createLitige = async (payload) => {
   return handleResponse(res);
 };
 
+// ─── Avis ──────────────────────────────────────────────────────────────────
+
+export const getAnnonceAvis = async (annonceId, page = 1) => {
+  const res = await fetch(`${API_URL}/annonces/${annonceId}/avis?page=${page}`, {
+    headers: { 'Accept': 'application/json' },
+  });
+  return handleResponse(res);
+};
+
+export const createAvis = async (commandeId, payload) => {
+  // payload: { note_vendeur 1-5, note_conformite 1-5, commentaire? }
+  const res = await fetch(`${API_URL}/commandes/${commandeId}/avis`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(payload),
+  });
+  return handleResponse(res);
+};
+
+export const deleteAvis = async (id) => {
+  const res = await fetch(`${API_URL}/avis/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
 // ─── Admin ───────────────────────────────────────────────────────────────────
 
 export const getKycPending = async () => {
@@ -636,6 +663,7 @@ export default {
   markNotificationRead, markAllNotificationsRead, deleteNotification,
   submitKyc, getKycStatus, getKycDocuments, deleteKycDocument,
   getLitiges, getLitigeById, createLitige,
+  getAnnonceAvis, createAvis, deleteAvis,
   getKycPending, decideKyc,
   getAdminLitiges, prendreEnChargeLitige, resoldreLitige,
   getAdminCommandes, getAdminUsers, getAdminStats,

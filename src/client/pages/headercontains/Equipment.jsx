@@ -142,9 +142,11 @@ function Equipment() {
 
   const images      = annonce.images || [];
   const avis        = annonce.avis || [];
-  const noteMoyenne = avis.length > 0
-    ? (avis.reduce((sum, a) => sum + (a.note || 0), 0) / avis.length).toFixed(1)
-    : null;
+  const noteMoyenne = annonce.note_moyenne != null && Number(annonce.note_moyenne) > 0
+    ? Number(annonce.note_moyenne).toFixed(1)
+    : (avis.length > 0
+      ? (avis.reduce((sum, a) => sum + (Number(a.note_vendeur || 0) + Number(a.note_conformite || 0)) / 2, 0) / avis.length).toFixed(1)
+      : null);
   const stockDispo  = Number(annonce.quantite) || 0;
   const alreadyInCart = isInCart(annonce.id);
 
@@ -473,23 +475,26 @@ function Equipment() {
               )}
             </div>
             <div className='grid gap-4 md:grid-cols-2'>
-              {avis.map(a => (
+              {avis.map(a => {
+                const note = Math.round((Number(a.note_vendeur || 0) + Number(a.note_conformite || 0)) / 2);
+                return (
                 <div key={a.id} className='p-5 bg-white border border-gray-100 rounded-2xl shadow-sm'>
                   <div className='flex items-center justify-between mb-3'>
                     <div className='flex items-center gap-2'>
                       <div className='w-8 h-8 rounded-full bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] flex items-center justify-center text-white text-xs font-bold'>
-                        {(a.acheteur?.nom || a.vendeur?.nom || 'U')[0].toUpperCase()}
+                        {(a.commande?.acheteur?.nom || a.acheteur?.nom || 'U')[0].toUpperCase()}
                       </div>
                       <span className='font-semibold text-gray-800 text-sm'>
-                        {a.acheteur?.nom || a.vendeur?.nom || 'Utilisateur'}
+                        {a.commande?.acheteur?.nom || a.acheteur?.nom || 'Utilisateur'}
                       </span>
                     </div>
                     <div className='flex gap-0.5'>
                       {[1,2,3,4,5].map(s => (
-                        <Star key={s} className={`w-4 h-4 ${s <= a.note ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
+                        <Star key={s} className={`w-4 h-4 ${s <= note ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
                       ))}
                     </div>
                   </div>
+                  <p className='text-xs text-gray-400 mb-1'>Vendeur {a.note_vendeur}/5 • Conformité {a.note_conformite}/5</p>
                   {a.commentaire && <p className='text-sm text-gray-600 leading-relaxed'>{a.commentaire}</p>}
                   {a.created_at && (
                     <p className='text-xs text-gray-400 mt-2'>
@@ -497,7 +502,8 @@ function Equipment() {
                     </p>
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

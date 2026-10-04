@@ -4,11 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
   AlertCircle, User, Store, CreditCard, MessageCircle,
-  ShoppingBag, Ban, AlertTriangle, Mail
+  ShoppingBag, Ban, AlertTriangle, Mail, Star
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande, renvoyerFacture } from '../../../services/api';
+import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande, renvoyerFacture, createAvis } from '../../../services/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -134,6 +134,10 @@ const CommandeDetail = () => {
   const [showLitige,  setShowLitige]  = useState(false);
   const [litigeMotif, setLitigeMotif] = useState('');
   const [litigeDetails, setLitigeDetails] = useState('');
+  const [noteVendeur, setNoteVendeur] = useState(5);
+  const [noteConformite, setNoteConformite] = useState(5);
+  const [avisCommentaire, setAvisCommentaire] = useState('');
+  const [avisDepose, setAvisDepose] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem('auth_token')) { navigate('/login'); return; }
@@ -219,8 +223,23 @@ const handlePay = async () => {
   }
 };
 
-  const handleResendFacture = async () => {
+  const handleAvis = async () => {
     setActionLoading(true);
+    setError('');
+    try {
+      await createAvis(id, { note_vendeur: noteVendeur, note_conformite: noteConformite, commentaire: avisCommentaire.trim() || undefined });
+      setSuccess('Merci pour votre avis !');
+      setAvisDepose(true);
+      fetchCommande();
+    } catch (err) {
+      if ((err.message || '').toLowerCase().includes('déjà')) setAvisDepose(true);
+      else setError(err.message || "Erreur lors de l'envoi de l'avis.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleResendFacture = async () => {    setActionLoading(true);
     setError('');
     try {
       const res = await renvoyerFacture(id);
@@ -413,6 +432,44 @@ const handlePay = async () => {
                     <AlertCircle className='w-4 h-4' />
                     Signaler un problème / Ouvrir un litige
                   </button>
+                )}
+                {/* ⭐ Noter cet achat (commande livrée/clôturée) */}
+                {isAcheteur && ['livree', 'cloturee'].includes(commande.statut) && !avisDepose && (
+                  <div className='w-full p-4 mb-3 border-2 border-yellow-100 bg-yellow-50/50 rounded-xl'>
+                    <p className='text-sm font-bold text-gray-800 mb-3 flex items-center gap-2'>
+                      <Star className='w-4 h-4 fill-yellow-400 text-yellow-400' /> Noter cet achat
+                    </p>
+                    {[['Vendeur', noteVendeur, setNoteVendeur], ['Conformité produit', noteConformite, setNoteConformite]].map(([label, val, setVal]) => (
+                      <div key={label} className='flex items-center justify-between mb-2'>
+                        <span className='text-xs text-gray-600'>{label}</span>
+                        <div className='flex gap-1'>
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <button key={s} type='button' onClick={() => setVal(s)}>
+                              <Star className={`w-5 h-5 ${s <= val ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                    <textarea
+                      value={avisCommentaire}
+                      onChange={(e) => setAvisCommentaire(e.target.value)}
+                      placeholder='Votre avis (optionnel)...'
+                      rows={2}
+                      maxLength={1000}
+                      className='w-full mt-2 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400 resize-none bg-white'
+                    />
+                    <button
+                      onClick={handleAvis}
+                      disabled={actionLoading}
+                      className='w-full mt-2 py-2.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl text-sm disabled:opacity-50'
+                    >
+                      {actionLoading ? 'Envoi...' : 'Publier mon avis'}
+                    </button>
+                  </div>
+                )}
+                {isAcheteur && avisDepose && (
+                  <p className='w-full py-2 mb-3 text-center text-xs font-semibold text-green-600'>Merci, tu as déjà noté cette commande.</p>
                 )}
                 {isAcheteur && (
                   <Link
