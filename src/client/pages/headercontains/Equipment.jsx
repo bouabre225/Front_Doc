@@ -13,6 +13,7 @@ import { getAnnonceById, getImageUrl } from '../../../services/api';
 import { useCart } from '../../context/CartContext';
 import ImageViewer from '../../components/common/ImageViewer';
 import { useImageViewer } from '../../../hooks/useImageViewer';
+import { useFavoris } from '../../hooks/useFavoris';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -40,12 +41,8 @@ function Equipment() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantite,      setQuantite]      = useState(1);
   const [addedToCart,   setAddedToCart]   = useState(false);
-  const [isFavorite,    setIsFavorite]    = useState(() => {
-    try {
-      const favs = JSON.parse(localStorage.getItem('favorites') || '[]').map(String);
-      return favs.includes(String(id));
-    } catch { return false; }
-  });
+  const { isFavorite: isFav, toggle: toggleFav } = useFavoris();
+  const isFavorite = isFav(id);
 
   const currentUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
   const isOwnAnnonce = currentUser.id === annonce?.vendeur_id;    
@@ -67,14 +64,8 @@ function Equipment() {
     fetch();
   }, [id]);
 
-  // ─── Favoris ────────────────────────────────────────────────────────────
-  const handleFavorite = () => {
-    let favs = [];
-    try { favs = JSON.parse(localStorage.getItem('favorites') || '[]').map(String); } catch { favs = []; }
-    const updated = isFavorite ? favs.filter(f => f !== String(id)) : [...favs, String(id)];
-    localStorage.setItem('favorites', JSON.stringify(updated));
-    setIsFavorite(!isFavorite);
-  };
+  // ─── Favoris (serveur si connecté, local sinon) ─────────────────────────
+  const handleFavorite = () => toggleFav(id);
 
   // ─── Panier ─────────────────────────────────────────────────────────────
   const handleAddToCart = () => {

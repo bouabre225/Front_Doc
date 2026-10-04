@@ -17,6 +17,7 @@ import Footer from '../../components/layout/Footer';
 import { getAnnonces, searchAnnonces, getImageUrl } from '../../../services/api';
 import ImageViewer from '../../components/common/ImageViewer';
 import { useImageViewer } from '../../../hooks/useImageViewer';
+import { useFavoris } from '../../hooks/useFavoris';
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -167,13 +168,8 @@ const Explore = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
     const [total, setTotal] = useState(0);
-    const [favorites, setFavorites] = useState(() => {
-        try {
-            return JSON.parse(localStorage.getItem('favorites') || '[]');
-        } catch {
-            return [];
-        }
-    });
+    // ─── Favoris (serveur si connecté, local sinon) ────────────────────────
+    const { favorites, isFavorite, toggle: handleFavorite } = useFavoris();
 
     const { viewer, openViewer, closeViewer } = useImageViewer();
 
@@ -246,15 +242,6 @@ const Explore = () => {
     useEffect(() => {
         setCurrentPage(1);
     }, [searchQuery, selectedCategory, selectedCondition, sortBy]);
-
-    // ─── Favoris ────────────────────────────────────────────────────────────
-    const handleFavorite = (id) => {
-        setFavorites((prev) => {
-            const updated = prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id];
-            localStorage.setItem('favorites', JSON.stringify(updated));
-            return updated;
-        });
-    };
 
     // ─── Reset ───────────────────────────────────────────────────────────────
     const handleReset = () => {
@@ -513,7 +500,7 @@ const Explore = () => {
                                                 >
                                                     <Heart
                                                         className={`w-4 h-4 transition-colors ${
-                                                            favorites.includes(item.id)
+                                                            isFavorite(item.id)
                                                                 ? 'fill-red-500 text-red-500'
                                                                 : 'text-gray-400'
                                                         }`}

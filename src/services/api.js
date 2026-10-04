@@ -524,6 +524,33 @@ export const deleteAvis = async (id) => {
   return handleResponse(res);
 };
 
+// ─── Favoris ───────────────────────────────────────────────────────────────
+
+export const toggleFavori = async (annonceId) => {
+  const res = await fetch(`${API_URL}/annonces/${annonceId}/favori`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const getFavoris = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/favoris${query ? '?' + query : ''}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
+export const syncFavoris = async (ids) => {
+  const res = await fetch(`${API_URL}/favoris/sync`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ ids }),
+  });
+  return handleResponse(res);
+};
+
 // ─── Admin ───────────────────────────────────────────────────────────────────
 
 export const getKycPending = async () => {
@@ -664,6 +691,7 @@ export default {
   submitKyc, getKycStatus, getKycDocuments, deleteKycDocument,
   getLitiges, getLitigeById, createLitige,
   getAnnonceAvis, createAvis, deleteAvis,
+  toggleFavori, getFavoris, syncFavoris,
   getKycPending, decideKyc,
   getAdminLitiges, prendreEnChargeLitige, resoldreLitige,
   getAdminCommandes, getAdminUsers, getAdminStats,

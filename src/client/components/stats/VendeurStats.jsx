@@ -74,6 +74,7 @@ export default function VendeurStats() {
       <div className='grid grid-cols-2 gap-4'>
         <Kpi label='CA encaissé' value={`${fmt(k.ca)} FCFA`} sub={`Net après commission : ${fmt(k.net)}`} />
         <Kpi label='Commandes' value={fmt(k.commandes)} sub={`${fmt(k.commandes_payees)} payées`} />
+        <Kpi label='Acheteurs intéressés' value={fmt(k.interesses)} sub='cœurs sur mes annonces' />
         <Kpi label='Annonces actives' value={fmt(k.annonces_actives)} />
         <Kpi label='Note moyenne' value={`${k.note_moyenne}/5`} sub={`${k.avis_total} avis`} />
       </div>
@@ -101,12 +102,13 @@ export default function VendeurStats() {
         {(data.par_annonce || []).length ? (
           <div className='overflow-x-auto'>
             <table className='w-full text-sm'>
-              <thead><tr className='text-left text-xs text-gray-400'><th className='py-1'>Produit</th><th className='text-right'>Cmds</th><th className='text-right'>CA</th><th className='text-right'>Stock</th></tr></thead>
+              <thead><tr className='text-left text-xs text-gray-400'><th className='py-1'>Produit</th><th className='text-right'>Cmds</th><th className='text-right'>CA</th><th className='text-right'>♥</th><th className='text-right'>Stock</th></tr></thead>
               <tbody>{data.par_annonce.map((a) => (
                 <tr key={a.id} className='border-t border-gray-50'>
                   <td className='py-1.5 font-medium'>{a.titre}</td>
                   <td className='text-right'>{a.commandes}</td>
                   <td className='text-right font-bold text-[#1DBF73]'>{fmt(a.ca)}</td>
+                  <td className='text-right'>{a.favoris ?? 0}</td>
                   <td className={`text-right font-semibold ${a.stock <= 0 ? 'text-red-500' : a.stock <= 2 ? 'text-orange-500' : ''}`}>{a.stock}</td>
                 </tr>
               ))}</tbody>
