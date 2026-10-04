@@ -7,7 +7,7 @@ import {
   ShoppingBag, MessageSquare, AlertTriangle, BellOff
 } from 'lucide-react';
 import {
-  getNotifications, getNotificationsCount
+  getNotifications, getNotificationsCount, clearSession
 } from '../../services/api';
 
 // ─── Config types notifs ──────────────────────────────────────────────────────
@@ -106,8 +106,7 @@ export default function AdminHeader({ onSearch }) {
 
   // ─── Logout ────────────────────────────────────────────────────────────
   const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
+    clearSession();
     window.dispatchEvent(new Event('storage'));
     navigate('/admin/login');
   };

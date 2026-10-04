@@ -6,7 +6,7 @@ import Button from '../common/Button';
 import { useLang } from '../../context/LangContext';
 import { useCart } from '../../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
-import { logoutUser, getNotificationsCount, getConversations, parseList } from '../../../services/api';
+import { logoutUser, getNotificationsCount, getConversations, parseList, clearSession } from '../../../services/api';
 import echo from '../../../echo'; 
 
 const Header = () => {
@@ -112,8 +112,7 @@ const Header = () => {
   // ─── Logout ──────────────────────────────────────────────────────────────
   const handleLogout = async () => {
     try { await logoutUser(); } catch { /**/ }
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
+    clearSession();
     setCurrentUser(null);
     setUserMenuOpen(false);
     window.dispatchEvent(new Event('storage'));

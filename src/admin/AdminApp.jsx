@@ -19,17 +19,11 @@ function AdminApp() {
   const checkAdmin = React.useCallback(async (signal) => {
     try {
       const token = localStorage.getItem('auth_token');
-      const cached = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
       if (!token) { if (!signal?.aborted) { setIsAdmin(false); setChecking(false); } return; }
-      // Réponse rapide via cache, puis validation serveur
-      if (cached?.role === 'admin' && !signal?.aborted) setIsAdmin(true);
       const me = await getMe();
       const user = me?.user ?? me?.data ?? me;
       if (!signal?.aborted) setIsAdmin(user?.role === 'admin');
-    } catch { if (!signal?.aborted) {
-      const cached = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
-      setIsAdmin(cached?.role === 'admin');
-    } }
+    } catch { if (!signal?.aborted) { setIsAdmin(false); setChecking(false); return; } }
     finally { if (!signal?.aborted) setChecking(false); }
   }, []);
 

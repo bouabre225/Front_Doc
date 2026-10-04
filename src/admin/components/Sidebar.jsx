@@ -12,6 +12,8 @@ import {
   Shield,
 } from 'lucide-react';
 
+import { clearSession } from '../../services/api';
+
 export default function AdminSidebar({ kycCount = 0, litigeCount = 0 }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -61,8 +63,7 @@ export default function AdminSidebar({ kycCount = 0, litigeCount = 0 }) {
   const isActive = (path) => location.pathname === path;
 
   const handleLogout = () => {
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
+    clearSession();
     window.dispatchEvent(new Event('storage'));
     navigate('/admin/login');
   };

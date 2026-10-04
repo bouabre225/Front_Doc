@@ -49,9 +49,33 @@ const handleResponse = async (res) => {
     const err = new Error(message);
     err.status = res.status;
     err.errors = data?.errors;
+    if (res.status === 401) {
+      // Session expirée ou révoquée : purge + redirection login
+      // (403 = simple refus d'autorisation, on ne déconnecte pas)
+      try {
+        clearSession();
+        window.dispatchEvent(new Event('storage'));
+        if (!window.location.pathname.startsWith('/login') && !window.location.pathname.startsWith('/admin/login')) {
+          window.location.href = '/login?expired=1';
+        }
+      } catch { /* ignore */ }
+    }
     throw err;
   }
   return data;
+};
+
+// Purge complète de session (à appeler au logout / 401)
+export const clearSession = () => {
+  try {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('favorites');
+    localStorage.removeItem('docspace_cart');
+    localStorage.removeItem('2fa_challenge_id');
+    sessionStorage.clear();
+  } catch { /* ignore */ }
 };
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
@@ -691,7 +715,7 @@ export default {
   submitKyc, getKycStatus, getKycDocuments, deleteKycDocument,
   getLitiges, getLitigeById, createLitige,
   getAnnonceAvis, createAvis, deleteAvis,
-  toggleFavori, getFavoris, syncFavoris,
+  toggleFavori, getFavoris, syncFavoris, clearSession,
   getKycPending, decideKyc,
   getAdminLitiges, prendreEnChargeLitige, resoldreLitige,
   getAdminCommandes, getAdminUsers, getAdminStats,

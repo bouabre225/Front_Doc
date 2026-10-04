@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import VendeurStats from '../../components/stats/VendeurStats';
 import MesFavoris from '../../components/favoris/MesFavoris';
+import { clearSession } from '../../../services/api';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
@@ -124,8 +125,7 @@ function Profile() {
     try { await logoutUser(); } catch (_) {
       //
     }
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
+    clearSession();
     window.dispatchEvent(new Event('storage'));
     navigate('/');
   };
