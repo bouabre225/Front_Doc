@@ -298,6 +298,14 @@ export const getCommandesRecues = async () => {
   return handleResponse(res);
 };
 
+export const getStatsVendeur = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_URL}/commandes/stats-vendeur${query ? '?' + query : ''}`, {
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
 export const getCommandeById = async (id) => {
   const res = await fetch(`${API_URL}/commandes/${id}`, {
     headers: authHeaders(),
@@ -622,7 +630,7 @@ export default {
   getAnnonces, searchAnnonces, getAnnonceById, getMyAnnonces,
   createAnnonce, updateAnnonce, deleteAnnonce,
   uploadAnnonceImages, sendContact,
-  getCommandes, getCommandeById, createCommande, cancelCommande, payCommande, verifyCommande, renvoyerFacture, getCommandesRecues,
+  getCommandes, getCommandeById, createCommande, cancelCommande, payCommande, verifyCommande, renvoyerFacture, getCommandesRecues, getStatsVendeur,
   getConversations, getConversation, sendMessage,
   getNotifications, getNotificationsCount,
   markNotificationRead, markAllNotificationsRead, deleteNotification,

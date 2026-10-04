@@ -6,8 +6,9 @@ import {
   User, Mail, Phone, MapPin, Package, ShoppingBag,
   LogOut, Trash2, Eye, Calendar, AlertCircle,
   MessageSquare, Shield, CheckCircle, Clock,
-  XCircle, Truck, AlertTriangle, ChevronRight
+  XCircle, Truck, AlertTriangle, ChevronRight, BarChart3
 } from 'lucide-react';
+import VendeurStats from '../../components/stats/VendeurStats';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { SkeletonProfile } from '../../components/common/Skeleton';
@@ -216,6 +217,7 @@ function Profile() {
   const sellerTabs = [
     { key: 'annonces',  label: 'Mes annonces',      icon: Package },
     { key: 'commandes', label: 'Commandes reçues',   icon: ShoppingBag },
+    { key: 'stats',     label: 'Statistiques',       icon: BarChart3 },
     { key: 'messages',  label: 'Messages',           icon: MessageSquare },
     { key: 'kyc',       label: 'Vérification KYC',   icon: Shield },
   ];
@@ -425,6 +427,11 @@ function Profile() {
                       </div>
                     )}
                   </div>
+                )}
+
+                {/* ── Statistiques (vendeur) ────────────────────────────── */}
+                {activeTab === 'stats' && isSeller && (
+                  <VendeurStats />
                 )}
 
                 {/* ── Commandes reçues (vendeur) ────────────────────────── */}
