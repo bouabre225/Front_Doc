@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Trash2, CheckCircle, XCircle, Filter, RefreshCw, MapPin, Package } from 'lucide-react';
 import { getImageUrl, deleteAdminAnnonce } from '../../services/api';
+import ConfirmDialog from '../../client/components/common/ConfirmDialog';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://docspace.bj/api';
 const getToken = () => localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
@@ -14,6 +15,7 @@ export default function ManageEquipments() {
   const [lastPage, setLastPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [actionLoading, setActionLoading] = useState(null);
+  const [confirmDel, setConfirmDel] = useState(null);
 
   useEffect(() => { fetchAnnonces(); }, [page, search]);
 
@@ -39,8 +41,10 @@ export default function ManageEquipments() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Supprimer cette annonce ?')) return;
+  const handleDelete = async () => {
+    if (!confirmDel) return;
+    const id = confirmDel;
+    setConfirmDel(null);
     setActionLoading(id);
     try {
       await deleteAdminAnnonce(id);
@@ -168,7 +172,7 @@ export default function ManageEquipments() {
                               className='p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors'>
                               <Eye className='w-4 h-4 text-blue-600' />
                             </a>
-                            <button onClick={() => handleDelete(a.id)}
+                            <button onClick={() => setConfirmDel(a.id)}
                               disabled={actionLoading === a.id}
                               className='p-1.5 rounded-lg bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-50'>
                               {actionLoading === a.id
@@ -213,7 +217,7 @@ export default function ManageEquipments() {
                           className='p-1.5 rounded-lg bg-blue-50'>
                           <Eye className='w-4 h-4 text-blue-600' />
                         </a>
-                        <button onClick={() => handleDelete(a.id)} disabled={actionLoading === a.id}
+                        <button onClick={() => setConfirmDel(a.id)} disabled={actionLoading === a.id}
                           className='p-1.5 rounded-lg bg-red-50 disabled:opacity-50'>
                           {actionLoading === a.id
                             ? <div className='w-4 h-4 border-2 border-red-400 rounded-full border-t-transparent animate-spin' />
@@ -245,6 +249,16 @@ export default function ManageEquipments() {
           )}
         </div>
       </div>
+      <ConfirmDialog
+        open={!!confirmDel}
+        title="Supprimer l'annonce ?"
+        message="L'annonce sera définitivement supprimée."
+        confirmLabel='Supprimer'
+        tone='danger'
+        loading={actionLoading === confirmDel}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDel(null)}
+      />
     </div>
   );
 }

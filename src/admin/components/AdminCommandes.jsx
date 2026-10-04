@@ -6,6 +6,7 @@ import {
   User, Package, X, MapPin, PackageCheck, Loader2
 } from 'lucide-react';
 import { getAdminCommandes, marquerCommandeLivree } from '../../services/api';
+import ConfirmDialog from '../../client/components/common/ConfirmDialog';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -29,10 +30,11 @@ const getInitials = (nom) =>
 
 const CommandeModal = ({ commande: c, onClose, onLivree }) => {
   const [loading, setLoading] = useState(false);
+  const [confirm, setConfirm] = useState(false);
   const cfg = STATUT_CONFIG[c.statut] || STATUT_CONFIG.en_attente;
 
   const handleLivree = async () => {
-    if (!window.confirm(`Confirmer la livraison de la commande #${String(c.id ?? "").slice(0, 8)} ?`)) return;
+    setConfirm(false);
     setLoading(true);
     try {
       await marquerCommandeLivree(c.id);
@@ -89,7 +91,7 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={handleLivree}
+              onClick={() => setConfirm(true)}
               disabled={loading}
               className='w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl shadow hover:shadow-lg disabled:opacity-50 transition-all'
             >
@@ -174,6 +176,16 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
             </div>
           )}
         </div>
+        <ConfirmDialog
+          open={confirm}
+          title='Marquer livrée ?'
+          message={`La commande #${String(c.id ?? '').slice(0, 8)} passera au statut livrée.`}
+          confirmLabel='Confirmer'
+          tone='success'
+          loading={loading}
+          onConfirm={handleLivree}
+          onCancel={() => !loading && setConfirm(false)}
+        />
       </motion.div>
     </motion.div>
   );
@@ -423,9 +435,10 @@ export default function AdminCommandes() {
 // ✅ Bouton livraison isolé avec son propre état loading
 const BoutonLivree = ({ commandeId, onLivree }) => {
   const [loading, setLoading] = useState(false);
+  const [confirm, setConfirm] = useState(false);
 
   const handle = async () => {
-    if (!window.confirm('Confirmer la livraison de cette commande ?')) return;
+    setConfirm(false);
     setLoading(true);
     try {
       await marquerCommandeLivree(commandeId);
@@ -438,10 +451,11 @@ const BoutonLivree = ({ commandeId, onLivree }) => {
   };
 
   return (
+    <>
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      onClick={handle}
+      onClick={() => setConfirm(true)}
       disabled={loading}
       title='Marquer livrée'
       className='flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white text-xs font-bold rounded-xl shadow hover:shadow-md disabled:opacity-50 transition-all'
@@ -452,5 +466,16 @@ const BoutonLivree = ({ commandeId, onLivree }) => {
       }
       {!loading && 'Livrer'}
     </motion.button>
+    <ConfirmDialog
+      open={confirm}
+      title='Marquer livrée ?'
+      message='La commande passera au statut livrée.'
+      confirmLabel='Confirmer'
+      tone='success'
+      loading={loading}
+      onConfirm={handle}
+      onCancel={() => !loading && setConfirm(false)}
+    />
+    </>
   );
 };

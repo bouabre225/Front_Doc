@@ -10,6 +10,7 @@ import {
   getNotifications, markNotificationRead,
   markAllNotificationsRead, deleteNotification
 } from '../../../services/api';
+import ConfirmDialog from '../common/ConfirmDialog';
 
 // ─── Config types de notifications ──────────────────────────────────────────
 
@@ -185,6 +186,8 @@ const NotificationsPage = () => {
   const [filter, setFilter] = useState('toutes');
   const [typeFilter, setTypeFilter] = useState('tous');
   const [filterOpen, setFilterOpen] = useState(false);
+  const [confirmDeleteAll, setConfirmDeleteAll] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
 
   const navigate = useNavigate();
 
@@ -235,10 +238,19 @@ const NotificationsPage = () => {
   };
 
   const handleDeleteAll = async () => {
-    if (!window.confirm('Supprimer toutes les notifications lues ?')) return;
-    const lues = notifications.filter(n => n.lu);
-    await Promise.all(lues.map(n => deleteNotification(n.id).catch(() => {})));
-    setNotifications(prev => prev.filter(n => !n.lu));
+    setConfirmDeleteAll(true);
+  };
+
+  const doDeleteAll = async () => {
+    setDeletingAll(true);
+    try {
+      const lues = notifications.filter(n => n.lu);
+      await Promise.all(lues.map(n => deleteNotification(n.id).catch(() => {})));
+      setNotifications(prev => prev.filter(n => !n.lu));
+    } finally {
+      setDeletingAll(false);
+      setConfirmDeleteAll(false);
+    }
   };
 
   // ─── Filtrage ─────────────────────────────────────────────────────────────
@@ -406,6 +418,16 @@ const NotificationsPage = () => {
           </AnimatePresence>
         </div>
       )}
+      <ConfirmDialog
+        open={confirmDeleteAll}
+        title='Vider les lues ?'
+        message='Toutes les notifications déjà lues seront définitivement supprimées.'
+        confirmLabel='Supprimer'
+        tone='danger'
+        loading={deletingAll}
+        onConfirm={doDeleteAll}
+        onCancel={() => !deletingAll && setConfirmDeleteAll(false)}
+      />
     </div>
   );
 };

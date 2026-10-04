@@ -10,6 +10,7 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { useCart } from '../../context/CartContext';
 import { getImageUrl, createCommande } from '../../../services/api';
+import ConfirmDialog from '../common/ConfirmDialog';
 
 const Cart = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const Cart = () => {
   const [error,     setError]     = useState('');
   const [success,   setSuccess]   = useState(false);
   const [adresse,   setAdresse]   = useState('');
+  const [confirmClear, setConfirmClear] = useState(false);
   const [telephone, setTelephone] = useState('');
 
   const handleCommander = async () => {
@@ -142,12 +144,21 @@ const Cart = () => {
             </div>
           </div>
           <button
-            onClick={() => { if (window.confirm('Vider le panier ?')) clearCart(); }}
+            onClick={() => setConfirmClear(true)}
             className='flex items-center gap-1.5 text-xs text-red-400 hover:text-red-500 font-medium transition-colors'
           >
             <Trash2 className='w-3.5 h-3.5' />
             Vider le panier
           </button>
+          <ConfirmDialog
+            open={confirmClear}
+            title='Vider le panier ?'
+            message='Tous les articles seront retirés du panier.'
+            confirmLabel='Vider'
+            tone='danger'
+            onConfirm={() => { clearCart(); setConfirmClear(false); }}
+            onCancel={() => setConfirmClear(false)}
+          />
         </div>
 
         <div className='grid grid-cols-1 gap-8 lg:grid-cols-3'>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, RefreshCw, Eye, Trash2, AlertCircle, CheckCircle,
   Package, ChevronLeft, ChevronRight, MapPin, Tag, User, X,
-  Shield, Calendar, Box, DollarSign, Image as ImageIcon
+  Shield, Calendar, Box, DollarSign, Image as ImageIcon, AlertTriangle
 } from 'lucide-react';
 import { getAnnonces, deleteAdminAnnonce, getImageUrl } from '../../services/api';
 
@@ -170,6 +170,7 @@ export default function AdminAnnonces() {
   const [error,        setError]        = useState('');
   const [deleting,     setDeleting]     = useState(null);
   const [confirmDel,   setConfirmDel]   = useState(null);
+  const [confirmForce, setConfirmForce] = useState(null);
   const [modalAnnonce, setModalAnnonce] = useState(null);
 
   const fetchAnnonces = useCallback(async (p = 1) => {
@@ -210,11 +211,7 @@ export default function AdminAnnonces() {
       console.error('[handleDelete] erreur:', err); // ← debug
       setConfirmDel(null);
       if (err.message?.includes('commande')) {
-        if (window.confirm(
-          `${err.message}\n\nVoulez-vous forcer la suppression malgré les commandes actives ?`
-        )) {
-          handleDelete(id, true);
-        }
+        setConfirmForce({ id, message: err.message });
       } else {
         setError(err.message || 'Erreur lors de la suppression.');
       }
@@ -397,6 +394,29 @@ export default function AdminAnnonces() {
                 <button onClick={() => handleDelete(confirmDel.id)} disabled={deleting === confirmDel.id}
                   className='flex-1 py-2.5 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 text-sm disabled:opacity-50'>
                   {deleting === confirmDel.id ? 'Suppression...' : 'Confirmer'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+        {confirmForce && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className='fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm'>
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }}
+              className='bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6'>
+              <div className='w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
+                <AlertTriangle className='w-6 h-6 text-orange-500' />
+              </div>
+              <h3 className='text-lg font-bold text-gray-900 text-center mb-2'>Forcer la suppression ?</h3>
+              <p className='text-sm text-gray-500 text-center mb-5'>{confirmForce.message}</p>
+              <div className='flex gap-3'>
+                <button onClick={() => setConfirmForce(null)}
+                  className='flex-1 py-2.5 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 text-sm'>
+                  Annuler
+                </button>
+                <button onClick={() => { const id = confirmForce.id; setConfirmForce(null); handleDelete(id, true); }} disabled={deleting}
+                  className='flex-1 py-2.5 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 text-sm disabled:opacity-50'>
+                  Forcer
                 </button>
               </div>
             </motion.div>

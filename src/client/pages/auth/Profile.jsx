@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import VendeurStats from '../../components/stats/VendeurStats';
 import MesFavoris from '../../components/favoris/MesFavoris';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { SkeletonProfile } from '../../components/common/Skeleton';
@@ -55,7 +56,8 @@ function Profile() {
   const [editForm, setEditForm] = useState({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
-  const [saveSuccess, setSaveSuccess] = useState(false);  
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [confirm, setConfirm] = useState(null); // {type:'deleteAnnonce'|'livree', id}
   const isSeller = user?.role === 'vendeur';
 
   useEffect(() => {
@@ -162,27 +164,37 @@ function Profile() {
     }
   };
 
-  const handleDeleteAnnonce = async (id) => {
-    if (!window.confirm('Voulez-vous vraiment supprimer cette annonce ?')) return;
+  const handleDeleteAnnonce = (id) => {
+    setConfirm({ type: 'deleteAnnonce', id });
+  };
+
+  const doDeleteAnnonce = async () => {
     try {
-      await deleteAnnonce(id);
-      setMyAnnonces(prev => prev.filter(a => a.id !== id));
+      await deleteAnnonce(confirm.id);
+      setMyAnnonces(prev => prev.filter(a => a.id !== confirm.id));
     } catch (err) {
       //alert('Erreur : ' + err.message);
+    } finally {
+      setConfirm(null);
     }
   };
 
-  const handleMarquerLivree = async (e, commandeId) => {
-    e.preventDefault(); 
+  const handleMarquerLivree = (e, commandeId) => {
+    e.preventDefault();
     e.stopPropagation();
-    if (!window.confirm('Confirmer la livraison de cette commande ?')) return;
+    setConfirm({ type: 'livree', id: commandeId });
+  };
+
+  const doMarquerLivree = async () => {
     try {
-      await marquerCommandeLivree(commandeId);
+      await marquerCommandeLivree(confirm.id);
       setMyCommandes(prev =>
-        prev.map(c => c.id === commandeId ? { ...c, statut: 'livree' } : c)
+        prev.map(c => c.id === confirm.id ? { ...c, statut: 'livree' } : c)
       );
     } catch (err) {
       //alert('Erreur : ' + (err.message || 'Une erreur est survenue'));
+    } finally {
+      setConfirm(null);
     }
   };
 
@@ -774,6 +786,17 @@ function Profile() {
       )}
 
       <Footer />
+      <ConfirmDialog
+        open={!!confirm}
+        title={confirm?.type === 'deleteAnnonce' ? "Supprimer l'annonce ?" : 'Confirmer la livraison ?'}
+        message={confirm?.type === 'deleteAnnonce'
+          ? "L'annonce sera définitivement supprimée avec ses images."
+          : 'La commande passera au statut livrée.'}
+        confirmLabel={confirm?.type === 'deleteAnnonce' ? 'Supprimer' : 'Confirmer'}
+        tone={confirm?.type === 'deleteAnnonce' ? 'danger' : 'success'}
+        onConfirm={confirm?.type === 'deleteAnnonce' ? doDeleteAnnonce : doMarquerLivree}
+        onCancel={() => setConfirm(null)}
+      />
     </div>
   );
 }
