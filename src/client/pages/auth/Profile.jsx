@@ -6,9 +6,10 @@ import {
   User, Mail, Phone, MapPin, Package, ShoppingBag,
   LogOut, Trash2, Eye, Calendar, AlertCircle,
   MessageSquare, Shield, CheckCircle, Clock,
-  XCircle, Truck, AlertTriangle, ChevronRight, BarChart3
+  XCircle, Truck, AlertTriangle, ChevronRight, BarChart3, Heart
 } from 'lucide-react';
 import VendeurStats from '../../components/stats/VendeurStats';
+import MesFavoris from '../../components/favoris/MesFavoris';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { SkeletonProfile } from '../../components/common/Skeleton';
@@ -218,12 +219,14 @@ function Profile() {
     { key: 'annonces',  label: 'Mes annonces',      icon: Package },
     { key: 'commandes', label: 'Commandes reçues',   icon: ShoppingBag },
     { key: 'stats',     label: 'Statistiques',       icon: BarChart3 },
+    { key: 'favoris',   label: 'Mes favoris',        icon: Heart },
     { key: 'messages',  label: 'Messages',           icon: MessageSquare },
     { key: 'kyc',       label: 'Vérification KYC',   icon: Shield },
   ];
 
   const buyerTabs = [
     { key: 'achats',    label: 'Mes achats',         icon: ShoppingBag },
+    { key: 'favoris',   label: 'Mes favoris',        icon: Heart },
     { key: 'messages',  label: 'Messages',           icon: MessageSquare },
   ];
 
@@ -439,6 +442,11 @@ function Profile() {
                       </div>
                     )}
                   </div>
+                )}
+
+                {/* ── Favoris (tous) ──────────────────────────────────────── */}
+                {activeTab === 'favoris' && (
+                  <MesFavoris />
                 )}
 
                 {/* ── Achats (acheteur) ─────────────────────────────────── */}
