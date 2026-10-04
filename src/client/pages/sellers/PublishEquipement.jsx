@@ -205,8 +205,8 @@ const PublishEquipment = () => {
     if (!formData.description.trim()) { setError('La description est requise'); return; }
     if (formData.titre.trim().length > 200) { setError('Titre trop long (200 max)'); return; }
     if (formData.description.trim().length > 5000) { setError('Description trop longue (5000 max)'); return; }
-    if (!formData.prix_vendeur || Number(formData.prix_vendeur) <= 0) {
-      setError('Le prix doit être supérieur à 0'); return;
+    if (!formData.prix_vendeur || Number(formData.prix_vendeur) < 100) {
+      setError('Le prix minimum est de 100 FCFA (minimum FedaPay)'); return;
     }
 
     setLoading(true);
