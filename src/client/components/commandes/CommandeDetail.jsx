@@ -4,11 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
   AlertCircle, User, Store, CreditCard, MessageCircle,
-  ShoppingBag, Ban, AlertTriangle
+  ShoppingBag, Ban, AlertTriangle, Mail
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande } from '../../../services/api';
+import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande, renvoyerFacture } from '../../../services/api';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -219,8 +219,20 @@ const handlePay = async () => {
   }
 };
 
-  const handleLitige = async () => {
-    if (!litigeMotif.trim()) {
+  const handleResendFacture = async () => {
+    setActionLoading(true);
+    setError('');
+    try {
+      const res = await renvoyerFacture(id);
+      setSuccess(res.message || 'Facture renvoyée par email. Vérifie aussi tes spams.');
+    } catch (err) {
+      setError(err.message || "Erreur lors du renvoi de la facture.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleLitige = async () => {    if (!litigeMotif.trim()) {
       setError('Veuillez sélectionner un motif.');
       return;
     }
@@ -378,7 +390,19 @@ const handlePay = async () => {
               <div className='border-t border-gray-100 pt-4'>
                 <p className='text-xs text-center text-gray-400 mb-4'>
                   📧 Une facture a été envoyée à <span className='font-semibold text-gray-600'>{commande.acheteur?.email}</span>
+                  <br />Vérifie aussi tes spams/courriers indésirables.
                 </p>
+
+                <button
+                  onClick={handleResendFacture}
+                  disabled={actionLoading}
+                  className='w-full py-3 mb-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl flex items-center justify-center gap-2 hover:border-[#1DBF73]/50 hover:text-[#1DBF73] transition-all text-sm disabled:opacity-50'
+                >
+                  {actionLoading
+                    ? <div className='w-4 h-4 border-2 border-gray-400 rounded-full border-t-transparent animate-spin' />
+                    : <Mail className='w-4 h-4' />}
+                  Renvoyer la facture par email
+                </button>
 
                 {/* ✅ Bouton litige dans la section succès */}
                 {isAcheteur && (

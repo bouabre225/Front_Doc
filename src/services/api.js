@@ -338,6 +338,14 @@ export const verifyCommande = async (id) => {
   return handleResponse(res);
 };
 
+export const renvoyerFacture = async (id) => {
+  const res = await fetch(`${API_URL}/commandes/${id}/facture`, {
+    method: 'POST',
+    headers: authHeaders(),
+  });
+  return handleResponse(res);
+};
+
 // ─── Messages ────────────────────────────────────────────────────────────────
 
 export const getConversations = async () => {
@@ -606,7 +614,7 @@ export default {
   getAnnonces, searchAnnonces, getAnnonceById, getMyAnnonces,
   createAnnonce, updateAnnonce, deleteAnnonce,
   uploadAnnonceImages, sendContact,
-  getCommandes, getCommandeById, createCommande, cancelCommande, payCommande, verifyCommande, getCommandesRecues,
+  getCommandes, getCommandeById, createCommande, cancelCommande, payCommande, verifyCommande, renvoyerFacture, getCommandesRecues,
   getConversations, getConversation, sendMessage,
   getNotifications, getNotificationsCount,
   markNotificationRead, markAllNotificationsRead, deleteNotification,
