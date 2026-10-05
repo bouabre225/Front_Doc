@@ -21,10 +21,14 @@ const Cart = () => {
 
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState('');
+  const [fieldError, setFieldError] = useState({}); // {adresse, telephone}
   const [success,   setSuccess]   = useState(false);
-  const [adresse,   setAdresse]   = useState('');
+  const [createdIds, setCreatedIds] = useState([]);
+  const [adresse,   setAdresse]   = useState(() => { try { return localStorage.getItem('delivery_adresse') || ''; } catch { return ''; } });
   const [confirmClear, setConfirmClear] = useState(false);
-  const [telephone, setTelephone] = useState('');
+  const [telephone, setTelephone] = useState(() => { try { return localStorage.getItem('delivery_telephone') || ''; } catch { return ''; } });
+
+  const validPhone = (tel) => /^\+?[0-9\s.-]{8,20}$/.test((tel || '').trim());
 
   const handleCommander = async () => {
     const token = localStorage.getItem('auth_token');
@@ -41,37 +45,43 @@ const Cart = () => {
       return;
     }
 
-    if (!adresse.trim())   { setError(t.cart.addressRequired); return; }
-    if (!telephone.trim()) { setError(t.cart.phoneRequired);  return; }
+    const errs = {};
+    if (!adresse.trim()) errs.adresse = t.cart.addressRequired;
+    if (!telephone.trim()) errs.telephone = t.cart.phoneRequired;
+    else if (!validPhone(telephone)) errs.telephone = t.cart.phoneInvalid;
+    setFieldError(errs);
+    if (Object.keys(errs).length) return;
+
+    try { localStorage.setItem('delivery_adresse', adresse.trim()); localStorage.setItem('delivery_telephone', telephone.trim()); } catch { /* ignore */ }
 
     setLoading(true);
     setError('');
 
+    // Séquentiel : si un item échoue, les précédents restent valides et on l'indique
+    const created = [];
     try {
-      // Créer une commande par item (backend attend une annonce à la fois)
-      const commandes = await Promise.all(
-        cart.map(item =>
-          createCommande({
-            annonce_id:          item.id,
-            quantite:            item.quantite,
-            adresse_livraison:   adresse.trim(),
-            telephone_livraison: telephone.trim(),
-          })
-        )
-      );
+      for (const item of cart) {
+        const res = await createCommande({
+          annonce_id:          item.id,
+          quantite:            item.quantite,
+          adresse_livraison:   adresse.trim(),
+          telephone_livraison: telephone.trim(),
+        });
+        created.push(res);
+      }
 
       clearCart();
+      setCreatedIds(created.map((c) => c?.commande?.id ?? c?.data?.id ?? c?.id).filter(Boolean));
       setSuccess(true);
-
-      // Rediriger vers la première commande créée après 2s
-      const firstId = commandes[0]?.commande?.id ?? commandes[0]?.data?.id ?? commandes[0]?.id;
-      setTimeout(() => {
-        if (firstId) navigate(`/commandes/${firstId}`);
-        else navigate('/profile');
-      }, 2000);
-
     } catch (err) {
-      setError(err.message || t.cart.orderError);
+      if (created.length) {
+        clearCart();
+        setCreatedIds(created.map((c) => c?.commande?.id ?? c?.data?.id ?? c?.id).filter(Boolean));
+        setSuccess(true);
+        setError(`${t.cart.partialOk} (${created.length}/${cart.length})`);
+      } else {
+        setError(err.message || t.cart.orderError);
+      }
     } finally {
       setLoading(false);
     }
@@ -118,10 +128,25 @@ const Cart = () => {
               <CheckCircle className='w-10 h-10 text-green-500' />
             </div>
             <h2 className='text-2xl font-bold text-gray-900 mb-2'>{t.cart.ordered}</h2>
-            <p className='text-gray-500 text-sm mb-4'>
+            <p className='text-gray-500 text-sm mb-6'>
               {t.cart.orderedHint}
             </p>
-            <div className='w-8 h-8 border-4 border-[#1DBF73] rounded-full border-t-transparent animate-spin mx-auto' />
+            <div className='flex flex-col gap-3'>
+              {createdIds.length > 0 && (
+                <Link
+                  to={`/commandes/${createdIds[0]}`}
+                  className='w-full py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all'
+                >
+                  {t.cart.viewOrder}{createdIds.length > 1 ? ` (1/${createdIds.length})` : ''}
+                </Link>
+              )}
+              <Link
+                to='/explore'
+                className='w-full py-3 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all'
+              >
+                {t.cart.keepShopping}
+              </Link>
+            </div>
           </motion.div>
         </div>
         <Footer />
@@ -219,7 +244,7 @@ const Cart = () => {
                     <div className='flex items-center gap-1 bg-gray-100 rounded-xl p-1'>
                       <button
                         onClick={() => updateQuantite(item.id, item.quantite - 1)}
-                        className='w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white transition-colors'
+                        className='w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white transition-colors'
                       >
                         <Minus className='w-3 h-3 text-gray-600' />
                       </button>
@@ -227,7 +252,7 @@ const Cart = () => {
                       <button
                         onClick={() => updateQuantite(item.id, item.quantite + 1)}
                         disabled={item.quantite >= item.stock}
-                        className='w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white transition-colors disabled:opacity-30'
+                        className='w-11 h-11 flex items-center justify-center rounded-lg hover:bg-white transition-colors disabled:opacity-30'
                       >
                         <Plus className='w-3 h-3 text-gray-600' />
                       </button>
@@ -287,20 +312,24 @@ const Cart = () => {
                   <input
                     type='text'
                     value={adresse}
-                    onChange={e => setAdresse(e.target.value)}
+                    onChange={e => { setAdresse(e.target.value); setFieldError((p) => ({ ...p, adresse: undefined })); }}
                     placeholder={t.cart.addressPh}
-                    className='w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
+                    aria-invalid={!!fieldError.adresse}
+                    className={`w-full px-3 py-2.5 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all ${fieldError.adresse ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-[#1DBF73] focus:ring-[#1DBF73]/20'}`}
                   />
+                  {fieldError.adresse && <p className='text-xs text-red-500 mt-1'>{fieldError.adresse}</p>}
                 </div>
                 <div>
                   <label className='block text-xs font-semibold text-gray-600 mb-1'>{t.cart.phone} *</label>
                   <input
                     type='tel'
                     value={telephone}
-                    onChange={e => setTelephone(e.target.value)}
+                    onChange={e => { setTelephone(e.target.value); setFieldError((p) => ({ ...p, telephone: undefined })); }}
                     placeholder='+229 XX XX XX XX'
-                    className='w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
+                    aria-invalid={!!fieldError.telephone}
+                    className={`w-full px-3 py-2.5 border-2 rounded-xl text-sm focus:outline-none focus:ring-2 transition-all ${fieldError.telephone ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-[#1DBF73] focus:ring-[#1DBF73]/20'}`}
                   />
+                  {fieldError.telephone && <p className='text-xs text-red-500 mt-1'>{fieldError.telephone}</p>}
                 </div>
               </div>
             </div>

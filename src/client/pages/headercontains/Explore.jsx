@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
     Search,
     MapPin,
-    Heart,
+    
     Calendar,
     ChevronLeft,
     ChevronRight,
@@ -21,6 +21,7 @@ import { useFavoris } from '../../hooks/useFavoris';
 import { useTracking } from '../../hooks/useTracking';
 import { useLang } from '../../context/LangContext';
 import { getLocale } from '../../i18n/format';
+import FavoriteButton from '../../components/common/FavoriteButton';
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -504,18 +505,9 @@ const Explore = () => {
                                                 )}
 
                                                 {/* Favori */}
-                                                <button
-                                                    onClick={() => handleFavorite(item.id)}
-                                                    className="absolute p-2 transition-all bg-white/90 backdrop-blur-sm rounded-full shadow-md top-3 right-3 hover:scale-110"
-                                                >
-                                                    <Heart
-                                                        className={`w-4 h-4 transition-colors ${
-                                                            isFavorite(item.id)
-                                                                ? 'fill-red-500 text-red-500'
-                                                                : 'text-gray-400'
-                                                        }`}
-                                                    />
-                                                </button>
+                                                <div className="absolute top-3 right-3">
+                                                    <FavoriteButton size='sm' active={isFavorite(item.id)} onToggle={() => handleFavorite(item.id)} />
+                                                </div>
 
                                                 {/* Etat */}
                                                 {item.etat && (

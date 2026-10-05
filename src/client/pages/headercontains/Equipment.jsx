@@ -17,6 +17,7 @@ import { useFavoris } from '../../hooks/useFavoris';
 import { useLang } from '../../context/LangContext';
 import { useTracking } from '../../hooks/useTracking';
 import { getLocale } from '../../i18n/format';
+import FavoriteButton from '../../components/common/FavoriteButton';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -148,7 +149,7 @@ function Equipment() {
 
   return (
     
-    <div className='min-h-screen bg-gray-50'>
+    <div className='min-h-screen bg-gray-50 pb-24 md:pb-0'>
       <Header />
 
       <div className='container max-w-5xl px-4 py-10 mx-auto'>
@@ -209,12 +210,9 @@ function Equipment() {
               )}
 
               {/* Favori */}
-              <button
-                onClick={handleFavorite}
-                className='absolute top-4 right-4 w-10 h-10 bg-white/90 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all'
-              >
-                <Heart className={`w-5 h-5 transition-colors ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
-              </button>
+              <div className='absolute top-4 right-4'>
+                <FavoriteButton active={isFavorite} onToggle={handleFavorite} />
+              </div>
 
               {/* Navigation flèches */}
               {images.length > 1 && (
@@ -281,7 +279,6 @@ function Equipment() {
 
             {/* Prix */}
             <div className='p-5 bg-gradient-to-br from-[#1DBF73]/5 to-[#09B1BA]/5 rounded-2xl border border-[#1DBF73]/15'>
-              <p className='text-xs text-gray-500 mb-1'>{t.equipment.sellerPrice}</p>
               <div className='text-4xl font-black text-[#1DBF73]'>
                 {Number(annonce.prix_vendeur).toLocaleString(getLocale())}
                 <span className='ml-2 text-lg font-semibold text-gray-400'>FCFA</span>
@@ -316,7 +313,7 @@ function Equipment() {
               {stockDispo > 0 && (
                 <p className='text-xs text-emerald-600 font-medium mt-3 flex items-center gap-1'>
                   <ShieldCheck className='w-3.5 h-3.5' />
-                  {stockDispo} unité{stockDispo > 1 ? 's' : ''} disponible{stockDispo > 1 ? 's' : ''}
+                  {stockDispo} {stockDispo > 1 ? t.equipment.unitsAvailable : t.equipment.unitAvailable}
                 </p>
               )}
             </div>
@@ -324,9 +321,9 @@ function Equipment() {
             {/* Infos grille */}
             <div className='grid grid-cols-2 gap-3'>
               {[
-                { icon: Package,  color: 'bg-[#1DBF73]/10', iconColor: 'text-[#1DBF73]',  label: 'État',      value: annonce.etat },
-                { icon: Layers,   color: 'bg-[#09B1BA]/10', iconColor: 'text-[#09B1BA]',  label: 'Quantité',  value: `${annonce.quantite} dispo.` },
-                { icon: Calendar, color: 'bg-orange-50',    iconColor: 'text-orange-400', label: 'Publié le', value: annonce.created_at ? new Date(annonce.created_at).toLocaleDateString(getLocale()) : '—' },
+                { icon: Package,  color: 'bg-[#1DBF73]/10', iconColor: 'text-[#1DBF73]',  label: t.equipment.stateLabel,      value: t.etats[annonce.etat] ?? annonce.etat },
+                { icon: Layers,   color: 'bg-[#09B1BA]/10', iconColor: 'text-[#09B1BA]',  label: t.equipment.qtyLabel,  value: `${annonce.quantite} dispo.` },
+                { icon: Calendar, color: 'bg-orange-50',    iconColor: 'text-orange-400', label: t.equipment.publishedOn, value: annonce.created_at ? new Date(annonce.created_at).toLocaleDateString(getLocale()) : '—' },
               ].map(({ icon: Icon, color, iconColor, label, value }, index, arr) => (
                     <div
                         key={label}
@@ -506,6 +503,36 @@ function Equipment() {
       </div>
 
       <Footer />
+
+      {/* ── Barre sticky mobile : prix TTC + CTA ─────────────────────── */}
+      {!loading && annonce && !isOwnAnnonce && (
+        <div className='md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur border-t border-gray-200 px-4 pt-3 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]' style={{ paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom))' }}>
+          <div className='flex items-center gap-3'>
+            <div className='min-w-0'>
+              <p className='text-[11px] text-gray-400 leading-none'>{t.equipment.total}</p>
+              <p className='text-lg font-black text-[#1DBF73] leading-tight truncate'>
+                {Math.round(Number(annonce.prix_vendeur) * quantite * 1.08).toLocaleString(getLocale())} FCFA
+              </p>
+            </div>
+            <button
+              onClick={handleAddToCart}
+              disabled={stockDispo === 0}
+              className='flex-1 py-3.5 font-bold text-white rounded-xl bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] shadow-lg disabled:opacity-50 disabled:shadow-none transition-all text-sm'
+            >
+              {stockDispo === 0 ? t.equipment.outOfStock : `${t.equipment.addCart} • ${quantite}`}
+            </button>
+            {!isOwnAnnonce && (
+              <button
+                onClick={handleContact}
+                aria-label={t.equipment.contact}
+                className='w-12 h-12 shrink-0 flex items-center justify-center border-2 border-[#1DBF73] text-[#1DBF73] rounded-xl'
+              >
+                <MessageSquare className='w-5 h-5' />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

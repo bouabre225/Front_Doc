@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useLang } from '../../context/LangContext';
 import { motion } from 'framer-motion';
-import { Star, MapPin, ArrowRight, Heart, ShieldCheck } from 'lucide-react';
+import { Star, MapPin, ArrowRight, ShieldCheck } from 'lucide-react';
 import Card from '../common/Card';
 import { Link } from 'react-router-dom';
 import { getAnnonces, getImageUrl } from '../../../services/api';
 import { useCart } from '../../context/CartContext';
+import { useFavoris } from '../../hooks/useFavoris';
+import FavoriteButton from '../common/FavoriteButton';
 import ImageViewer from '../common/ImageViewer';
 import { useImageViewer } from '../../../hooks/useImageViewer';
 import { getLocale } from '../../i18n/format';
@@ -49,10 +51,7 @@ const PopularEquipments = () => {
 
   const [equipments, setEquipments] = useState([]);
   const [loading,    setLoading]    = useState(true);
-  const [favorites,  setFavorites]  = useState(() => {
-    try { return JSON.parse(localStorage.getItem('favorites') || '[]'); }
-    catch { return []; }
-  });
+  const { isFavorite, toggle: toggleFav } = useFavoris();
 
   useEffect(() => {
     const fetch = async () => {
@@ -80,11 +79,7 @@ const PopularEquipments = () => {
   const handleFavorite = (e, id) => {
     e.preventDefault();
     e.stopPropagation();
-    setFavorites(prev => {
-      const updated = prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id];
-      localStorage.setItem('favorites', JSON.stringify(updated));
-      return updated;
-    });
+    toggleFav(id);
   };
 
   const handleAddToCart = (e, equipment) => {
@@ -175,25 +170,14 @@ const PopularEquipments = () => {
                         )}
                         {equipment.vendeur?.verifie_kyc && (
                           <span className='bg-green-500 text-white px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm'>
-                            <ShieldCheck className='w-3 h-3' /> Vérifié
+                            <ShieldCheck className='w-3 h-3' /> {t.home.verified}
                           </span>
                         )}
                       </div>
 
-                      {/* Favori + Panier — visibles au hover */}
-                      <div className='absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
-                        <motion.button
-                          whileHover={{ scale: 1.15 }}
-                          whileTap={{ scale: 0.9 }}
-                          onClick={e => handleFavorite(e, equipment.id)}
-                          className='w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg'
-                        >
-                          <Heart className={`w-4 h-4 transition-colors ${
-                            favorites.includes(equipment.id)
-                              ? 'fill-red-500 text-red-500'
-                              : 'text-gray-600 hover:text-red-400'
-                          }`} />
-                        </motion.button>
+                      {/* Favori — toujours visible sur tactile */}
+                      <div className='absolute top-3 right-3 flex flex-col gap-2 transition-opacity duration-300'>
+                        <FavoriteButton size='sm' active={isFavorite(equipment.id)} onToggle={() => toggleFav(equipment.id)} />
                       </div>
                     </div>
 

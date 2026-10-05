@@ -4,13 +4,84 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowLeft, Package, Clock, CheckCircle, XCircle,
   AlertCircle, User, Store, CreditCard, MessageCircle,
-  ShoppingBag, Ban, AlertTriangle, Mail, Star
+  ShoppingBag, Ban, AlertTriangle, Mail, Star, RefreshCw
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande, renvoyerFacture, createAvis } from '../../../services/api';
 import { useLang } from '../../context/LangContext';
 import { getLocale } from '../../i18n/format';
+
+// ─── Stepper suivi commande (dynamique selon statut) ────────────────────────
+
+const ORDER_FLOW = ['en_attente', 'payee', 'livree', 'cloturee'];
+
+const OrderStepper = ({ statut, t }) => {
+  if (statut === 'annulee' || statut === 'litige') return null;
+  const steps = [
+    { key: 'en_attente', icon: Package,     color: 'text-gray-600 bg-gray-100',   label: t.order.stepCreated,   desc: t.order.stepCreatedD },
+    { key: 'payee',      icon: CheckCircle, color: 'text-[#1DBF73] bg-[#1DBF73]/10', label: t.order.stepPaid,      desc: t.order.stepPaidD },
+    { key: 'livree',     icon: ShoppingBag, color: 'text-[#09B1BA] bg-[#09B1BA]/10', label: t.order.stepShipped,   desc: t.order.stepShippedD },
+    { key: 'cloturee',   icon: CheckCircle, color: 'text-emerald-600 bg-emerald-50', label: t.order.stepDelivered, desc: t.order.stepDeliveredD },
+  ];
+  const current = ORDER_FLOW.indexOf(statut);
+  return (
+    <div className='space-y-3' role='list' aria-label={t.order.stepCreated}>
+      {steps.map(({ key, icon: Icon, color, label, desc }, i) => {
+        const done = i <= current;
+        return (
+          <div key={key} role='listitem' className='flex items-center gap-4'>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${done ? color : 'text-gray-300 bg-gray-50'}`}>
+              <Icon className='w-5 h-5' />
+            </div>
+            <div className='flex-1 min-w-0'>
+              <p className={`text-sm font-bold ${done ? 'text-gray-900' : 'text-gray-400'}`}>{label}</p>
+              <p className='text-xs text-gray-400'>{desc}</p>
+            </div>
+            {done && <CheckCircle className='w-4 h-4 text-[#1DBF73] shrink-0' />}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+// ─── Formulaire d'avis (extrait du bandeau payé : visible livrée/clôturée) ───
+
+const AvisForm = ({ noteVendeur, setNoteVendeur, noteConformite, setNoteConformite, avisCommentaire, setAvisCommentaire, onSubmit, loading, t }) => (
+  <div className='w-full p-4 mb-3 border-2 border-yellow-100 bg-yellow-50/50 rounded-xl'>
+    <p className='text-sm font-bold text-gray-800 mb-3 flex items-center gap-2'>
+      <Star className='w-4 h-4 fill-yellow-400 text-yellow-400' /> {t.order.rateTitle}
+    </p>
+    {[[t.order.ratingSeller, noteVendeur, setNoteVendeur], [t.order.ratingConformity, noteConformite, setNoteConformite]].map(([label, val, setVal]) => (
+      <div key={label} className='flex items-center justify-between mb-2'>
+        <span className='text-xs text-gray-600'>{label}</span>
+        <div className='flex gap-1' role='radiogroup' aria-label={label}>
+          {[1, 2, 3, 4, 5].map((s) => (
+            <button key={s} type='button' onClick={() => setVal(s)} aria-label={`${label} ${s}/5`} className='w-11 h-11 flex items-center justify-center'>
+              <Star className={`w-5 h-5 ${s <= val ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
+            </button>
+          ))}
+        </div>
+      </div>
+    ))}
+    <textarea
+      value={avisCommentaire}
+      onChange={(e) => setAvisCommentaire(e.target.value)}
+      placeholder={t.order.yourReview}
+      rows={2}
+      maxLength={1000}
+      className='w-full mt-2 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400 resize-none bg-white'
+    />
+    <button
+      onClick={onSubmit}
+      disabled={loading}
+      className='w-full mt-2 py-2.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl text-sm disabled:opacity-50'
+    >
+      {loading ? t.order.resending : t.order.publishReview}
+    </button>
+  </div>
+);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -141,6 +212,25 @@ const CommandeDetail = () => {
   const [noteConformite, setNoteConformite] = useState(5);
   const [avisCommentaire, setAvisCommentaire] = useState('');
   const [avisDepose, setAvisDepose] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+
+  const handleManualVerify = async () => {
+    setVerifying(true);
+    setError('');
+    try {
+      const data = await verifyCommande(id);
+      await fetchCommande();
+      if (data.statut === 'payee') {
+        setSuccess(t.order.paidOk);
+      } else {
+        setSuccess(t.order.stillPending);
+      }
+    } catch {
+      setError(t.order.verifyError);
+    } finally {
+      setVerifying(false);
+    }
+  };
 
   useEffect(() => {
     if (!localStorage.getItem('auth_token')) { navigate('/login'); return; }
@@ -382,32 +472,15 @@ const handlePay = async () => {
               </motion.div>
               <h2 className='text-2xl font-black text-white mb-2'>{t.order.paidTitle}</h2>
               <p className='text-white/85 text-sm'>
-                Merci d'avoir utilisé DocSpace. Votre commande a bien été enregistrée.
+                {t.order.thankYou}
               </p>
             </div>
 
             {/* Détails */}
             <div className='bg-white px-6 py-5 space-y-4'>
 
-              {/* Étapes livraison */}
-              <div className='space-y-3'>
-                {[
-                  { icon: CheckCircle, color: 'text-[#1DBF73] bg-[#1DBF73]/10', label: 'Paiement confirmé',        desc: 'Votre paiement a été reçu avec succès', done: true },
-                  { icon: Package,     color: 'text-[#09B1BA] bg-[#09B1BA]/10', label: 'Préparation en cours',     desc: 'Le vendeur prépare votre commande',       done: false },
-                  { icon: ShoppingBag, color: 'text-orange-400 bg-orange-50',   label: 'Livraison',                desc: 'Vous serez livré(e) prochainement',       done: false },
-                ].map(({ icon: Icon, color, label, desc, done }) => (
-                  <div key={label} className='flex items-center gap-4'>
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${color}`}>
-                      <Icon className='w-5 h-5' />
-                    </div>
-                    <div className='flex-1 min-w-0'>
-                      <p className={`text-sm font-bold ${done ? 'text-gray-900' : 'text-gray-400'}`}>{label}</p>
-                      <p className='text-xs text-gray-400'>{desc}</p>
-                    </div>
-                    {done && <CheckCircle className='w-4 h-4 text-[#1DBF73] shrink-0' />}
-                  </div>
-                ))}
-              </div>
+              {/* Étapes livraison — dynamiques selon statut */}
+              <OrderStepper statut={commande.statut} t={t} />
 
               <div className='border-t border-gray-100 pt-4'>
                 <p className='text-xs text-center text-gray-400 mb-4'>
@@ -426,54 +499,6 @@ const handlePay = async () => {
                   {t.order.resendBill}
                 </button>
 
-                {/* ✅ Bouton litige dans la section succès */}
-                {isAcheteur && (
-                  <button
-                    onClick={() => setShowLitige(true)}
-                    className='w-full py-3 mb-3 border-2 border-orange-200 text-orange-600 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-orange-50 transition-all text-sm'
-                  >
-                    <AlertCircle className='w-4 h-4' />
-                    {t.order.openDispute}
-                  </button>
-                )}
-                {/* ⭐ Noter cet achat (commande livrée/clôturée) */}
-                {isAcheteur && ['livree', 'cloturee'].includes(commande.statut) && !avisDepose && (
-                  <div className='w-full p-4 mb-3 border-2 border-yellow-100 bg-yellow-50/50 rounded-xl'>
-                    <p className='text-sm font-bold text-gray-800 mb-3 flex items-center gap-2'>
-                      <Star className='w-4 h-4 fill-yellow-400 text-yellow-400' /> {t.order.rateTitle}
-                    </p>
-                    {[['Vendeur', noteVendeur, setNoteVendeur], ['Conformité produit', noteConformite, setNoteConformite]].map(([label, val, setVal]) => (
-                      <div key={label} className='flex items-center justify-between mb-2'>
-                        <span className='text-xs text-gray-600'>{label}</span>
-                        <div className='flex gap-1'>
-                          {[1, 2, 3, 4, 5].map((s) => (
-                            <button key={s} type='button' onClick={() => setVal(s)}>
-                              <Star className={`w-5 h-5 ${s <= val ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                    <textarea
-                      value={avisCommentaire}
-                      onChange={(e) => setAvisCommentaire(e.target.value)}
-                      placeholder='Votre avis (optionnel)...'
-                      rows={2}
-                      maxLength={1000}
-                      className='w-full mt-2 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-yellow-400 resize-none bg-white'
-                    />
-                    <button
-                      onClick={handleAvis}
-                      disabled={actionLoading}
-                      className='w-full mt-2 py-2.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl text-sm disabled:opacity-50'
-                    >
-                      {actionLoading ? t.order.resending : t.order.publishReview}
-                    </button>
-                  </div>
-                )}
-                {isAcheteur && avisDepose && (
-                  <p className='w-full py-2 mb-3 text-center text-xs font-semibold text-green-600'>{t.order.alreadyRated}</p>
-                )}
                 {isAcheteur && (
                   <Link
                     to={`/messages?userId=${commande.vendeur_id}`}
@@ -500,6 +525,29 @@ const handlePay = async () => {
               </div>
             </div>
           </motion.div>
+        )}
+
+        {/* ── Avis & litige (livrée/clôturée, acheteur) ─────────────────── */}
+        {commande && isAcheteur && ['livree', 'cloturee'].includes(commande.statut) && (
+          <div className='bg-white rounded-2xl border border-gray-100 p-5 mb-4 space-y-3'>
+            {!avisDepose ? (
+              <AvisForm
+                noteVendeur={noteVendeur} setNoteVendeur={setNoteVendeur}
+                noteConformite={noteConformite} setNoteConformite={setNoteConformite}
+                avisCommentaire={avisCommentaire} setAvisCommentaire={setAvisCommentaire}
+                onSubmit={handleAvis} loading={actionLoading} t={t}
+              />
+            ) : (
+              <p className='w-full py-2 text-center text-xs font-semibold text-green-600'>{t.order.alreadyRated}</p>
+            )}
+            <button
+              onClick={() => setShowLitige(true)}
+              className='w-full py-3 border-2 border-orange-200 text-orange-600 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-orange-50 transition-all text-sm'
+            >
+              <AlertCircle className='w-4 h-4' />
+              {t.order.openDispute}
+            </button>
+          </div>
         )}
 
         {commande && (commande.statut !== 'payee' || isVendeur) && (
@@ -708,14 +756,16 @@ const handlePay = async () => {
                 {t.order.contactPeer}  {isAcheteur ? t.order.theSeller : t.order.theBuyer}
               </Link>
 
-              {/* Ouvrir un litige — acheteur + livraison */}
-              {isAcheteur && commande.statut === 'livree' && (
+              {/* Vérifier mon paiement — acheteur + en_attente */}
+              {isAcheteur && commande.statut === 'en_attente' && (
                 <button
-                  onClick={() => setShowLitige(true)}
-                  className='w-full py-3 border-2 border-orange-200 text-orange-600 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-orange-50 transition-all text-sm'
+                  onClick={handleManualVerify}
+                  disabled={verifying}
+                  className='w-full py-3 border-2 border-[#1DBF73]/40 text-[#1DBF73] font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-[#1DBF73]/5 transition-all text-sm disabled:opacity-50'
                 >
-                  <AlertCircle className='w-4 h-4' />
-                  {t.order.openDisputeShort}
+                  {verifying
+                    ? <><div className='w-4 h-4 border-2 border-[#1DBF73] rounded-full border-t-transparent animate-spin' /> {t.order.verifying}</>
+                    : <><RefreshCw className='w-4 h-4' /> {t.order.verifyPayment}</>}
                 </button>
               )}
 
@@ -762,7 +812,7 @@ const handlePay = async () => {
 
       {showLitige && (
         <ConfirmModal
-          title='Ouvrir un litige'
+          title={t.order.disputeModalTitle}
           message={t.order.disputeModalMsg}
           onConfirm={handleLitige}
           onCancel={() => { setShowLitige(false); setLitigeMotif(''); setLitigeDetails(''); }}
