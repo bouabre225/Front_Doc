@@ -9,31 +9,10 @@ import {
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { sendContact } from '../../../services/api';
+import { useLang } from '../../context/LangContext';
 
 // ─── FAQ data ─────────────────────────────────────────────────────────────────
 
-const FAQ = [
-  {
-    q: 'Comment fonctionne la protection acheteur ?',
-    a: "DocSpace prélève des frais de protection sur chaque transaction. En cas de litige, notre équipe intervient pour arbitrer et rembourser l'acheteur si le vendeur est en tort.",
-  },
-  {
-    q: 'Comment devenir vendeur sur DocSpace ?',
-    a: "Créez un compte vendeur, puis soumettez vos documents KYC (CNI ou passeport). Notre équipe valide votre identité sous 24-48h. Une fois validé, vous pouvez publier vos annonces.",
-  },
-  {
-    q: 'Quels équipements peut-on vendre ?',
-    a: "Tout matériel médical légal : imagerie, monitoring, chirurgie, laboratoire, mobilier médical... Les équipements doivent être conformes aux réglementations en vigueur.",
-  },
-  {
-    q: 'Combien de temps pour recevoir un remboursement ?',
-    a: "En cas de litige résolu en faveur de l'acheteur, le remboursement est effectué sous 5 à 10 jours ouvrés selon votre moyen de paiement.",
-  },
-  {
-    q: 'Comment contacter un vendeur ?',
-    a: 'Sur chaque annonce, un bouton "Contacter le vendeur" ouvre directement la messagerie intégrée. Vous pouvez échanger en temps réel avec le vendeur.',
-  },
-];
 
 // ─── FaqItem ──────────────────────────────────────────────────────────────────
 
@@ -80,6 +59,7 @@ const FaqItem = ({ q, a, index }) => {
 // ─── Contact ──────────────────────────────────────────────────────────────────
 
 const Contact = () => {
+  const { t } = useLang();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -110,7 +90,7 @@ const Contact = () => {
     setError('');
 
     if (!form.nom.trim() || !form.email.trim() || !form.message.trim()) {
-      setError('Veuillez remplir tous les champs obligatoires.');
+      setError(t.contact.fillRequired);
       return;
     }
 
@@ -125,48 +105,40 @@ const Contact = () => {
       });
       setSuccess(true);
     } catch (err) {
-      setError(err.message || "Erreur lors de l'envoi. Réessayez.");
+      setError(err.message || t.contact.sendError);
     } finally {
       setLoading(false);
     }
   };
 
-  const CATEGORIES = [
-    'Question générale',
-    'Problème technique',
-    'Litige / Remboursement',
-    'Vérification KYC',
-    'Signalement',
-    'Partenariat',
-    'Autre',
-  ];
+  const CATEGORIES = t.contact.subjects;
 
   const INFO_CARDS = [
     {
       icon:  Mail,
-      label: 'Email',
+      label: t.contact.email,
       value: 'docspaceafrica@gmail.com',
       href:  'mailto:docspaceafrica@gmail.com',
       color: 'from-[#1DBF73] to-[#09B1BA]',
     },
     {
       icon:  Phone,
-      label: 'Téléphone',
+      label: t.contact.phone,
       value: '+229 01 96 81 12 13',
       href:  'tel:+2290196811213',
       color: 'from-[#09B1BA] to-[#1DBF73]',
     },
     {
       icon:  MapPin,
-      label: 'Adresse',
+      label: t.contact.address,
       value: 'Cotonou, Bénin',
       href:  null,
       color: 'from-[#1DBF73] to-[#09B1BA]',
     },
     {
       icon:  Clock,
-      label: 'Disponibilité',
-      value: '24h/24 - 7j/7',
+      label: t.contact.availability,
+      value: t.contact.availabilityValue,
       href:  null,
       color: 'from-[#09B1BA] to-[#1DBF73]',
     },
@@ -192,7 +164,7 @@ const Contact = () => {
               className='inline-flex items-center gap-2 text-white hover:text-white/80 mb-6 transition-colors text-sm'
             >
               <ArrowLeft className='w-4 h-4' />
-              Retour
+              {t.contact.back}
             </motion.button>
           </div>
           <motion.div
@@ -202,9 +174,9 @@ const Contact = () => {
             <div className='inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-2xl mb-4 backdrop-blur-sm'>
               <MessageCircle className='w-8 h-8 text-white' />
             </div>
-            <h1 className='text-4xl font-bold text-white mb-3'>Contactez-nous</h1>
+            <h1 className='text-4xl font-bold text-white mb-3'>{t.contact.title}</h1>
             <p className='text-white/80 text-lg max-w-lg mx-auto'>
-              Notre équipe est là pour vous aider. Réponse garantie sous 24h.
+              {t.contact.subtitle}
             </p>
           </motion.div>
         </div>
@@ -246,8 +218,8 @@ const Contact = () => {
             transition={{ delay: 0.2 }}
           >
             <div className='bg-white rounded-2xl shadow-sm border border-gray-100 p-8'>
-              <h2 className='text-2xl font-bold text-gray-900 mb-1'>Envoyer un message</h2>
-              <p className='text-sm text-gray-500 mb-7'>Nous vous répondons sous 24h ouvrées.</p>
+              <h2 className='text-2xl font-bold text-gray-900 mb-1'>{t.contact.send}</h2>
+              <p className='text-sm text-gray-500 mb-7'>{t.contact.reply24}</p>
 
               <AnimatePresence mode='wait'>
                 {success ? (
@@ -260,9 +232,9 @@ const Contact = () => {
                     <div className='w-20 h-20 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-5'>
                       <CheckCircle className='w-10 h-10 text-green-500' />
                     </div>
-                    <h3 className='text-xl font-bold text-gray-900 mb-2'>Message envoyé !</h3>
+                    <h3 className='text-xl font-bold text-gray-900 mb-2'>{t.contact.sent}</h3>
                     <p className='text-sm text-gray-500 mb-6'>
-                      Nous avons bien reçu votre message et vous répondrons dans les plus brefs délais.
+                      {t.contact.sentOk}
                     </p>
                     <button
                       onClick={() => {
@@ -271,7 +243,7 @@ const Contact = () => {
                       }}
                       className='px-6 py-2.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl text-sm hover:shadow-lg transition-all'
                     >
-                      Envoyer un autre message
+                      {t.contact.sendAnother}
                     </button>
                   </motion.div>
                 ) : (
@@ -290,19 +262,19 @@ const Contact = () => {
                     <div className='grid grid-cols-2 gap-4'>
                       <div>
                         <label className='block mb-1.5 text-sm font-semibold text-gray-700'>
-                          Nom complet <span className='text-red-400'>*</span>
+                          {t.contact.name} <span className='text-red-400'>*</span>
                         </label>
                         <input
                           name='nom'
                           value={form.nom}
                           onChange={handleChange}
-                          placeholder='Votre nom'
+                          placeholder={t.contact.namePlaceholder}
                           className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                         />
                       </div>
                       <div>
                         <label className='block mb-1.5 text-sm font-semibold text-gray-700'>
-                          Email <span className='text-red-400'>*</span>
+                          {t.contact.email} <span className='text-red-400'>*</span>
                         </label>
                         <input
                           type='email'
@@ -316,25 +288,25 @@ const Contact = () => {
                     </div>
 
                     <div>
-                      <label className='block mb-1.5 text-sm font-semibold text-gray-700'>Catégorie</label>
+                      <label className='block mb-1.5 text-sm font-semibold text-gray-700'>{t.contact.category}</label>
                       <select
                         name='categorie'
                         value={form.categorie}
                         onChange={handleChange}
                         className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                       >
-                        <option value=''>Sélectionnez une catégorie</option>
+                        <option value=''>{t.contact.subjectPlaceholder}</option>
                         {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
 
                     <div>
-                      <label className='block mb-1.5 text-sm font-semibold text-gray-700'>Sujet</label>
+                      <label className='block mb-1.5 text-sm font-semibold text-gray-700'>{t.contact.subject}</label>
                       <input
                         name='sujet'
                         value={form.sujet}
                         onChange={handleChange}
-                        placeholder='Résumez votre demande en quelques mots'
+                        placeholder={t.contact.subjectPlaceholder}
                         className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                       />
                     </div>
@@ -349,7 +321,7 @@ const Contact = () => {
                         onChange={handleChange}
                         rows={5}
                         maxLength={1000}
-                        placeholder='Décrivez votre demande en détail...'
+                        placeholder={t.contact.messagePlaceholder}
                         className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all resize-none'
                       />
                       <p className='text-xs text-gray-400 mt-1 text-right'>{form.message.length}/1000</p>
@@ -365,12 +337,12 @@ const Contact = () => {
                       {loading ? (
                         <>
                           <div className='w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin' />
-                          Envoi en cours...
+                          {t.contact.sending}
                         </>
                       ) : (
                         <>
                           <Send className='w-4 h-4' />
-                          Envoyer le message
+                          {t.contact.send}
                         </>
                       )}
                     </motion.button>
@@ -386,11 +358,11 @@ const Contact = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <h2 className='text-2xl font-bold text-gray-900 mb-1'>Questions fréquentes</h2>
-            <p className='text-sm text-gray-500 mb-6'>Trouvez rapidement une réponse à votre question.</p>
+            <h2 className='text-2xl font-bold text-gray-900 mb-1'>{t.contact.faq}</h2>
+            <p className='text-sm text-gray-500 mb-6'>{t.contact.faqHint}</p>
 
             <div className='space-y-3 bg-white rounded-2xl shadow-sm border border-gray-100 p-4'>
-              {FAQ.map((item, i) => (
+              {t.contact.faqItems.map((item, i) => (
                 <FaqItem key={i} q={item.q} a={item.a} index={i} />
               ))}
             </div>
@@ -402,16 +374,16 @@ const Contact = () => {
                   <MessageCircle className='w-5 h-5 text-white' />
                 </div>
                 <div>
-                  <h3 className='font-bold text-gray-800 mb-1'>Messagerie instantanée</h3>
+                  <h3 className='font-bold text-gray-800 mb-1'>{t.contact.instantMessaging}</h3>
                   <p className='text-sm text-gray-500 mb-3'>
-                    Besoin d'aide rapide ? Contactez directement un vendeur via notre messagerie intégrée.
+                    {t.contact.fastHelp}
                   </p>
                   <Link
                     to='/messages'
                     className='inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white text-sm font-semibold rounded-xl hover:shadow-lg transition-all'
                   >
                     <MessageCircle className='w-4 h-4' />
-                    Ouvrir la messagerie
+                    {t.contact.openMessaging}
                   </Link>
                 </div>
               </div>

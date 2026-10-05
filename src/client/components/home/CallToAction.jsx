@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useLang } from '../../context/LangContext';
 import { motion } from 'framer-motion';
 import { ArrowRight, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getAnnonces, getKycStatus } from '../../../services/api';
 
 const CallToAction = () => {
+  const { t } = useLang();
   const [stats, setStats] = useState({
     equipements: '500+',
     vendeurs:    '150+',
@@ -140,11 +142,10 @@ const CallToAction = () => {
             transition={{ duration: 0.8 }}
           >
             <h2 className='mb-6 text-5xl font-bold leading-tight text-white'>
-              Vous avez du matériel <br />à vendre ?
+              {t.home.sellTitle}
             </h2>
             <p className='mb-8 text-xl leading-relaxed text-white/90'>
-              Publiez votre annonce gratuitement et touchez des milliers d'acheteurs
-              potentiels dans toute l'Afrique de l'Ouest.
+              {t.home.sellSubtitle}
             </p>
 
             <Link
@@ -162,13 +163,13 @@ const CallToAction = () => {
             >
               {isAcheteur ? (
                 <>
-                  Devenez vendeur
+                  {t.home.becomeSellerBtn}
                   <ArrowRight className='w-6 h-6' />
                 </>
               ) : (
                 <>
                   <Upload className='w-6 h-6' />
-                  Publier une annonce gratuite
+                  {t.home.publishFree}
                   <ArrowRight className='w-6 h-6' />
                 </>
               )}
@@ -178,17 +179,17 @@ const CallToAction = () => {
             {/* Messages contextualisés */}
             {isVendeur && !kycValide && (
             <p className='mt-4 text-sm text-white/80'>
-              ⚠️ Votre KYC doit être validé pour publier
+              ⚠️ {t.home.kycRequired}
             </p>
             )}
             {isAcheteur && (
             <p className='mt-4 text-sm text-white/80'>
-              🚀 Rejoignez nos vendeurs vérifiés et commencez à vendre
+              🚀 {t.home.joinSellers}
             </p>
             )}
             {!user.id && (
             <p className='mt-4 text-sm text-white/80'>
-              Connectez-vous pour commencer à vendre
+              {t.home.loginToSell}
             </p>
             )}
           </motion.div>

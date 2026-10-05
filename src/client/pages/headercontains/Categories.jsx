@@ -12,6 +12,7 @@ import {
     X,
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
+import { useLang } from '../../context/LangContext';
 import Footer from '../../components/layout/Footer';
 import {
     getAnnonces,
@@ -200,7 +201,7 @@ const AnnonceCard = ({ annonce, index }) => (
                                 <span className="ml-1 text-sm font-medium text-gray-400">FCFA</span>
                             </p>
                             <div className="flex items-center gap-1 mt-0.5">
-                                <span className="text-xs text-gray-400">Total :</span>
+                                <span className="text-xs text-gray-400">{t.categoriesPage.total}</span>
                                 <span className="text-xs font-semibold text-gray-600">
                                     {Math.round(Number(annonce.prix_vendeur) * 1.08).toLocaleString(
                                         'fr-FR',
@@ -241,7 +242,9 @@ const SkeletonCard = () => (
 
 // ─── Page toutes les catégories ──────────────────────────────────────────────
 
-const AllCategories = ({ counts }) => (
+const AllCategories = ({ counts }) => {
+    const { t } = useLang();
+    return (
     <div className="min-h-screen bg-gray-50">
         <Header />
 
@@ -254,18 +257,17 @@ const AllCategories = ({ counts }) => (
                     className="max-w-xl"
                 >
                     <span className="inline-flex items-center gap-2 px-3 py-1 bg-[#1DBF73]/10 text-[#1DBF73] text-xs font-bold rounded-full mb-4 uppercase tracking-wide">
-                        {Object.keys(CATEGORIES_CONFIG).length} Spécialités
+                        {Object.keys(CATEGORIES_CONFIG).length} {t.categoriesPage.specialties}
                     </span>
                     <h1 className="mb-3 text-5xl font-black leading-tight text-gray-900">
-                        Explorez par
+                        {t.categoriesPage.title}
                         <br />
                         <span className="bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent">
-                            Catégorie
+                            {t.categoriesPage.category}
                         </span>
                     </h1>
                     <p className="text-gray-500">
-                        Trouvez rapidement l'équipement dont vous avez besoin parmi nos spécialités
-                        médicales.
+                        {t.categoriesPage.subtitle}
                     </p>
                 </motion.div>
             </div>
@@ -285,7 +287,7 @@ const AllCategories = ({ counts }) => (
                                 <div className="relative h-40 overflow-hidden">
                                     <img
                                         src={cat.image}
-                                        alt={cat.name}
+                                        alt={t.cats[cat.name] ?? cat.name}
                                         className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                                     />
                                     <div
@@ -297,13 +299,13 @@ const AllCategories = ({ counts }) => (
                                     </div>
                                     <div className="absolute bottom-3 left-3 right-3">
                                         <h3 className="text-sm font-bold leading-tight text-white">
-                                            {cat.name}
+                                            {t.cats[cat.name] ?? cat.name}
                                         </h3>
                                     </div>
                                 </div>
                                 <div className="px-3 py-2.5 flex items-center justify-between">
                                     <span className="text-xs font-medium text-gray-400">
-                                        {counts[key] ?? '—'} annonce(s)
+                                        {counts[key] ?? '—'} {t.categoriesPage.ads}
                                     </span>
                                     <div
                                         className={`w-6 h-6 rounded-lg flex items-center justify-center ${cat.bgLight}`}
@@ -320,12 +322,14 @@ const AllCategories = ({ counts }) => (
 
         <Footer />
     </div>
-);
+    );
+};
 
 // ─── Page catégorie détail ───────────────────────────────────────────────────
 
 const CategoryDetail = ({ slug, category }) => {
     const navigate = useNavigate();
+    const { t } = useLang();
     const [annonces, setAnnonces] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQ, setSearchQ] = useState('');
@@ -387,7 +391,7 @@ const CategoryDetail = ({ slug, category }) => {
             <div className="relative overflow-hidden h-60">
                 <img
                     src={category.image}
-                    alt={category.name}
+                    alt={t.cats[category.name] ?? category.name}
                     className="object-cover w-full h-full"
                 />
                 <div
@@ -401,22 +405,22 @@ const CategoryDetail = ({ slug, category }) => {
                             className="inline-flex items-center gap-2 mb-4 text-sm font-medium text-white/70 hover:text-white transition-colors"
                         >
                             <ArrowLeft className="w-4 h-4" />
-                            Toutes les catégories
+                            {t.categoriesPage.all}
                         </motion.div>
                     </Link>
                     <div className="flex items-end justify-between">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
                                 <span className="text-3xl">{category.emoji}</span>
-                                <h1 className="text-4xl font-black text-white">{category.name}</h1>
+                                <h1 className="text-4xl font-black text-white">{t.cats[category.name] ?? category.name}</h1>
                             </div>
                             <p className="max-w-lg text-sm text-white/70">
-                                {category.description || `Équipements médicaux — ${category.name}`}
+                                {category.description || `${t.categoriesPage.equipmentPrefix} — ${t.cats[category.name] ?? category.name}`}
                             </p>
                         </div>
                         <div className="hidden px-5 py-3 text-center border md:block bg-white/15 backdrop-blur-sm border-white/20 rounded-2xl">
                             <p className="text-3xl font-black text-white">{annonces.length}</p>
-                            <p className="text-xs text-white/70 mt-0.5">annonce(s)</p>
+                            <p className="text-xs text-white/70 mt-0.5">{t.categoriesPage.ads}</p>
                         </div>
                     </div>
                 </div>
@@ -432,7 +436,7 @@ const CategoryDetail = ({ slug, category }) => {
                             type="text"
                             value={searchQ}
                             onChange={(e) => setSearchQ(e.target.value)}
-                            placeholder="Rechercher dans cette catégorie..."
+                            placeholder={t.categoriesPage.searchPlaceholder}
                             className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 bg-white transition-all"
                         />
                         {searchQ && (
@@ -457,7 +461,7 @@ const CategoryDetail = ({ slug, category }) => {
                                         : 'bg-white text-gray-600 border border-gray-200 hover:border-[#1DBF73]/40'
                                 }`}
                             >
-                                {e === 'tous' ? 'Tous' : e}
+                                {e === 'tous' ? t.etats.Tous : e}
                             </button>
                         ))}
                     </div>
@@ -474,10 +478,10 @@ const CategoryDetail = ({ slug, category }) => {
                         >
                             <SlidersHorizontal className="w-3.5 h-3.5" />
                             {sortBy === 'recent'
-                                ? 'Trier'
+                                ? t.categoriesPage.sort
                                 : sortBy === 'prix_asc'
-                                  ? 'Prix ↑'
-                                  : 'Prix ↓'}
+                                  ? t.categoriesPage.priceUp
+                                  : t.categoriesPage.priceDown}
                         </button>
                         <AnimatePresence>
                             {filterOpen && (
@@ -489,9 +493,9 @@ const CategoryDetail = ({ slug, category }) => {
                                     className="absolute right-0 mt-2 w-44 bg-white border border-gray-100 shadow-xl rounded-2xl overflow-hidden z-20"
                                 >
                                     {[
-                                        { key: 'recent', label: 'Plus récents' },
-                                        { key: 'prix_asc', label: 'Prix croissant' },
-                                        { key: 'prix_desc', label: 'Prix décroissant' },
+                                        { key: 'recent', sortKey: 'recent' },
+                                        { key: 'prix_asc', sortKey: 'prix_asc' },
+                                        { key: 'prix_desc', sortKey: 'prix_desc' },
                                     ].map((opt) => (
                                         <button
                                             key={opt.key}
@@ -505,7 +509,7 @@ const CategoryDetail = ({ slug, category }) => {
                                                     : 'text-gray-700 hover:bg-gray-50'
                                             }`}
                                         >
-                                            {opt.label}
+                                            {opt.sortKey === 'recent' ? t.explore.sortRecent : opt.sortKey === 'prix_asc' ? t.explore.sortPriceAsc : t.explore.sortPriceDesc}
                                         </button>
                                     ))}
                                 </motion.div>
@@ -545,7 +549,7 @@ const CategoryDetail = ({ slug, category }) => {
                                     onClick={() => loadAnnonces(page + 1)}
                                     className="px-8 py-3 bg-white border-2 border-[#1DBF73] text-[#1DBF73] font-semibold rounded-xl hover:bg-[#1DBF73]/5 transition-all"
                                 >
-                                    Charger plus
+                                    {t.categoriesPage.loadMore}
                                 </motion.button>
                             </div>
                         )}
@@ -556,12 +560,12 @@ const CategoryDetail = ({ slug, category }) => {
                             <Filter className="text-gray-300 w-9 h-9" />
                         </div>
                         <p className="mb-2 text-xl font-bold text-gray-700">
-                            Aucun équipement disponible
+                            {t.categoriesPage.none}
                         </p>
                         <p className="max-w-xs mx-auto mb-8 text-sm text-gray-400">
                             {searchQ || etatFilter !== 'tous'
-                                ? 'Aucun résultat pour ces filtres.'
-                                : 'Cette catégorie sera bientôt alimentée par nos vendeurs.'}
+                                ? t.categoriesPage.noFilterResult
+                                : t.categoriesPage.soonStocked}
                         </p>
                         {searchQ || etatFilter !== 'tous' ? (
                             <button
@@ -571,7 +575,7 @@ const CategoryDetail = ({ slug, category }) => {
                                 }}
                                 className="px-6 py-3 border-2 border-[#1DBF73] text-[#1DBF73] font-semibold rounded-xl hover:bg-[#1DBF73]/5 transition-all"
                             >
-                                Réinitialiser les filtres
+                                {t.categoriesPage.resetFilters}
                             </button>
                         ) : (
                             <Link to="/explore">
@@ -580,7 +584,7 @@ const CategoryDetail = ({ slug, category }) => {
                                     whileTap={{ scale: 0.98 }}
                                     className="px-8 py-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl shadow-lg"
                                 >
-                                    Explorer tous les équipements
+                                    {t.categoriesPage.exploreAll}
                                 </motion.button>
                             </Link>
                         )}
@@ -639,10 +643,10 @@ const Categories = () => {
                     <div className="flex items-center justify-center w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-2xl">
                         <Filter className="w-8 h-8 text-gray-300" />
                     </div>
-                    <p className="mb-4 text-xl font-bold text-gray-700">Catégorie introuvable</p>
+                    <p className="mb-4 text-xl font-bold text-gray-700">{t.categoriesPage.notFound}</p>
                     <Link to="/categories">
                         <button className="px-6 py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl">
-                            Retour aux catégories
+                            {t.categoriesPage.back}
                         </button>
                     </Link>
                 </div>

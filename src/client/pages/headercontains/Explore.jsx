@@ -19,6 +19,7 @@ import ImageViewer from '../../components/common/ImageViewer';
 import { useImageViewer } from '../../../hooks/useImageViewer';
 import { useFavoris } from '../../hooks/useFavoris';
 import { useTracking } from '../../hooks/useTracking';
+import { useLang } from '../../context/LangContext';
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -49,10 +50,16 @@ const CONDITION_LABELS = {
 };
 
 const SORTS = [
-    { key: 'recent', label: 'Plus récents' },
-    { key: 'prix_asc', label: 'Prix ↑' },
-    { key: 'prix_desc', label: 'Prix ↓' },
+    { key: 'recent' },
+    { key: 'prix_asc' },
+    { key: 'prix_desc' },
 ];
+
+const SORT_LABELS = {
+    recent: 'sortRecent',
+    prix_asc: 'sortPriceAsc',
+    prix_desc: 'sortPriceDesc',
+};
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -171,6 +178,7 @@ const Explore = () => {
     const [total, setTotal] = useState(0);
     // ─── Favoris (serveur si connecté, local sinon) ────────────────────────
     const { favorites, isFavorite, toggle: handleFavorite } = useFavoris();
+    const { t } = useLang();
     useTracking({ page: '/explore' });
 
     const { viewer, openViewer, closeViewer } = useImageViewer();
@@ -231,7 +239,7 @@ const Explore = () => {
 
             setAnnonces(filtered);
         } catch {
-            setError('Impossible de charger les équipements. Vérifiez votre connexion.');
+            setError(t.explore.loadError);
         } finally {
             setLoading(false);
         }
@@ -273,7 +281,7 @@ const Explore = () => {
                         </span>
                     </h1>
                     <p className="text-gray-500">
-                        Trouvez l'équipement médical dont vous avez besoin
+                        {t.explore.title}
                     </p>
                 </div>
 
@@ -292,7 +300,7 @@ const Explore = () => {
                             type="text"
                             value={inputValue}
                             onChange={(e) => setInputValue(e.target.value)}
-                            placeholder="Rechercher un équipement médical..."
+                            placeholder={t.explore.searchPlaceholder}
                             className="w-full pl-12 pr-36 py-3.5 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all bg-white"
                         />
                         {inputValue && (
@@ -311,7 +319,7 @@ const Explore = () => {
                             type="submit"
                             className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-lg text-sm"
                         >
-                            Rechercher
+                            {t.common.search}
                         </button>
                     </div>
                 </form>
@@ -330,7 +338,7 @@ const Explore = () => {
                                         : 'bg-white text-gray-600 border-gray-200 hover:border-[#1DBF73]/50'
                                 }`}
                             >
-                                {cat}
+                                {t.cats[cat] ?? cat}
                             </button>
                         ))}
                     </div>
@@ -347,7 +355,7 @@ const Explore = () => {
                                         : 'bg-white text-gray-600 border-gray-200 hover:border-[#09B1BA]/50'
                                 }`}
                             >
-                                {CONDITION_LABELS[cond]}
+                                {t.etats[cond] ?? CONDITION_LABELS[cond]}
                             </button>
                         ))}
 
@@ -362,7 +370,7 @@ const Explore = () => {
                                 }`}
                             >
                                 <SlidersHorizontal className="w-3.5 h-3.5" />
-                                {SORTS.find((s) => s.key === sortBy)?.label}
+                                {t.explore[SORT_LABELS[sortBy]]}
                             </button>
                             <AnimatePresence>
                                 {sortOpen && (
@@ -386,7 +394,7 @@ const Explore = () => {
                                                         : 'text-gray-700 hover:bg-gray-50'
                                                 }`}
                                             >
-                                                {opt.label}
+                                                {t.explore[SORT_LABELS[opt.key]]}
                                             </button>
                                         ))}
                                     </motion.div>
@@ -401,7 +409,7 @@ const Explore = () => {
                                 className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-red-400 bg-red-50 border border-red-100 hover:bg-red-100 transition-all ml-auto"
                             >
                                 <X className="w-3 h-3" />
-                                Réinitialiser
+                                {t.explore.reset}
                             </button>
                         )}
                     </div>
@@ -416,7 +424,7 @@ const Explore = () => {
                             onClick={fetchAnnonces}
                             className="ml-auto text-xs font-semibold underline"
                         >
-                            Réessayer
+                            {t.explore.retry}
                         </button>
                     </div>
                 )}
@@ -426,9 +434,8 @@ const Explore = () => {
                     <>
                         {!loading && annonces.length > 0 && (
                             <p className="mb-4 text-sm text-gray-400">
-                                {annonces.length} équipement{annonces.length > 1 ? 's' : ''} affiché
-                                {annonces.length > 1 ? 's' : ''}
-                                {total > annonces.length ? ` sur ${total}` : ''}
+                                {annonces.length} {annonces.length > 1 ? t.explore.equipmentPlural : t.explore.equipment} {annonces.length > 1 ? t.explore.shownPlural : t.explore.shown}
+                                {total > annonces.length ? ` ${t.explore.of} ${total}` : ''}
                             </p>
                         )}
 
@@ -442,16 +449,16 @@ const Explore = () => {
                             <div className="py-20 text-center bg-white border border-gray-100 rounded-2xl">
                                 <div className="text-5xl mb-4">🔍</div>
                                 <p className="text-xl font-bold text-gray-700">
-                                    Aucun équipement trouvé
+                                    {t.explore.none}
                                 </p>
                                 <p className="mt-2 text-sm text-gray-400">
-                                    Essayez de modifier vos filtres ou votre recherche
+                                    {t.explore.noneHint}
                                 </p>
                                 <button
                                     onClick={handleReset}
                                     className="mt-6 px-6 py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl"
                                 >
-                                    Réinitialiser les filtres
+                                    {t.explore.resetFilters}
                                 </button>
                             </div>
                         ) : (
@@ -514,7 +521,7 @@ const Explore = () => {
                                                     <span
                                                         className={`absolute bottom-3 left-3 px-2.5 py-1 text-xs font-bold rounded-lg capitalize ${conditionStyle(item.etat)}`}
                                                     >
-                                                        {item.etat}
+                                                        {t.etats[item.etat] ?? item.etat}
                                                     </span>
                                                 )}
                                             </div>
@@ -533,7 +540,7 @@ const Explore = () => {
                                                 <div className="flex items-center gap-1 mb-3 text-xs text-gray-400">
                                                     <MapPin className="w-3.5 h-3.5 text-[#1DBF73]" />
                                                     <span className="truncate">
-                                                        {item.pays_expedition || 'Non précisé'}
+                                                        {item.pays_expedition || t.common.notSpecified}
                                                     </span>
                                                 </div>
 
@@ -549,7 +556,7 @@ const Explore = () => {
                                                     </div>
                                                     <div className="flex items-center gap-1 mt-0.5">
                                                         <span className="text-xs text-gray-400">
-                                                            Prix total :
+                                                            {t.explore.totalPrice}
                                                         </span>
                                                         <span className="text-xs font-semibold text-gray-600">
                                                             {Math.round(
@@ -584,7 +591,7 @@ const Explore = () => {
                                                     to={`/equipment/${item.id}`}
                                                     className="block w-full py-2.5 text-center text-sm font-semibold text-white rounded-xl bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] hover:shadow-md transition-all"
                                                 >
-                                                    Voir détails
+                                                    {t.explore.details}
                                                 </Link>
                                             </div>
                                         </motion.div>

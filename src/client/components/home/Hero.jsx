@@ -4,14 +4,15 @@ import { Search, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AnimatedBackground from './AnimatedBackground';
 import { getAnnonces } from '../../../services/api';
+import { useLang } from '../../context/LangContext';
 
 const SUGGESTIONS = ['Échographe', 'Stéthoscope', 'Scanner', 'Lit médical', 'Défibrillateur'];
 
 const FEATURES = [
-  { image: 'https://images.unsplash.com/photo-1584362917165-526a968579e8?w=400&h=300&fit=crop', title: 'Certifié',          desc: 'Équipements vérifiés',   overlay: 'from-blue-500/80 to-blue-600/80' },
-  { image: 'https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=400&h=300&fit=crop', title: 'Livraison Rapide', desc: 'Partout au Bénin',       overlay: 'from-green-500/80 to-emerald-600/80' },
-  { image: 'https://images.unsplash.com/photo-1607863680198-23d4b2565df0?w=400&h=300&fit=crop', title: 'Meilleur Prix',    desc: 'Garantie satisfait',     overlay: 'from-orange-500/80 to-yellow-600/80' },
-  { image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop', title: 'Paiement Sécurisé', desc: 'Transaction protégée',   overlay: 'from-purple-500/80 to-pink-600/80' },
+  { image: 'https://images.unsplash.com/photo-1584362917165-526a968579e8?w=400&h=300&fit=crop', tk: 'featCertified', dk: 'featCertifiedD', overlay: 'from-blue-500/80 to-blue-600/80' },
+  { image: 'https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=400&h=300&fit=crop', tk: 'featDelivery', dk: 'featDeliveryD', overlay: 'from-green-500/80 to-emerald-600/80' },
+  { image: 'https://images.unsplash.com/photo-1607863680198-23d4b2565df0?w=400&h=300&fit=crop', tk: 'featPrice', dk: 'featPriceD', overlay: 'from-orange-500/80 to-yellow-600/80' },
+  { image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=300&fit=crop', tk: 'featPayment', dk: 'featPaymentD', overlay: 'from-purple-500/80 to-pink-600/80' },
 ];
 
 // ─── Skeleton stat ────────────────────────────────────────────────────────────
@@ -24,6 +25,7 @@ const StatSkeleton = () => (
 
 const Hero = () => {
   const navigate = useNavigate();
+  const { t } = useLang();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statsLoading, setStatsLoading] = useState(true);
@@ -86,14 +88,13 @@ const Hero = () => {
           className='mb-10 text-center'
         >
           <h1 className='mb-6 text-5xl font-bold leading-tight text-gray-800 md:text-6xl'>
-            Équipements Médicaux Neuf
+            {t.home.heroTitle}
             <span className='block bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent'>
-               Et D'occasion Premium
+               {t.home.heroTitleAccent}
             </span>
           </h1>
           <p className='max-w-3xl mx-auto mb-8 text-xl text-gray-600'>
-            Achetez et vendez du matériel médical certifié.
-            Qualité garantie, prix accessibles, livraison sécurisée.
+            {t.home.heroDesc}
           </p>
         </motion.div>
 
@@ -115,13 +116,13 @@ const Hero = () => {
             >
               <img
                 src={feature.image}
-                alt={feature.title}
+                alt={t.home[feature.tk]}
                 className='absolute inset-0 object-cover w-full h-full transition-transform duration-500 group-hover:scale-110'
               />
               <div className={`absolute inset-0 bg-gradient-to-br ${feature.overlay} transition-opacity duration-300`} />
               <div className='relative z-10 flex flex-col justify-end h-full p-3 text-white'>
-                <h3 className='mb-0.5 text-sm font-bold'>{feature.title}</h3>
-                <p className='text-xs text-white/90'>{feature.desc}</p>
+                <h3 className='mb-0.5 text-sm font-bold'>{t.home[feature.tk]}</h3>
+                <p className='text-xs text-white/90'>{t.home[feature.dk]}</p>
               </div>
             </motion.div>
           ))}
@@ -135,7 +136,7 @@ const Hero = () => {
           className='max-w-5xl mx-auto'
         >
           <h2 className='mb-8 text-4xl font-bold text-center text-gray-800'>
-            QUE CHERCHEZ-VOUS ?
+            {t.home.heroSearchTitle}
           </h2>
 
           {/* ── Barre de recherche ──────────────────────────────────────── */}
@@ -147,7 +148,7 @@ const Hero = () => {
         type='text'
         value={searchQuery}
         onChange={e => setSearchQuery(e.target.value)}
-        placeholder='Ex: Échographe, Scanner...'
+        placeholder={t.home.heroSearchPh}
         className='flex-1 py-3 text-base sm:text-xl text-gray-800 placeholder-gray-400 bg-transparent border-none outline-none'
       />
       {searchQuery && (
@@ -164,14 +165,14 @@ const Hero = () => {
       type='submit'
       className='w-full sm:w-auto px-8 py-4 text-base sm:text-lg bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl sm:rounded-full hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 shrink-0'
     >
-      Rechercher
+      {t.common.search}
     </button>
   </div>
 </form>
 
           {/* Suggestions */}
           <div className='flex flex-wrap justify-center items-center gap-3 mt-6'>
-            <span className='text-sm font-medium text-gray-500'>Recherches populaires :</span>
+            <span className='text-sm font-medium text-gray-500'>{t.home.heroPopular}</span>
             {SUGGESTIONS.map((term, index) => (
               <motion.button
                 key={index}
@@ -207,7 +208,7 @@ const Hero = () => {
                     ? `${stats.equipements.toLocaleString('fr-FR')}+`
                     : '—'}
                 </div>
-                <div className='text-base font-semibold text-gray-700'>Équipements</div>
+                <div className='text-base font-semibold text-gray-700'>{t.home.statEquipments}</div>
               </motion.div>
 
               <motion.div
@@ -219,7 +220,7 @@ const Hero = () => {
                     ? `${stats.vendeurs}+`
                     : '—'}
                 </div>
-                <div className='text-base font-semibold text-gray-700'>Vendeurs actifs</div>
+                <div className='text-base font-semibold text-gray-700'>{t.home.statSellers}</div>
               </motion.div>
 
               <motion.div
@@ -227,7 +228,7 @@ const Hero = () => {
                 className='p-8 text-center transition-all duration-300 bg-white border border-gray-100 shadow-xl rounded-2xl hover:shadow-2xl'
               >
                 <div className='text-5xl font-extrabold text-[#1DBF73] mb-2'>98%</div>
-                <div className='text-base font-semibold text-gray-700'>Satisfaction</div>
+                <div className='text-base font-semibold text-gray-700'>{t.home.statSatisfaction}</div>
               </motion.div>
             </>
           )}

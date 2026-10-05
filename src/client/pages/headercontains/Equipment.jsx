@@ -14,6 +14,7 @@ import { useCart } from '../../context/CartContext';
 import ImageViewer from '../../components/common/ImageViewer';
 import { useImageViewer } from '../../../hooks/useImageViewer';
 import { useFavoris } from '../../hooks/useFavoris';
+import { useLang } from '../../context/LangContext';
 import { useTracking } from '../../hooks/useTracking';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -43,6 +44,7 @@ function Equipment() {
   const [quantite,      setQuantite]      = useState(1);
   const [addedToCart,   setAddedToCart]   = useState(false);
   const { isFavorite: isFav, toggle: toggleFav } = useFavoris();
+  const { t } = useLang();
   const isFavorite = isFav(id);
   useTracking({ annonce_id: id });
 
@@ -58,7 +60,7 @@ function Equipment() {
         // L'API peut retourner { data: annonce } ou l'annonce directement
         setAnnonce(data?.data ?? data);
       } catch {
-        setError("Équipement introuvable ou une erreur est survenue.");
+        setError(t.equipment.notFound);
       } finally {
         setLoading(false);
       }
@@ -123,9 +125,9 @@ function Equipment() {
         <Header />
         <div className='flex flex-col items-center justify-center py-40 gap-4'>
           <AlertCircle className='w-12 h-12 text-red-400' />
-          <p className='text-xl font-bold text-gray-700'>{error || "Équipement introuvable"}</p>
+          <p className='text-xl font-bold text-gray-700'>{error || t.equipment.notFound}</p>
           <Link to='/explore' className='px-6 py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl'>
-            Retour à l'exploration
+            {t.equipment.backExplore}
           </Link>
         </div>
         <Footer />
@@ -184,7 +186,7 @@ function Equipment() {
               {/* ✅ Indicateur zoom */}
               {images.length > 0 && (
                 <div className='absolute bottom-3 right-3 px-2 py-1 bg-black/40 backdrop-blur-sm rounded-lg text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1'>
-                  <span>🔍</span> Agrandir
+                  <span>🔍</span> {t.equipment.zoom}
                 </div>
               )}
 
@@ -201,7 +203,7 @@ function Equipment() {
               {/* Badge état */}
               {annonce.etat && (
                 <span className={`absolute top-4 left-4 px-3 py-1 text-xs font-bold rounded-full capitalize ${etatStyle(annonce.etat)}`}>
-                  {annonce.etat}
+                  {t.etats[annonce.etat] ?? annonce.etat}
                 </span>
               )}
 
@@ -251,7 +253,7 @@ function Equipment() {
             <div>
               {annonce.categorie && (
                 <span className='text-xs font-bold text-[#09B1BA] uppercase tracking-wide'>
-                  {annonce.categorie}
+                  {t.cats[annonce.categorie] ?? annonce.categorie}
                 </span>
               )}
               <h1 className='mt-1 text-2xl font-bold text-gray-900 leading-snug'>{annonce.titre}</h1>
@@ -278,7 +280,7 @@ function Equipment() {
 
             {/* Prix */}
             <div className='p-5 bg-gradient-to-br from-[#1DBF73]/5 to-[#09B1BA]/5 rounded-2xl border border-[#1DBF73]/15'>
-              <p className='text-xs text-gray-500 mb-1'>Prix vendeur</p>
+              <p className='text-xs text-gray-500 mb-1'>{t.equipment.sellerPrice}</p>
               <div className='text-4xl font-black text-[#1DBF73]'>
                 {Number(annonce.prix_vendeur).toLocaleString('fr-FR')}
                 <span className='ml-2 text-lg font-semibold text-gray-400'>FCFA</span>
@@ -287,7 +289,7 @@ function Equipment() {
               {/* Protection acheteur style Vinted */}
               <div className='mt-3 pt-3 border-t border-[#1DBF73]/15 space-y-2'>
                 <div className='flex items-center justify-between text-sm'>
-                  <span className='text-gray-500'>Prix vendeur</span>
+                  <span className='text-gray-500'>{t.equipment.sellerPrice}</span>
                   <span className='text-gray-700 font-medium'>
                     {Number(annonce.prix_vendeur).toLocaleString('fr-FR')} FCFA
                   </span>
@@ -295,7 +297,7 @@ function Equipment() {
                 <div className='flex items-center justify-between text-sm'>
                   <div className='flex items-center gap-1.5'>
                     <ShieldCheck className='w-4 h-4 text-[#09B1BA]' />
-                    <span className='text-[#09B1BA] font-medium'>Protection acheteur</span>
+                    <span className='text-[#09B1BA] font-medium'>{t.equipment.buyerProtection}</span>
                     <span className='text-xs bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full font-semibold'>8%</span>
                   </div>
                   <span className='text-[#09B1BA] font-medium'>
@@ -303,7 +305,7 @@ function Equipment() {
                   </span>
                 </div>
                 <div className='flex items-center justify-between pt-2 border-t border-[#1DBF73]/15'>
-                  <span className='font-bold text-gray-800'>Total</span>
+                  <span className='font-bold text-gray-800'>{t.equipment.total}</span>
                   <span className='font-black text-xl text-[#1DBF73]'>
                     {Math.round(Number(annonce.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
                   </span>
@@ -345,7 +347,7 @@ function Equipment() {
             {/* Description */}
             {annonce.description && (
               <div className='p-4 bg-white border border-gray-100 rounded-2xl'>
-                <p className='text-xs font-semibold text-gray-400 uppercase mb-2'>Description</p>
+                <p className='text-xs font-semibold text-gray-400 uppercase mb-2'>{t.equipment.description}</p>
                 <p className='text-sm leading-relaxed text-gray-600'>{annonce.description}</p>
               </div>
             )}
@@ -353,7 +355,7 @@ function Equipment() {
             {/* Sélecteur quantité */}
             {stockDispo > 1 && (
               <div className='flex items-center gap-4'>
-                <span className='text-sm font-semibold text-gray-700'>Quantité :</span>
+                <span className='text-sm font-semibold text-gray-700'>{t.equipment.quantity}</span>
                 <div className='flex items-center gap-2 bg-white border border-gray-200 rounded-xl p-1'>
                   <button
                     onClick={() => setQuantite(q => Math.max(1, q - 1))}
@@ -380,7 +382,7 @@ function Equipment() {
               {isOwnAnnonce ? (
                 <div className='flex-1 py-4 bg-gray-100 text-gray-500 font-semibold rounded-2xl flex items-center justify-center gap-2 text-sm'>
                   <Package className='w-5 h-5' />
-                  Votre annonce
+                  {t.equipment.yourListing}
                 </div>
               ) : (
                 <motion.button
@@ -397,12 +399,12 @@ function Equipment() {
                   <AnimatePresence mode='wait'>
                     {addedToCart ? (
                       <motion.span key='added' initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className='flex items-center gap-2'>
-                        <Check className='w-5 h-5' /> Ajouté au panier !
+                        <Check className='w-5 h-5' /> {t.equipment.addedCart}
                       </motion.span>
                     ) : (
                       <motion.span key='add' initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }} className='flex items-center gap-2'>
                         <ShoppingCart className='w-5 h-5' />
-                        {stockDispo === 0 ? 'Rupture de stock' : alreadyInCart ? 'Déjà dans le panier' : 'Ajouter au panier'}
+                        {stockDispo === 0 ? t.equipment.outOfStock : alreadyInCart ? t.equipment.inCart : t.equipment.addCart}
                       </motion.span>
                     )}
                   </AnimatePresence>
@@ -428,7 +430,7 @@ function Equipment() {
                   className='px-5 py-4 border-2 border-[#1DBF73] text-[#1DBF73] font-semibold rounded-2xl hover:bg-[#1DBF73]/5 transition-all flex items-center gap-2 text-sm'
                 >
                   <MessageSquare className='w-4 h-4' />
-                  Contacter
+                  {t.equipment.contact}
                 </motion.button>
               )}
             </div>
@@ -446,7 +448,7 @@ function Equipment() {
                     className='flex items-center justify-center gap-2 w-full py-3 bg-white border-2 border-[#1DBF73]/30 text-[#1DBF73] font-semibold rounded-xl hover:bg-[#1DBF73]/5 transition-all text-sm'
                   >
                     <ShoppingCart className='w-4 h-4' />
-                    Voir mon panier →
+                    {t.equipment.viewCart}
                   </Link>
                 </motion.div>
               )}
@@ -458,7 +460,7 @@ function Equipment() {
         {avis.length > 0 && (
           <div className='mt-14'>
             <div className='flex items-center justify-between mb-6'>
-              <h2 className='text-xl font-bold text-gray-900'>Avis clients ({avis.length})</h2>
+              <h2 className='text-xl font-bold text-gray-900'>{t.equipment.reviews} ({avis.length})</h2>
               {noteMoyenne && (
                 <div className='flex items-center gap-2 px-4 py-2 bg-yellow-50 rounded-xl border border-yellow-100'>
                   <Star className='w-5 h-5 fill-yellow-400 text-yellow-400' />
@@ -487,7 +489,7 @@ function Equipment() {
                       ))}
                     </div>
                   </div>
-                  <p className='text-xs text-gray-400 mb-1'>Vendeur {a.note_vendeur}/5 • Conformité {a.note_conformite}/5</p>
+                  <p className='text-xs text-gray-400 mb-1'>{t.equipment.ratingSeller} {a.note_vendeur}/5 • {t.equipment.ratingConformity} {a.note_conformite}/5</p>
                   {a.commentaire && <p className='text-sm text-gray-600 leading-relaxed'>{a.commentaire}</p>}
                   {a.created_at && (
                     <p className='text-xs text-gray-400 mt-2'>

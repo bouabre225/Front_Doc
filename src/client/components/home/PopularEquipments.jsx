@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLang } from '../../context/LangContext';
 import { motion } from 'framer-motion';
 import { Star, MapPin, ArrowRight, Heart, ShieldCheck } from 'lucide-react';
 import Card from '../common/Card';
@@ -40,6 +41,7 @@ const SkeletonCard = () => (
 // ─── Composant principal ─────────────────────────────────────────────────────
 
 const PopularEquipments = () => {
+  const { t } = useLang();
   const { addToCart, isInCart } = useCart();
 
   const { viewer, openViewer, closeViewer } = useImageViewer();
@@ -105,12 +107,12 @@ const PopularEquipments = () => {
         >
           <div>
             <h2 className='mb-3 text-5xl font-bold leading-tight'>
-              Équipements
+              {t.home.popularTitle}
               <span className='block md:inline bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent'>
-                {' '}Populaires
+                {' '}{t.home.popularAccent}
               </span>
             </h2>
-            <p className='text-lg text-gray-600'>Les plus récemment ajoutés</p>
+            <p className='text-lg text-gray-600'>{t.home.popularSubtitle}</p>
           </div>
           <Link to='/explore' className='hidden md:block text-center'>
             <motion.button
@@ -118,7 +120,7 @@ const PopularEquipments = () => {
               whileTap={{ scale: 0.95 }}
               className='flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all'
             >
-              Voir plus
+              {t.home.seeMore}
               <ArrowRight className='w-5 h-5' />
             </motion.button>
           </Link>
@@ -207,7 +209,7 @@ const PopularEquipments = () => {
                       <div className='flex items-center gap-1.5 mb-4 text-sm text-gray-500'>
                         <MapPin className='w-4 h-4 text-[#1DBF73] shrink-0' />
                         <span className='font-medium truncate'>
-                          {equipment.pays_expedition || 'Non précisé'}
+                          {equipment.pays_expedition || t.common.notSpecified}
                         </span>
                       </div>
 
@@ -218,7 +220,7 @@ const PopularEquipments = () => {
                             <span className='text-sm font-medium text-gray-500'>FCFA</span>
                           </div>
                           <div className='flex items-center gap-1 mt-0.5'>
-                            <span className='text-xs text-gray-400'>Total :</span>
+                            <span className='text-xs text-gray-400'>{t.explore.totalPrice}</span>
                             <span className='text-xs font-semibold text-gray-600'>
                               {Math.round(Number(equipment.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
                             </span>
@@ -227,7 +229,7 @@ const PopularEquipments = () => {
                             </span>
                           </div>
                           {isInCart(equipment.id) && (
-                            <span className='text-xs text-[#1DBF73] font-semibold'>✓ Dans le panier</span>
+                            <span className='text-xs text-[#1DBF73] font-semibold'>✓ {t.home.inCart}</span>
                           )}
                         </div>
 
@@ -235,7 +237,7 @@ const PopularEquipments = () => {
                           whileHover={{ scale: 1.15, rotate: -10 }}
                           whileTap={{ scale: 0.9 }}
                           className='w-12 h-12 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow'
-                          title='Voir les détails'
+                          title={t.home.detailsTitle}
                         >
                           <ArrowRight className='w-5 h-5' />
                         </motion.div>
@@ -255,7 +257,7 @@ const PopularEquipments = () => {
               whileTap={{ scale: 0.95 }}
               className='flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all'
             >
-              Voir plus
+              {t.home.seeMore}
               <ArrowRight className='w-5 h-5' />
             </motion.button>
           </Link>

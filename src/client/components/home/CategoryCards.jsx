@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLang } from '../../context/LangContext';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Card from '../common/Card';
@@ -82,6 +83,7 @@ const SLUG_TO_CATEGORIE = {
 };
 
 const CategoryCards = () => {
+    const { t } = useLang();
     const [counts, setCounts] = useState({});
     const [loading, setLoading] = useState(true);
 
@@ -128,14 +130,14 @@ const CategoryCards = () => {
                     viewport={{ once: true }}
                 >
                     <h2 className="mb-4 text-4xl font-bold">
-                        Parcourir par
+                        {t.home.browseBy}
                         <span className="bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] bg-clip-text text-transparent">
                             {' '}
-                            Spécialité
+                            {t.home.specialty}
                         </span>
                     </h2>
                     <p className="text-lg text-gray-600">
-                        Trouvez l'équipement médical dont vous avez besoin
+                        {t.home.browseHint}
                     </p>
                 </motion.div>
 
@@ -161,7 +163,7 @@ const CategoryCards = () => {
                                         <div className="relative h-full">
                                             <img
                                                 src={category.image}
-                                                alt={category.name}
+                                                alt={t.cats[category.name] ?? category.name}
                                                 className="absolute inset-0 object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                                             />
                                             <div
@@ -171,7 +173,7 @@ const CategoryCards = () => {
 
                                             <div className="relative z-10 flex flex-col justify-end h-full p-4 text-white">
                                                 <h3 className="text-lg font-bold leading-tight">
-                                                    {category.name}
+                                                    {t.cats[category.name] ?? category.name}
                                                 </h3>
 
                                                 {/* Compteur */}
@@ -180,11 +182,11 @@ const CategoryCards = () => {
                                                         <div className="w-16 h-3 bg-white/30 rounded animate-pulse" />
                                                     ) : count !== null && count > 0 ? (
                                                         <p className="text-xs text-white/80">
-                                                            {count} équipement{count > 1 ? 's' : ''}
+                                                            {count} {count > 1 ? t.explore.equipmentPlural : t.explore.equipment}
                                                         </p>
                                                     ) : (
                                                         <p className="text-xs text-white/50">
-                                                            Bientôt disponible
+                                                            {t.home.soonAvailable}
                                                         </p>
                                                     )}
                                                 </div>
@@ -210,7 +212,7 @@ const CategoryCards = () => {
                             whileTap={{ scale: 0.95 }}
                             className="px-8 py-3 border-2 border-[#1DBF73] text-[#1DBF73] rounded-xl font-semibold hover:bg-[#1DBF73] hover:text-white transition-all"
                         >
-                            Voir toutes les catégories
+                            {t.home.seeAllCats}
                         </motion.button>
                     </Link>
                 </motion.div>
