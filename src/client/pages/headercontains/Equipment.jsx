@@ -18,6 +18,7 @@ import { useLang } from '../../context/LangContext';
 import { useTracking } from '../../hooks/useTracking';
 import { getLocale } from '../../i18n/format';
 import FavoriteButton from '../../components/common/FavoriteButton';
+import TrustRow from '../../components/common/TrustRow';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -263,20 +264,20 @@ function Equipment() {
               {/* Note + localisation */}
               <div className='flex flex-wrap items-center gap-3 mt-2'>
                 {noteMoyenne && (
-                  <div className='flex items-center gap-1'>
+                  <div className='flex items-center gap-1' role='img' aria-label={`${noteMoyenne}/5`}>
                     {[1,2,3,4,5].map(s => (
                       <Star key={s} className={`w-4 h-4 ${s <= Math.round(noteMoyenne) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-200'}`} />
                     ))}
                     <span className='ml-1 text-sm font-semibold text-gray-700'>{noteMoyenne}</span>
-                    <span className='text-xs text-gray-400'>({avis.length} avis)</span>
+                    <span className='text-xs text-gray-500'>({avis.length} {t.home.reviewsCount})</span>
                   </div>
                 )}
-                {annonce.pays_expedition && (
-                  <div className='flex items-center gap-1 text-sm text-gray-500'>
-                    <MapPin className='w-4 h-4 text-[#1DBF73]' />
-                    {annonce.pays_expedition}
-                  </div>
-                )}
+                <TrustRow
+                  vendeurNom={annonce.vendeur?.nom}
+                  verifie={annonce.vendeur?.verifie_kyc || annonce.vendeur?.badge_verifie}
+                  ville={annonce.pays_expedition}
+                  size='sm'
+                />
               </div>
             </div>
 

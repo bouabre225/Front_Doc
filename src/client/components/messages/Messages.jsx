@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Send, Search, ArrowLeft, Circle,
@@ -28,11 +28,11 @@ const formatTime = (dateStr) => {
   return new Date(dateStr).toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit' });
 };
 
-const formatDateSeparator = (dateStr) => {
+const formatDateSeparator = (dateStr, t) => {
   const d    = new Date(dateStr);
   const diff = Math.floor((new Date() - d) / 86400000);
-  if (diff === 0) return "Aujourd'hui";
-  if (diff === 1) return 'Hier';
+  if (diff === 0) return t?.messages?.today ?? "Aujourd'hui";
+  if (diff === 1) return t?.messages?.yesterday ?? 'Hier';
   return d.toLocaleDateString(getLocale(), { weekday: 'long', day: 'numeric', month: 'long' });
 };
 
@@ -243,7 +243,7 @@ const Messages = () => {
 
   // ─── Render ───────────────────────────────────────────────────────────────
   return (
-    <div className='flex h-screen bg-gray-50 overflow-hidden'>
+    <div className='flex bg-gray-50 overflow-hidden h-[100dvh]' style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
 
       {/* ── Sidebar ──────────────────────────────────────────────────────── */}
       <div className={`
@@ -377,8 +377,8 @@ const Messages = () => {
               <div className='flex-1 min-w-0'>
                 <p className='font-bold text-gray-900 truncate'>{selectedConv.name}</p>
                 <div className='flex items-center gap-1.5'>
-                  <Circle className='w-2 h-2 fill-green-400 text-green-400' />
-                  <span className='text-xs text-green-500 font-medium'>{t.messages.online}</span>
+                  <Circle className='w-2 h-2 fill-gray-300 text-gray-300' />
+                  <span className='text-xs text-gray-400 font-medium'>{t.messages.replySoon}</span>
                 </div>
               </div>
             </div>
@@ -414,7 +414,7 @@ const Messages = () => {
                           <div className='flex items-center gap-3 py-3'>
                             <div className='flex-1 h-px bg-gray-200' />
                             <span className='text-[11px] text-gray-400 font-medium px-3 py-1 bg-white rounded-full border border-gray-200'>
-                              {formatDateSeparator(msg.created_at)}
+                              {formatDateSeparator(msg.created_at, t)}
                             </span>
                             <div className='flex-1 h-px bg-gray-200' />
                           </div>
@@ -422,13 +422,16 @@ const Messages = () => {
 
                         {msg.annonce && idx === 0 && (
                           <div className='flex justify-center mb-3'>
-                            <div className='flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-sm max-w-xs'>
+                            <Link
+                              to={`/equipment/${msg.annonce?.id || ''}`}
+                              className='flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-sm max-w-xs hover:border-[#1DBF73]/50 transition-all'
+                            >
                               <Package className='w-4 h-4 text-[#1DBF73] shrink-0' />
                               <div className='min-w-0'>
                                 <p className='text-xs text-gray-400'>{t.messages.about}</p>
                                 <p className='text-sm font-semibold text-gray-700 truncate'>{msg.annonce?.titre}</p>
                               </div>
-                            </div>
+                            </Link>
                           </div>
                         )}
 
@@ -480,7 +483,7 @@ const Messages = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   onClick={() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                  className='absolute bottom-24 right-5 w-9 h-9 bg-white shadow-lg border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors'
+                  className='absolute bottom-24 right-5 w-11 h-11 bg-white shadow-lg border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors'
                 >
                   <ArrowLeft className='w-4 h-4 text-gray-600 -rotate-90' />
                 </motion.button>

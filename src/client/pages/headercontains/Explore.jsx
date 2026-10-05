@@ -23,6 +23,7 @@ import { useTracking } from '../../hooks/useTracking';
 import { useLang } from '../../context/LangContext';
 import { getLocale } from '../../i18n/format';
 import FavoriteButton from '../../components/common/FavoriteButton';
+import TrustRow from '../../components/common/TrustRow';
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -604,9 +605,13 @@ const Explore = () => {
                                                 </div>
 
                                                 <div className="flex items-center justify-between pt-3 mb-3 border-t border-gray-100 text-xs text-gray-400">
-                                                    <span className="truncate max-w-[100px]">
-                                                        {item.vendeur?.nom || 'Vendeur'}
-                                                    </span>
+                                                    <TrustRow
+                                                      note={item.note_moyenne}
+                                                      avisCount={item.nb_avis}
+                                                      vendeurNom={item.vendeur?.nom}
+                                                      verifie={item.vendeur?.verifie_kyc || item.vendeur?.badge_verifie}
+                                                      ville={item.pays_expedition}
+                                                    />
                                                     <div className="flex items-center gap-1 shrink-0">
                                                         <Calendar className="w-3.5 h-3.5" />
                                                         {item.created_at

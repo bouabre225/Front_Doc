@@ -207,6 +207,25 @@ const Header = () => {
             </motion.div>
           </Link>
 
+          {/* Recherche desktop */}
+          <form
+            onSubmit={handleSearch}
+            className='hidden md:flex flex-1 max-w-md mx-4'
+            role='search'
+          >
+            <div className='relative w-full'>
+              <Search className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
+              <input
+                type='search'
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={t.explore.searchPlaceholder}
+                aria-label={t.explore.searchPlaceholder}
+                className='w-full pl-9 pr-4 py-2 bg-gray-100 border border-transparent rounded-full text-sm focus:outline-none focus:bg-white focus:border-[#1DBF73] transition-all'
+              />
+            </div>
+          </form>
+
           <div className='flex items-center gap-1'>
             <div className='items-center hidden gap-1 md:flex'>
               {currentUser && (
@@ -215,7 +234,7 @@ const Header = () => {
                     <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'>
                       <Bell className='w-4 h-4 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
                       {notifCount > 0 && (
-                        <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#1DBF73] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                        <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#1DBF73] text-white rounded-full flex items-center justify-center font-bold text-[11px] min-w-5 h-5 px-1'>
                           {notifCount > 9 ? '9+' : notifCount}
                         </span>
                       )}
@@ -226,7 +245,7 @@ const Header = () => {
                     <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'>
                       <MessageCircle className='w-4 h-4 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
                       {messageCount > 0 && (
-                        <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                        <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[11px] min-w-5 h-5 px-1'>
                           {messageCount > 9 ? '9+' : messageCount}
                         </span>
                       )}
@@ -237,7 +256,7 @@ const Header = () => {
                     <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className='relative p-2 transition-all rounded-full hover:bg-gray-100 group'>
                       <ShoppingCart className='w-4 h-4 text-gray-600 group-hover:text-[#1DBF73] transition-colors' />
                       {totalItems > 0 && (
-                        <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                        <span className='absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[11px] min-w-5 h-5 px-1'>
                           {totalItems > 9 ? '9+' : totalItems}
                         </span>
                       )}
@@ -401,7 +420,7 @@ const Header = () => {
                       <div className='relative p-2.5 bg-white rounded-full shadow-sm'>
                         <Bell className='w-5 h-5 text-gray-600' />
                         {notifCount > 0 && (
-                          <span className='absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#1DBF73] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                          <span className='absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#1DBF73] text-white rounded-full flex items-center justify-center font-bold text-[11px] min-w-5 h-5 px-1'>
                             {notifCount > 9 ? '9+' : notifCount}
                           </span>
                         )}
@@ -413,7 +432,7 @@ const Header = () => {
                       <div className='relative p-2.5 bg-white rounded-full shadow-sm'>
                         <MessageCircle className='w-5 h-5 text-gray-600' />
                         {messageCount > 0 && (
-                          <span className='absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                          <span className='absolute -top-0.5 -right-0.5 w-4 h-4 bg-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[11px] min-w-5 h-5 px-1'>
                             {messageCount > 9 ? '9+' : messageCount}
                           </span>
                         )}
@@ -425,7 +444,7 @@ const Header = () => {
                       <div className='relative p-2.5 bg-white rounded-full shadow-sm'>
                         <ShoppingCart className='w-5 h-5 text-gray-600' />
                         {totalItems > 0 && (
-                          <span className='absolute -top-0.5 -right-0.5 w-4 h-4 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[9px]'>
+                          <span className='absolute -top-0.5 -right-0.5 w-4 h-4 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-full flex items-center justify-center font-bold text-[11px] min-w-5 h-5 px-1'>
                             {totalItems > 9 ? '9+' : totalItems}
                           </span>
                         )}

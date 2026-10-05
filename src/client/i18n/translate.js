@@ -288,6 +288,9 @@ const fr = {
     tryOther: 'Essayez un autre terme',
     contactSeller: "Contactez un vendeur depuis une annonce",
     messageTo: 'Message à',
+    today: "Aujourd'hui",
+    yesterday: 'Hier',
+    replySoon: 'Répond en général vite',
     seller: 'Vendeur',
   },
   order: {
@@ -749,6 +752,8 @@ const fr = {
     terms: 'CGU',
     privacy: 'Confidentialité',
     sell: 'Vendre',
+    trackOrder: 'Suivre ma commande',
+    kycInfo: 'Devenir vendeur (KYC)',
     mobileNav: { notifs: 'Notifs', messages: 'Messages', cart: 'Panier', orders: 'Commandes', profile: 'Profil' },
   },
   notifs: {
@@ -879,6 +884,7 @@ const fr = {
     joinSellers: 'Rejoignez nos vendeurs vérifiés et commencez à vendre',
     loginToSell: 'Connectez-vous pour commencer à vendre',
     verified: 'Vérifié',
+    reviewsCount: 'avis',
     perUnit: '/ unité',
   },
 };
@@ -1140,6 +1146,9 @@ const en = {
     tryOther: 'Try another term',
     contactSeller: 'Contact a seller from a listing',
     messageTo: 'Message to',
+    today: 'Today',
+    yesterday: 'Yesterday',
+    replySoon: 'Usually replies fast',
     seller: 'Seller',
   },
   order: {
@@ -1595,6 +1604,8 @@ const en = {
     terms: 'ToS',
     privacy: 'Privacy',
     sell: 'Sell',
+    trackOrder: 'Track my order',
+    kycInfo: 'Become a seller (KYC)',
     mobileNav: { notifs: 'Notifs', messages: 'Messages', cart: 'Cart', orders: 'Orders', profile: 'Profile' },
   },
   notifs: {
@@ -1756,6 +1767,7 @@ const en = {
     joinSellers: 'Join our verified sellers and start selling',
     loginToSell: 'Log in to start selling',
     verified: 'Verified',
+    reviewsCount: 'reviews',
     perUnit: '/ unit',
   },
 };

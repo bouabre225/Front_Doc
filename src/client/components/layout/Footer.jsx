@@ -53,9 +53,9 @@ const Footer = () => {
             <ul className='space-y-2 text-sm'>
               <li><Link to='/explore'    className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.nav.explore}</Link></li>
               <li><Link to='/categories' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.nav.categories}</Link></li>
-              {isVendeur && (
-                <li><Link to='/publish-equipment' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.layout.sell}</Link></li>
-              )}
+              <li><Link to='/publish-equipment' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.layout.sell}</Link></li>
+              <li><Link to='/commandes' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.layout.trackOrder}</Link></li>
+              <li><Link to='/seller/kyc' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.layout.kycInfo}</Link></li>
               <li><Link to='/contact' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.nav.contact}</Link></li>
             </ul>
           </div>

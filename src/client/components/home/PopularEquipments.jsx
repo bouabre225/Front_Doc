@@ -8,6 +8,7 @@ import { getAnnonces, getImageUrl } from '../../../services/api';
 import { useCart } from '../../context/CartContext';
 import { useFavoris } from '../../hooks/useFavoris';
 import FavoriteButton from '../common/FavoriteButton';
+import TrustRow from '../common/TrustRow';
 import ImageViewer from '../common/ImageViewer';
 import { useImageViewer } from '../../../hooks/useImageViewer';
 import { getLocale } from '../../i18n/format';
