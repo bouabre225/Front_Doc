@@ -31,22 +31,41 @@ const PublishEquipment = () => {
   const { t } = useLang();
   const navigate = useNavigate();
 
-  const [currentStep, setCurrentStep]   = useState(1);
+  const [currentStep, setCurrentStep]   = useState(1); // 1 = Détails, 2 = Description & Prix
   const [loading, setLoading]           = useState(false);
   const [kycLoading, setKycLoading]     = useState(true);
   const [kycStatus, setKycStatus]       = useState(null);
   const [error, setError]               = useState('');
   const [images, setImages]             = useState([]);
 
-  const [formData, setFormData] = useState({
-    categorie:       '',
-    titre:           '',
-    description:     '',
-    prix_vendeur:    '',
-    etat:            '',
-    quantite:        1,
-    pays_expedition: '',
+  const [formData, setFormData] = useState(() => {
+    try {
+      const draft = JSON.parse(localStorage.getItem('publish_draft') || 'null');
+      if (draft && typeof draft === 'object') return {
+        categorie: '', titre: '', description: '', prix_vendeur: '',
+        etat: '', quantite: 1, pays_expedition: '', ...draft,
+      };
+    } catch { /* ignore */ }
+    return {
+      categorie: '', titre: '', description: '', prix_vendeur: '',
+      etat: '', quantite: 1, pays_expedition: '',
+    };
   });
+  const [draftNote, setDraftNote] = useState(false);
+
+  // Persistance brouillon (texte uniquement, pas les images)
+  useEffect(() => {
+    try {
+      const hasContent = formData.titre || formData.description || formData.prix_vendeur || formData.categorie;
+      if (hasContent) localStorage.setItem('publish_draft', JSON.stringify(formData));
+    } catch { /* ignore */ }
+  }, [formData]);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('publish_draft')) setDraftNote(true);
+    } catch { /* ignore */ }
+  }, []);
 
   // ─── Vérifications au montage ──────────────────────────────────────────
   useEffect(() => {
@@ -136,6 +155,16 @@ const PublishEquipment = () => {
     });
   };
 
+  const setCover = (idx) => {
+    if (idx <= 0) return;
+    setImages(prev => {
+      const next = [...prev];
+      const [img] = next.splice(idx, 1);
+      next.unshift(img);
+      return next;
+    });
+  };
+
   const removeImage = (idx) => {
     setImages(prev => {
       const target = prev[idx];
@@ -152,7 +181,7 @@ const PublishEquipment = () => {
     if (!files.length) return;
 
     if (images.length + files.length > 10) {
-      //alert('Maximum 10 images');
+      setError(t.vendeur.imagesMax);
       return;
     }
 
@@ -191,7 +220,7 @@ const PublishEquipment = () => {
   const handleNext = () => {
     setError('');
 
-    if (currentStep === 2) {
+    if (currentStep === 1) {
       if (!formData.categorie) { setError(t.vendeur.needCategory); return; }
       if (!formData.etat)      { setError(t.vendeur.needState); return; }
       if (Number(formData.quantite) < 1) { setError(t.vendeur.minQty); return; }
@@ -233,6 +262,7 @@ const PublishEquipment = () => {
         await uploadAnnonceImages(annonceId, images.map(i => i.file));
       }
 
+      try { localStorage.removeItem('publish_draft'); } catch { /* ignore */ }
       navigate(`/equipment/${annonceId}`);
     } catch (err) {
       setError(err.message || t.vendeur.publishError);
@@ -327,7 +357,7 @@ const PublishEquipment = () => {
   }
 
   // ─── Steps labels ───────────────────────────────────────────────────────
-  const STEP_LABELS = [t.vendeur.stepIntro, t.vendeur.stepDetails, t.vendeur.stepDesc];
+  const STEP_LABELS = [t.vendeur.stepDetails, t.vendeur.stepDesc];
 
   // ─── Render formulaire ──────────────────────────────────────────────────
   return (
@@ -338,7 +368,7 @@ const PublishEquipment = () => {
       <div className='bg-white border-b shadow-sm'>
         <div className='container px-4 py-5 mx-auto'>
           <div className='flex items-center justify-center max-w-sm mx-auto gap-2'>
-            {[1, 2, 3].map((step) => (
+            {[1, 2].map((step) => (
               <React.Fragment key={step}>
                 <div className='flex flex-col items-center gap-1'>
                   <div className={`flex items-center justify-center w-9 h-9 rounded-full font-bold text-sm transition-all ${
@@ -354,7 +384,7 @@ const PublishEquipment = () => {
                     {STEP_LABELS[step - 1]}
                   </span>
                 </div>
-                {step < 3 && (
+                {step < 2 && (
                   <div className={`flex-1 h-1 rounded-full mb-4 transition-all ${
                     currentStep > step ? 'bg-gradient-to-r from-[#1DBF73] to-[#09B1BA]' : 'bg-gray-200'
                   }`} />
@@ -391,7 +421,7 @@ const PublishEquipment = () => {
 
           <AnimatePresence mode='wait'>
 
-            {/* ── ÉTAPE 1 : Intro ─────────────────────────────────────── */}
+            {/* ── ÉTAPE 1 : Détails ───────────────────────────────────── */}
             {currentStep === 1 && (
               <motion.div
                 key='step1'
@@ -400,42 +430,10 @@ const PublishEquipment = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className='p-8 bg-white shadow-lg rounded-2xl'
               >
-                <h2 className='mb-2 text-3xl font-bold text-center text-gray-800'>
-                  {t.vendeur.publishTitle}
-                </h2>
-                <p className='text-center text-gray-500 mb-10 text-sm'>{t.vendeur.accountVerified}</p>
-
-                <div className='flex justify-center mb-10'>
-                  <div className='p-8 border-2 rounded-2xl border-[#1DBF73] bg-[#1DBF73]/5 max-w-sm w-full text-center'>
-                    <div className='w-16 h-16 rounded-full bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] flex items-center justify-center mx-auto mb-4'>
-                      <Package className='w-8 h-8 text-white' />
-                    </div>
-                    <h3 className='text-xl font-bold text-gray-800 mb-2'>{t.vendeur.equipmentType}</h3>
-                    <p className='text-sm text-gray-500'>{t.vendeur.equipmentTypeHint}</p>
-                  </div>
-                </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleNext}
-                  className='w-full py-4 font-semibold text-white rounded-xl bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] hover:shadow-xl transition-all'
-                >
-                  {t.vendeur.start}
-                </motion.button>
-              </motion.div>
-            )}
-
-            {/* ── ÉTAPE 2 : Détails ───────────────────────────────────── */}
-            {currentStep === 2 && (
-              <motion.div
-                key='step2'
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                className='p-8 bg-white shadow-lg rounded-2xl'
-              >
                 <h2 className='mb-6 text-2xl font-bold text-gray-800'>{t.vendeur.detailsTitle}</h2>
+                {draftNote && (
+                  <p className='mb-4 text-xs text-center text-gray-400'>{t.vendeur.draftRestored}</p>
+                )}
 
                 {/* Catégorie */}
                 <div className='mb-6'>
@@ -529,9 +527,9 @@ const PublishEquipment = () => {
             )}
 
             {/* ── ÉTAPE 3 : Description + Images + Prix ───────────────── */}
-            {currentStep === 3 && (
+            {currentStep === 2 && (
               <motion.div
-                key='step3'
+                key='step2'
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
@@ -582,7 +580,7 @@ const PublishEquipment = () => {
                     <div className='grid grid-cols-4 gap-3 mt-4'>
                       {images.map((img, i) => (
                         <div key={i} className='relative group rounded-xl overflow-hidden'>
-                          <img src={img.preview} alt='' className='object-cover w-full h-24 rounded-xl' />
+                          <img src={img.preview} alt='' onClick={() => setCover(i)} title={t.vendeur.setCover} className='object-cover w-full h-24 rounded-xl cursor-pointer' />
                           <button
                             type='button'
                             onClick={() => removeImage(i)}
@@ -610,8 +608,10 @@ const PublishEquipment = () => {
                     value={formData.titre}
                     onChange={handleChange}
                     placeholder={t.vendeur.titlePh}
+                    maxLength={200}
                     className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   />
+                  <p className='text-xs text-gray-400 mt-1 text-right'>{(formData.titre || '').length}/200</p>
                 </div>
 
                 {/* Description */}
@@ -623,8 +623,10 @@ const PublishEquipment = () => {
                     onChange={handleChange}
                     rows={5}
                     placeholder={t.vendeur.descPh}
+                    maxLength={5000}
                     className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all resize-none'
                   />
+                  <p className='text-xs text-gray-400 mt-1 text-right'>{(formData.description || '').length}/5000</p>
                 </div>
 
                 {/* Prix */}
@@ -672,7 +674,7 @@ const PublishEquipment = () => {
                 <div className='flex gap-4'>
                   <button
                     type='button'
-                    onClick={() => setCurrentStep(2)}
+                    onClick={() => setCurrentStep(1)}
                     className='flex-1 py-3.5 font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all'
                   >
                     {t.vendeur.prev}
