@@ -3,8 +3,10 @@ import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { forgotPassword } from '../../../services/api';
+import { useLang } from '../../context/LangContext';
 
 const ForgotPassword = () => {
+  const { t } = useLang();
   const [email,   setEmail]   = useState('');
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
@@ -12,8 +14,8 @@ const ForgotPassword = () => {
 
   const handleSubmit = async (e) => {
     e?.preventDefault();
-    if (!email.trim())              { setError('Email requis'); return; }
-    if (!/\S+@\S+\.\S+/.test(email)) { setError('Email invalide'); return; }
+    if (!email.trim())              { setError(t.auth.emailRequired); return; }
+    if (!/\S+@\S+\.\S+/.test(email)) { setError(t.auth.emailInvalid); return; }
 
     setLoading(true);
     setError('');
@@ -24,7 +26,7 @@ const ForgotPassword = () => {
       // L'API Laravel retourne 200 même si l'email n'existe pas (sécurité)
       // On affiche toujours le succès sauf erreur réseau
       if (err.message?.toLowerCase().includes('réseau') || err.message?.includes('fetch')) {
-        setError('Erreur réseau. Vérifiez votre connexion.');
+        setError(t.common.networkError);
       } else {
         // Par sécurité on affiche quand même le succès
         setSuccess(true);
@@ -45,7 +47,7 @@ const ForgotPassword = () => {
         {!success && (
           <Link to='/login' className='inline-flex items-center gap-2 mb-6 text-gray-600 hover:text-[#1DBF73] transition-colors'>
             <ArrowLeft className='w-5 h-5' />
-            <span className='font-medium'>Retour à la connexion</span>
+            <span className='font-medium'>{t.auth.backToLogin}</span>
           </Link>
         )}
 
@@ -64,8 +66,8 @@ const ForgotPassword = () => {
                 <div className='inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-2xl mb-4 shadow-lg'>
                   <Mail className='w-8 h-8 text-white' />
                 </div>
-                <h2 className='mb-2 text-2xl font-bold text-gray-900'>Mot de passe oublié ?</h2>
-                <p className='text-sm text-gray-500'>Entrez votre email pour recevoir un lien de réinitialisation</p>
+                <h2 className='mb-2 text-2xl font-bold text-gray-900'>{t.auth.forgotTitle}</h2>
+                <p className='text-sm text-gray-500'>{t.auth.forgotSubtitle}</p>
               </div>
 
               {/* Erreur */}
@@ -84,7 +86,7 @@ const ForgotPassword = () => {
               <form onSubmit={handleSubmit}>
                 <div className='mb-6'>
                   <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                    Adresse email
+                    {t.auth.email}
                   </label>
                   <div className='relative'>
                     <Mail className='absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
@@ -92,7 +94,7 @@ const ForgotPassword = () => {
                       type='email'
                       value={email}
                       onChange={e => { setEmail(e.target.value); setError(''); }}
-                      placeholder='exemple@email.com'
+                      placeholder={t.auth.emailPlaceholder}
                       className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                       autoComplete='email'
                       autoFocus
@@ -110,10 +112,10 @@ const ForgotPassword = () => {
                   {loading ? (
                     <span className='flex items-center justify-center gap-2'>
                       <span className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin' />
-                      Envoi en cours...
+                      {t.auth.sending}
                     </span>
                   ) : (
-                    'Envoyer le lien de réinitialisation'
+                    t.auth.sendLink
                   )}
                 </motion.button>
               </form>
@@ -121,7 +123,7 @@ const ForgotPassword = () => {
               <div className='pt-6 mt-6 text-center border-t border-gray-200'>
                 <Link to='/login' className='inline-flex items-center gap-2 text-sm font-medium text-[#1DBF73] hover:text-[#09B1BA] transition-colors'>
                   <ArrowLeft className='w-4 h-4' />
-                  Retour à la connexion
+                  {t.auth.backToLogin}
                 </Link>
               </div>
             </>
@@ -136,13 +138,13 @@ const ForgotPassword = () => {
               <div className='inline-flex items-center justify-center w-20 h-20 mb-6 bg-green-100 rounded-2xl'>
                 <CheckCircle className='w-10 h-10 text-green-500' />
               </div>
-              <h2 className='mb-3 text-2xl font-bold text-gray-900'>Email envoyé !</h2>
-              <p className='mb-1 text-sm text-gray-500'>Un lien de réinitialisation a été envoyé à</p>
+              <h2 className='mb-3 text-2xl font-bold text-gray-900'>{t.auth.emailSent}</h2>
+              <p className='mb-1 text-sm text-gray-500'>{t.auth.resetSentTo}</p>
               <p className='text-base font-semibold text-[#1DBF73] mb-6'>{email}</p>
 
               <div className='bg-[#1DBF73]/10 border border-[#1DBF73]/20 rounded-xl p-4 mb-6 text-left'>
                 <p className='text-sm text-gray-700'>
-                  💡 <span className='font-medium'>Conseil :</span> Vérifiez également votre dossier spam. Le lien expire dans <span className='font-semibold'>60 minutes</span>.
+                  💡 {t.auth.spamTip}
                 </p>
               </div>
 
@@ -151,7 +153,7 @@ const ForgotPassword = () => {
                 onClick={() => { setSuccess(false); }}
                 className='w-full py-2.5 mb-3 text-sm font-semibold text-[#1DBF73] border-2 border-[#1DBF73]/30 rounded-xl hover:bg-[#1DBF73]/5 transition-all'
               >
-                Renvoyer un lien
+                {t.auth.resendLink}
               </button>
 
               <Link to='/login'>
@@ -160,7 +162,7 @@ const ForgotPassword = () => {
                   whileTap={{ scale: 0.98 }}
                   className='w-full py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all'
                 >
-                  Retour à la connexion
+                  {t.auth.backToLogin}
                 </motion.button>
               </Link>
             </motion.div>
@@ -170,13 +172,13 @@ const ForgotPassword = () => {
         {/* Renvoyer (hors card) */}
         {!success && (
           <p className='mt-5 text-xs text-center text-gray-500'>
-            Vous n'avez pas reçu l'email ?{' '}
+            {t.auth.noEmailReceived}{' '}
             <button
               onClick={handleSubmit}
               disabled={loading}
               className='text-[#1DBF73] hover:text-[#09B1BA] font-medium transition-colors disabled:opacity-50'
             >
-              Renvoyer
+              {t.auth.resend}
             </button>
           </p>
         )}

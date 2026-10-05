@@ -3,8 +3,10 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Lock, Eye, EyeOff, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
 import { resetPassword } from '../../../services/api';
+import { useLang } from '../../context/LangContext';
 
 const ResetPassword = () => {
+  const { t } = useLang();
   const navigate       = useNavigate();
   const [params]       = useSearchParams();
   const token          = params.get('token') || '';
@@ -25,11 +27,11 @@ const ResetPassword = () => {
     e.preventDefault();
     setError('');
 
-    if (form.mot_de_passe.length < 8) {
-      setError('Le mot de passe doit contenir au moins 8 caractères'); return;
+    if (form.mot_de_passe.length < 10) {
+      setError(t.auth.passwordMin); return;
     }
     if (form.mot_de_passe !== form.password_confirmation) {
-      setError('Les mots de passe ne correspondent pas'); return;
+      setError(t.auth.passwordsMismatch); return;
     }
 
     setLoading(true);
@@ -69,8 +71,8 @@ const ResetPassword = () => {
                 <div className='inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-2xl mb-4 shadow-lg'>
                   <Lock className='w-8 h-8 text-white' />
                 </div>
-                <h2 className='mb-2 text-2xl font-bold text-gray-900'>Nouveau mot de passe</h2>
-                <p className='text-sm text-gray-500'>Choisissez un mot de passe sécurisé</p>
+                <h2 className='mb-2 text-2xl font-bold text-gray-900'>{t.auth.newPassword}</h2>
+                <p className='text-sm text-gray-500'>{t.auth.chooseSecure}</p>
               </div>
 
               {error && (
@@ -88,7 +90,7 @@ const ResetPassword = () => {
                 {/* Nouveau mot de passe */}
                 <div>
                   <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                    Nouveau mot de passe
+                    {t.auth.newPassword}
                   </label>
                   <div className='relative'>
                     <Lock className='absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
@@ -96,7 +98,7 @@ const ResetPassword = () => {
                       type={showPass ? 'text' : 'password'}
                       value={form.mot_de_passe}
                       onChange={e => setForm(p => ({ ...p, mot_de_passe: e.target.value }))}
-                      placeholder='Minimum 8 caractères'
+                      placeholder={t.auth.passwordMin}
                       className='w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                     />
                     <button type='button' onClick={() => setShowPass(!showPass)}
@@ -125,7 +127,7 @@ const ResetPassword = () => {
                 {/* Confirmation */}
                 <div>
                   <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                    Confirmer le mot de passe
+                    {t.auth.confirmPassword}
                   </label>
                   <div className='relative'>
                     <Lock className='absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
@@ -133,7 +135,7 @@ const ResetPassword = () => {
                       type={showConfirm ? 'text' : 'password'}
                       value={form.password_confirmation}
                       onChange={e => setForm(p => ({ ...p, password_confirmation: e.target.value }))}
-                      placeholder='Répétez le mot de passe'
+                      placeholder={t.auth.repeatPassword}
                       className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${
                         form.password_confirmation && form.mot_de_passe !== form.password_confirmation
                           ? 'border-red-300 focus:border-red-400 focus:ring-red-100'
@@ -146,7 +148,7 @@ const ResetPassword = () => {
                     </button>
                   </div>
                   {form.password_confirmation && form.mot_de_passe !== form.password_confirmation && (
-                    <p className='text-xs text-red-500 mt-1'>Les mots de passe ne correspondent pas</p>
+                    <p className='text-xs text-red-500 mt-1'>{t.auth.passwordsMismatch}</p>
                   )}
                 </div>
 
@@ -160,9 +162,9 @@ const ResetPassword = () => {
                   {loading ? (
                     <span className='flex items-center justify-center gap-2'>
                       <span className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin' />
-                      Réinitialisation...
+                      {t.auth.resetting}
                     </span>
-                  ) : 'Réinitialiser mon mot de passe'}
+                  ) : t.auth.resetCta}
                 </motion.button>
               </form>
             </>
@@ -175,9 +177,9 @@ const ResetPassword = () => {
               <div className='inline-flex items-center justify-center w-20 h-20 mb-6 bg-green-100 rounded-2xl'>
                 <CheckCircle className='w-10 h-10 text-green-500' />
               </div>
-              <h2 className='mb-3 text-2xl font-bold text-gray-900'>Mot de passe mis à jour !</h2>
+              <h2 className='mb-3 text-2xl font-bold text-gray-900'>{t.auth.resetDone}</h2>
               <p className='text-sm text-gray-500 mb-6'>
-                Redirection vers la connexion dans quelques secondes...
+                {t.auth.redirecting}
               </p>
               <div className='w-8 h-8 border-4 border-[#1DBF73] rounded-full border-t-transparent animate-spin mx-auto' />
             </motion.div>

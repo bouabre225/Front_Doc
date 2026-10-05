@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login2fa } from '../../../services/api';
+import { useLang } from '../../context/LangContext';
 
 const Login2FA = () => {
+  const { t } = useLang();
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -13,7 +15,7 @@ const Login2FA = () => {
     setError('');
     const challenge_id = localStorage.getItem('2fa_challenge_id');
     if (!challenge_id) {
-      setError('Session 2FA expirée. Reconnecte-toi.');
+      setError(t.auth.twofaExpired);
       return;
     }
     setLoading(true);
@@ -25,7 +27,7 @@ const Login2FA = () => {
       window.dispatchEvent(new Event('storage'));
       navigate(data.user?.role === 'admin' ? '/admin' : '/');
     } catch (err) {
-      setError(err.message || 'Code invalide.');
+      setError(err.message || t.auth.twofaInvalid);
     } finally {
       setLoading(false);
     }
@@ -34,8 +36,8 @@ const Login2FA = () => {
   return (
     <div className='flex items-center justify-center min-h-screen p-4'>
       <form onSubmit={handleSubmit} className='w-full max-w-md p-8 bg-white rounded-2xl shadow-xl border'>
-        <h1 className='text-2xl font-bold mb-2'>Vérification 2FA</h1>
-        <p className='text-sm text-gray-600 mb-6'>Un code à 6 chiffres a été envoyé par email.</p>
+        <h1 className='text-2xl font-bold mb-2'>{t.auth.twofaTitle}</h1>
+        <p className='text-sm text-gray-600 mb-6'>{t.auth.twofaSubtitle}</p>
         {error && <div className='p-3 mb-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl'>{error}</div>}
         <input
           inputMode='numeric'
@@ -46,9 +48,9 @@ const Login2FA = () => {
           required
         />
         <button type='submit' disabled={loading} className='w-full py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl disabled:opacity-50'>
-          {loading ? 'Vérification...' : 'Valider'}
+          {loading ? t.auth.twofaVerifying : t.auth.twofaValidate}
         </button>
-        <Link to='/login' className='block text-center mt-4 text-sm text-gray-600'>Retour au login</Link>
+        <Link to='/login' className='block text-center mt-4 text-sm text-gray-600'>{t.auth.backToLogin}</Link>
       </form>
     </div>
   );

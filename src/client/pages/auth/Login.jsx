@@ -42,7 +42,7 @@ const Login = () => {
         navigate('/');
       }
     } catch (err) {
-      setError(err.message || 'Email ou mot de passe incorrect.');
+      setError(err.message || t.auth.badCredentials);
     } finally {
       setLoading(false);
     }
@@ -75,8 +75,8 @@ const Login = () => {
         </div>
 
         <div className='mb-8 text-center'>
-          <h1 className='mb-2 text-3xl font-bold text-gray-900'>Bon retour !</h1>
-          <p className='text-gray-600'>Connectez-vous à votre compte</p>
+          <h1 className='mb-2 text-3xl font-bold text-gray-900'>{t.auth.loginTitle}</h1>
+          <p className='text-gray-600'>{t.auth.loginSubtitle}</p>
         </div>
 
         <div className='p-8 bg-white border border-gray-100 shadow-xl rounded-2xl'>
@@ -89,14 +89,14 @@ const Login = () => {
 
           <form onSubmit={handleSubmit}>
             <div className='mb-5'>
-              <label className='block mb-2 text-sm font-semibold text-gray-700'>Adresse email</label>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.auth.email}</label>
               <div className='relative'>
                 <Mail className='absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                 <input
                   type='email'
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder='exemple@email.com'
+                  placeholder={t.auth.emailPlaceholder}
                   className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   required
                 />
@@ -105,9 +105,9 @@ const Login = () => {
 
             <div className='mb-6'>
               <div className='flex items-center justify-between mb-2'>
-                <label className='text-sm font-semibold text-gray-700'>Mot de passe</label>
+                <label className='text-sm font-semibold text-gray-700'>{t.auth.password}</label>
                 <Link to='/forgot-password' className='text-sm font-medium text-[#1DBF73] hover:text-[#09B1BA] transition-colors'>
-                  Mot de passe oublié ?
+                  {t.auth.forgot}
                 </Link>
               </div>
               <div className='relative'>
@@ -140,9 +140,9 @@ const Login = () => {
               {loading ? (
                 <div className='flex items-center justify-center gap-2'>
                   <div className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin'></div>
-                  Connexion...
+                  {t.auth.loggingIn}
                 </div>
-              ) : 'Se connecter'}
+              ) : t.auth.loginCta}
             </motion.button>
           </form>
 
@@ -154,19 +154,19 @@ const Login = () => {
 
           <div className='text-center'>
             <p className='text-gray-600'>
-              Pas encore de compte ?{' '}
+              {t.auth.noAccount}{' '}
               <Link to='/register' className='font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors'>
-                Créer un compte
+                {t.auth.createAccount}
               </Link>
             </p>
           </div>
         </div>
 
         <p className='mt-6 text-xs text-center text-gray-500'>
-          En vous connectant, vous acceptez nos{' '}
-          <Link to='/terms' className='text-[#1DBF73] hover:underline'>conditions d'utilisation</Link>
-          {' '}et notre{' '}
-          <Link to='/privacy' className='text-[#1DBF73] hover:underline'>politique de confidentialité</Link>
+          {t.auth.acceptPrefix}{' '}
+          <Link to='/terms' className='text-[#1DBF73] hover:underline'>{t.auth.terms}</Link>
+          {' '}{t.auth.and}{' '}
+          <Link to='/privacy' className='text-[#1DBF73] hover:underline'>{t.auth.privacy}</Link>
         </p>
       </motion.div>
     </div>

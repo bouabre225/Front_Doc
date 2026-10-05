@@ -106,13 +106,13 @@ const Register = () => {
         <div className='mb-6 text-center'>
           <span className='inline-flex items-center gap-2 px-4 py-2 bg-[#09B1BA]/10 border border-[#09B1BA]/20 rounded-full text-sm font-medium text-[#09B1BA]'>
             <span className='w-2 h-2 bg-[#09B1BA] rounded-full animate-pulse'></span>
-            Rejoignez notre communauté
+            {t.auth.join}
           </span>
         </div>
 
         <div className='mb-8 text-center'>
-          <h1 className='mb-2 text-3xl font-bold text-gray-900'>Créer un compte</h1>
-          <p className='text-gray-600'>Commencez avec DocSpace</p>
+          <h1 className='mb-2 text-3xl font-bold text-gray-900'>{t.auth.registerTitle}</h1>
+          <p className='text-gray-600'>{t.auth.registerSubtitle}</p>
         </div>
 
         <div className='p-8 bg-white border border-gray-100 shadow-xl rounded-2xl'>
@@ -126,7 +126,7 @@ const Register = () => {
               }`}
             >
               <User className='w-4 h-4' />
-              Acheteur
+              {t.auth.buyer}
             </button>
             <button
               type='button'
@@ -136,7 +136,7 @@ const Register = () => {
               }`}
             >
               <Briefcase className='w-4 h-4' />
-              Vendeur
+              {t.auth.seller}
             </button>
           </div>
 
@@ -151,7 +151,7 @@ const Register = () => {
           <form onSubmit={handleSubmit}>
             {/* Nom */}
             <div className='mb-4'>
-              <label className='block mb-2 text-sm font-semibold text-gray-700'>Nom complet</label>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.auth.fullName}</label>
               <div className='relative'>
                 <User className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                 <input
@@ -159,7 +159,7 @@ const Register = () => {
                   name='nom'
                   value={formData.nom}
                   onChange={handleChange}
-                  placeholder='Votre nom complet'
+                  placeholder={t.auth.fullNamePlaceholder}
                   className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   required
                 />
@@ -168,7 +168,7 @@ const Register = () => {
 
             {/* Email */}
             <div className='mb-4'>
-              <label className='block mb-2 text-sm font-semibold text-gray-700'>Adresse email</label>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.auth.email}</label>
               <div className='relative'>
                 <Mail className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                 <input
@@ -176,7 +176,7 @@ const Register = () => {
                   name='email'
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder='exemple@email.com'
+                  placeholder={t.auth.emailPlaceholder}
                   className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   required
                 />
@@ -186,7 +186,7 @@ const Register = () => {
             {/* Téléphone */}
             <div className='mb-4'>
               <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                Téléphone {userType === 'buyer' && <span className='text-gray-400 font-normal'>(optionnel)</span>}
+                {t.auth.phone} {userType === 'buyer' && <span className='text-gray-400 font-normal'>({t.common.optional})</span>}
               </label>
               <div className='relative'>
                 <Phone className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
@@ -204,7 +204,7 @@ const Register = () => {
 
             {/* Pays */}
             <div className='mb-4'>
-              <label className='block mb-2 text-sm font-semibold text-gray-700'>Pays</label>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.auth.country}</label>
               <div className='relative'>
                 <select
                   name='pays'
@@ -223,7 +223,7 @@ const Register = () => {
             {/* Type de compte (vendeur seulement) */}
             {userType === 'seller' && (
               <div className='mb-4'>
-                <label className='block mb-2 text-sm font-semibold text-gray-700'>Type de compte</label>
+                <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.auth.accountType}</label>
                 <div className='relative'>
                   <Briefcase className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                   <select
@@ -232,8 +232,8 @@ const Register = () => {
                     onChange={handleChange}
                     className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   >
-                    <option value='particulier'>Particulier</option>
-                    <option value='professionnel'>Professionnel</option>
+                    <option value='particulier'>{t.auth.individual}</option>
+                    <option value='professionnel'>{t.auth.professional}</option>
                   </select>
                 </div>
               </div>
@@ -241,7 +241,7 @@ const Register = () => {
 
             {/* Mot de passe */}
             <div className='mb-5'>
-              <label className='block mb-2 text-sm font-semibold text-gray-700'>Mot de passe</label>
+              <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.auth.password}</label>
               <div className='relative'>
                 <Lock className='absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-[#1DBF73]' />
                 <input
@@ -276,10 +276,10 @@ const Register = () => {
                   required
                 />
                 <span className='text-sm text-gray-600'>
-                  J'accepte les{' '}
-                  <Link to='/terms' className='text-[#1DBF73] hover:no-underline font-medium'>conditions d'utilisation</Link>
+                  {t.auth.acceptCgu}{' '}
+                  <Link to='/terms' className='text-[#1DBF73] hover:no-underline font-medium'>{t.auth.termsLink}</Link>
                   {' '}et la{' '}
-                  <Link to='/privacy' className='text-[#1DBF73] hover:no-underline font-medium'>politique de confidentialité</Link>
+                  <Link to='/privacy' className='text-[#1DBF73] hover:no-underline font-medium'>{t.auth.privacyLink}</Link>
                 </span>
               </label>
             </div>
@@ -295,19 +295,19 @@ const Register = () => {
               {loading ? (
                 <div className='flex items-center justify-center gap-2'>
                   <div className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin'></div>
-                  Création...
+                  {t.auth.creating}
                 </div>
               ) : (
-                userType === 'buyer' ? 'Créer mon compte acheteur' : 'Créer mon compte vendeur'
+                userType === 'buyer' ? t.auth.createBuyer : t.auth.createSeller
               )}
             </motion.button>
           </form>
 
           <div className='pt-6 mt-6 text-center border-t border-gray-200'>
             <p className='text-gray-600'>
-              Déjà un compte ?{' '}
+              {t.auth.hasAccount}{' '}
               <Link to='/login' className='font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors'>
-                Se connecter
+                {t.auth.loginCta}
               </Link>
             </p>
           </div>
