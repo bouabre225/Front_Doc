@@ -289,25 +289,25 @@ const Header = () => {
                         </div>
                         <div className='py-1'>
                           <Link to='/profile' onClick={() => setUserMenuOpen(false)} className='flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1DBF73] transition-colors'>
-                            <User className='w-4 h-4' /> {t.layout.menu.profile}
+                            <User className='w-4 h-4' /> {t.layoutMenu.profile}
                           </Link>
                           <Link to='/messages' onClick={() => setUserMenuOpen(false)} className='flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1DBF73] transition-colors'>
-                            <MessageCircle className='w-4 h-4' /> {t.layout.menu.messages}
+                            <MessageCircle className='w-4 h-4' /> {t.layoutMenu.messages}
                           </Link>
                           {currentUser.role === 'admin' && (
                             <Link to='/admin' onClick={() => setUserMenuOpen(false)} className='flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-purple-600 transition-colors'>
-                              <Settings className='w-4 h-4' /> {t.layout.menu.adminDash}
+                              <Settings className='w-4 h-4' /> {t.layoutMenu.adminDash}
                             </Link>
                           )}
                           {currentUser.role === 'vendeur' && (
                             <Link to='/publish-equipment' onClick={() => setUserMenuOpen(false)} className='flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-[#1DBF73] transition-colors'>
-                              <Settings className='w-4 h-4' /> {t.layout.menu.publish}
+                              <Settings className='w-4 h-4' /> {t.layoutMenu.publish}
                             </Link>
                           )}
                         </div>
                         <div className='border-t border-gray-100 py-1'>
                           <button onClick={handleLogout} className='w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors'>
-                            <LogOut className='w-4 h-4' /> {t.layout.menu.logout}
+                            <LogOut className='w-4 h-4' /> {t.layoutMenu.logout}
                           </button>
                         </div>
                       </motion.div>

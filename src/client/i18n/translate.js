@@ -661,6 +661,7 @@ const fr = {
     disputeFilters: { pending: 'En attente', inProgress: 'En cours', resolved: 'Résolus', rejected: 'Rejetés' },
     resolutionIn: '• résolution ~',
     kycLabel: 'KYC :',
+    langLabel: 'Langue',
     suspended: 'Suspendus',
     active: 'Actif',
     suspendedSt: 'Suspendu',
@@ -805,6 +806,13 @@ const fr = {
     text: 'Nous comptons les visites de façon anonyme pour améliorer la plateforme. Aucune donnée revendue.',
     accept: 'Accepter',
     decline: 'Refuser',
+  },
+  layoutMenu: {
+    profile: 'Mon profil',
+    messages: 'Messagerie',
+    adminDash: 'Dashboard admin',
+    publish: 'Publier une annonce',
+    logout: 'Se déconnecter',
   },
   home: {
     heroBadge: 'Plateforme N°1 du matériel médical',
@@ -1464,6 +1472,7 @@ const en = {
     disputeFilters: { pending: 'Pending', inProgress: 'In progress', resolved: 'Resolved', rejected: 'Rejected' },
     resolutionIn: '• resolution ~',
     kycLabel: 'KYC:',
+    langLabel: 'Language',
     suspended: 'Suspended',
     active: 'Active',
     suspendedSt: 'Suspended',
@@ -1608,6 +1617,13 @@ const en = {
     text: 'We count visits anonymously to improve the platform. No data is resold.',
     accept: 'Accept',
     decline: 'Decline',
+  },
+  layoutMenu: {
+    profile: 'My profile',
+    messages: 'Messaging',
+    adminDash: 'Admin dashboard',
+    publish: 'Post a listing',
+    logout: 'Log out',
   },
   home: {
     heroBadge: 'No.1 medical equipment platform',
