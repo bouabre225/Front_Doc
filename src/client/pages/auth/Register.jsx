@@ -18,6 +18,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [fieldError, setFieldError] = useState({});
   const [formData, setFormData] = useState({
     nom: '',
     email: '',
@@ -34,7 +35,19 @@ const Register = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    setFieldError(prev => ({ ...prev, [name]: undefined }));
   };
+
+  const pwdScore = (() => {
+    const p = formData.mot_de_passe || '';
+    let s = 0;
+    if (p.length >= 10) s++;
+    if (p.length >= 14) s++;
+    if (/[A-Z]/.test(p) && /[a-z]/.test(p)) s++;
+    if (/[0-9]/.test(p)) s++;
+    if (/[^A-Za-z0-9]/.test(p)) s++;
+    return Math.min(s, 4);
+  })();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -160,9 +173,12 @@ const Register = () => {
                   value={formData.nom}
                   onChange={handleChange}
                   placeholder={t.auth.fullNamePlaceholder}
-                  className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
+                  aria-invalid={!!fieldError.nom}
+                  data-field-error={fieldError.nom ? 'true' : undefined}
+                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${fieldError.nom ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-[#1DBF73] focus:ring-[#1DBF73]/20'}`}
                   required
                 />
+                {fieldError.nom && <p className='text-xs text-red-500 mt-1'>{fieldError.nom}</p>}
               </div>
             </div>
 
@@ -177,9 +193,12 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder={t.auth.emailPlaceholder}
-                  className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
+                  aria-invalid={!!fieldError.email}
+                  data-field-error={fieldError.email ? 'true' : undefined}
+                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${fieldError.email ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-[#1DBF73] focus:ring-[#1DBF73]/20'}`}
                   required
                 />
+                {fieldError.email && <p className='text-xs text-red-500 mt-1'>{fieldError.email}</p>}
               </div>
             </div>
 
@@ -198,7 +217,11 @@ const Register = () => {
                   placeholder='+229 XX XX XX XX'
                   className='w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   required={userType === 'seller'}
+                  aria-invalid={!!fieldError.telephone}
+                  data-field-error={fieldError.telephone ? 'true' : undefined}
+                  className={`w-full pl-12 pr-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${fieldError.telephone ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-[#1DBF73] focus:ring-[#1DBF73]/20'}`}
                 />
+                {fieldError.telephone && <p className='text-xs text-red-500 mt-1'>{fieldError.telephone}</p>}
               </div>
             </div>
 
@@ -250,7 +273,10 @@ const Register = () => {
                   value={formData.mot_de_passe}
                   onChange={handleChange}
                   placeholder='••••••••'
-                  className='w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
+                  aria-invalid={!!fieldError.mot_de_passe}
+                  aria-describedby='pwd-help'
+                  data-field-error={fieldError.mot_de_passe ? 'true' : undefined}
+                  className={`w-full pl-12 pr-12 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all ${fieldError.mot_de_passe ? 'border-red-300 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-[#1DBF73] focus:ring-[#1DBF73]/20'}`}
                   required
                   minLength={10}
                 />
@@ -262,6 +288,17 @@ const Register = () => {
                   {showPassword ? <EyeOff className='w-5 h-5' /> : <Eye className='w-5 h-5' />}
                 </button>
               </div>
+              {formData.mot_de_passe && (
+                <div className='mt-2 flex gap-1' id='pwd-help'>
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i} className={`h-1 flex-1 rounded-full ${pwdScore >= i ? (pwdScore <= 1 ? 'bg-red-400' : pwdScore === 2 ? 'bg-orange-400' : pwdScore === 3 ? 'bg-yellow-400' : 'bg-green-500') : 'bg-gray-200'}`} />
+                  ))}
+                </div>
+              )}
+              {formData.mot_de_passe && (
+                <p className='text-xs text-gray-500 mt-1'>{[t.auth.pwdWeak, t.auth.pwdWeak, t.auth.pwdMedium, t.auth.pwdGood, t.auth.pwdStrong][pwdScore]}</p>
+              )}
+              {fieldError.mot_de_passe && <p className='text-xs text-red-500 mt-1'>{fieldError.mot_de_passe}</p>}
             </div>
 
             {/* CGU */}
@@ -282,6 +319,7 @@ const Register = () => {
                   <Link to='/privacy' className='text-[#1DBF73] hover:no-underline font-medium'>{t.auth.privacyLink}</Link>
                 </span>
               </label>
+              {fieldError.acceptTerms && <p className='text-xs text-red-500 mt-1'>{fieldError.acceptTerms}</p>}
             </div>
 
             {/* Submit */}

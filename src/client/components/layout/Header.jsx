@@ -161,7 +161,7 @@ const Header = () => {
             <div className='items-center hidden gap-4 md:flex'>
               {!currentUser && (
                 <>
-                  <Link to='/register?type=seller'>
+                  <Link to='/register?type=vendeur'>
                     <button className='text-gray-600 hover:text-[#1DBF73] transition-colors font-medium'>
                       {t.becomeSeller}
                     </button>
