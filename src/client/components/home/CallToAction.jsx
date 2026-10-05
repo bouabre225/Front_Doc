@@ -109,7 +109,7 @@ const CallToAction = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
           >
-            <h2 className='mb-6 text-5xl font-bold leading-tight text-white'>
+            <h2 className='mb-6 text-4xl md:text-5xl font-bold leading-tight text-white text-balance'>
               {t.home.sellTitle}
             </h2>
             <p className='mb-8 text-xl leading-relaxed text-white/90'>
