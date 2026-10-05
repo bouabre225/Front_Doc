@@ -8,12 +8,13 @@ import {
 import { getAdminCommandes, marquerCommandeLivree } from '../../services/api';
 import ConfirmDialog from '../../client/components/common/ConfirmDialog';
 import { useLang } from '../../client/context/LangContext';
+import { getLocale } from '../../client/i18n/format';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const formatPrice = (p) => Number(p || 0).toLocaleString('fr-FR') + ' FCFA';
+const formatPrice = (p) => Number(p || 0).toLocaleString(getLocale()) + ' FCFA';
 const formatDate  = (d) => d
-  ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  ? new Date(d).toLocaleDateString(getLocale(), { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
   : '—';
 
 const STATUT_CONFIG = {
@@ -360,7 +361,7 @@ export default function AdminCommandes() {
                       <p className='font-semibold text-gray-900 text-sm truncate'>{c.annonce?.titre ?? 'Équipement'}</p>
                       <p className='text-xs text-gray-400 mt-0.5 flex items-center gap-1'>
                         <Calendar className='w-3 h-3' />
-                        {new Date(c.created_at).toLocaleDateString('fr-FR')}
+                        {new Date(c.created_at).toLocaleDateString(getLocale())}
                       </p>
                     </div>
                     <div className='md:col-span-2'>

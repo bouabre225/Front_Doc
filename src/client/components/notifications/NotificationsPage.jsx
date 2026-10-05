@@ -12,6 +12,7 @@ import {
 } from '../../../services/api';
 import ConfirmDialog from '../common/ConfirmDialog';
 import { useLang } from '../../context/LangContext';
+import { getLocale } from '../../i18n/format';
 
 // ─── Config types de notifications ──────────────────────────────────────────
 
@@ -53,7 +54,7 @@ const getTypeConfig = (type) =>
 
 // ─── Formatage date relative ─────────────────────────────────────────────────
 
-const timeAgo = (dateStr, t, lang = 'fr-FR') => {
+const timeAgo = (dateStr, t, lang = getLocale()) => {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
   const ago = (n, u) => t?.notifs?.agoPrefix ? `${t.notifs.agoPrefix} ${n} ${u}` : `${n}${u}`;
   if (diff < 60) return t?.notifs?.justNow ?? "À l'instant";
@@ -108,7 +109,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
             <p className={`text-sm leading-snug ${notif.lu ? 'text-gray-600' : 'text-gray-900 font-medium'}`}>
               {notif.message || notif.contenu}
             </p>
-            <p className='text-xs text-gray-400 mt-1'>{timeAgo(notif.created_at, t, currentLang === 'en' ? 'en-US' : 'fr-FR')}</p>
+            <p className='text-xs text-gray-400 mt-1'>{timeAgo(notif.created_at, t, currentLang === 'en' ? 'en-US' : getLocale())}</p>
           </div>
         </div>
 

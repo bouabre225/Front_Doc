@@ -12,6 +12,7 @@ import { useCart } from '../../context/CartContext';
 import { getImageUrl, createCommande } from '../../../services/api';
 import ConfirmDialog from '../common/ConfirmDialog';
 import { useLang } from '../../context/LangContext';
+import { getLocale } from '../../i18n/format';
 
 const Cart = () => {
   const { t } = useLang();
@@ -198,12 +199,12 @@ const Cart = () => {
                     <p className='text-xs text-gray-400 mt-0.5 truncate'>{item.vendeur}</p>
                     <div className='flex items-baseline gap-1 mt-1.5'>
                       <p className='text-base font-bold text-[#1DBF73]'>
-                        {(Number(item.prix_vendeur) * item.quantite).toLocaleString('fr-FR')}
+                        {(Number(item.prix_vendeur) * item.quantite).toLocaleString(getLocale())}
                       </p>
                       <span className='text-xs text-gray-400'>FCFA</span>
                     </div>
                     <p className='text-xs text-gray-400'>
-                      {Number(item.prix_vendeur).toLocaleString('fr-FR')}{t.home.perUnit}
+                      {Number(item.prix_vendeur).toLocaleString(getLocale())}{t.home.perUnit}
                     </p>
                   </div>
 
@@ -248,7 +249,7 @@ const Cart = () => {
                   <div key={item.id} className='flex justify-between text-sm'>
                     <span className='text-gray-500 truncate max-w-[150px]'>{item.titre} ×{item.quantite}</span>
                     <span className='font-medium text-gray-800 shrink-0 ml-2'>
-                      {(Number(item.prix_vendeur) * item.quantite).toLocaleString('fr-FR')} FCFA
+                      {(Number(item.prix_vendeur) * item.quantite).toLocaleString(getLocale())} FCFA
                     </span>
                   </div>
                 ))}
@@ -257,7 +258,7 @@ const Cart = () => {
                 <div className='flex justify-between text-sm'>
                   <span className='text-gray-500'>{t.cart.subtotal}</span>
                   <span className='font-medium text-gray-800'>
-                    {totalPrice.toLocaleString('fr-FR')} FCFA
+                    {totalPrice.toLocaleString(getLocale())} FCFA
                   </span>
                 </div>
                 <div className='flex justify-between text-sm'>
@@ -265,13 +266,13 @@ const Cart = () => {
                     🛡️ {t.cart.buyerProtection} <span className='text-xs bg-[#09B1BA]/10 px-1.5 py-0.5 rounded-full font-semibold'>8%</span>
                   </span>
                   <span className='font-medium text-[#09B1BA]'>
-                    + {Math.round(totalPrice * 0.08).toLocaleString('fr-FR')} FCFA
+                    + {Math.round(totalPrice * 0.08).toLocaleString(getLocale())} FCFA
                   </span>
                 </div>
                 <div className='flex justify-between pt-2 border-t border-gray-100'>
                   <span className='font-bold text-gray-900'>{t.cart.total}</span>
                   <span className='text-xl font-black text-[#1DBF73]'>
-                    {Math.round(totalPrice * 1.08).toLocaleString('fr-FR')} FCFA
+                    {Math.round(totalPrice * 1.08).toLocaleString(getLocale())} FCFA
                   </span>
                 </div>
               </div>
@@ -323,7 +324,7 @@ const Cart = () => {
               {loading ? (
                 <><div className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin' /> {t.cart.processing}</>
               ) : (
-                <><ShieldCheck className='w-5 h-5' /> {t.cart.orderFor} {Math.round(totalPrice * 1.08).toLocaleString('fr-FR')} FCFA</>
+                <><ShieldCheck className='w-5 h-5' /> {t.cart.orderFor} {Math.round(totalPrice * 1.08).toLocaleString(getLocale())} FCFA</>
               )}
             </motion.button>
 

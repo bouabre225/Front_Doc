@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Shield, ShieldOff, RefreshCw, Users, UserCheck, UserX } from 'lucide-react';
 import { useLang } from '../../client/context/LangContext';
+import { getLocale } from '../../client/i18n/format';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://docspace.bj/api';
 const getToken = () => localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
@@ -173,7 +174,7 @@ export default function ManageUsers() {
                         </td>
                         <td className='px-4 py-3'>
                           <p className='text-xs text-gray-500'>
-                            {u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '—'}
+                            {u.created_at ? new Date(u.created_at).toLocaleDateString(getLocale()) : '—'}
                           </p>
                         </td>
                       </tr>

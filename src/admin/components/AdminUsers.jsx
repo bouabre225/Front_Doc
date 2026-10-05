@@ -8,11 +8,12 @@ import {
   ChevronLeft, ChevronRight, Trash2, Ban, Play
 } from 'lucide-react';
 import { getAdminUsers, suspendUser, reactivateUser, deleteAdminUser } from '../../services/api';
+import { getLocale } from '../../client/i18n/format';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const formatDate = (d) => d
-  ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+  ? new Date(d).toLocaleDateString(getLocale(), { day: '2-digit', month: 'short', year: 'numeric' })
   : '—';
 
 const getInitials = (nom) =>

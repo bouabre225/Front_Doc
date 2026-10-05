@@ -10,6 +10,7 @@ import {
   getNotifications, getNotificationsCount, clearSession
 } from '../../services/api';
 import { useLang } from '../../client/context/LangContext';
+import { getLocale } from '../../client/i18n/format';
 
 // ─── Config types notifs ──────────────────────────────────────────────────────
 
@@ -29,7 +30,7 @@ const timeAgo = (d) => {
   if (diff < 60)     return "À l'instant";
   if (diff < 3600)   return `Il y a ${Math.floor(diff / 60)} min`;
   if (diff < 86400)  return `Il y a ${Math.floor(diff / 3600)} h`;
-  return new Date(d).toLocaleDateString('fr-FR');
+  return new Date(d).toLocaleDateString(getLocale());
 };
 
 // ─── Composant principal ──────────────────────────────────────────────────────

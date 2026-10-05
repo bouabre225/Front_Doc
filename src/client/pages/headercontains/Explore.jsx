@@ -20,6 +20,7 @@ import { useImageViewer } from '../../../hooks/useImageViewer';
 import { useFavoris } from '../../hooks/useFavoris';
 import { useTracking } from '../../hooks/useTracking';
 import { useLang } from '../../context/LangContext';
+import { getLocale } from '../../i18n/format';
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -548,7 +549,7 @@ const Explore = () => {
                                                 <div className="mb-3">
                                                     <div className="text-xl font-bold text-[#1DBF73]">
                                                         {Number(item.prix_vendeur).toLocaleString(
-                                                            'fr-FR',
+                                                            getLocale(),
                                                         )}
                                                         <span className="ml-1 text-sm font-normal text-gray-400">
                                                             FCFA
@@ -561,7 +562,7 @@ const Explore = () => {
                                                         <span className="text-xs font-semibold text-gray-600">
                                                             {Math.round(
                                                                 Number(item.prix_vendeur) * 1.08,
-                                                            ).toLocaleString('fr-FR')}{' '}
+                                                            ).toLocaleString(getLocale())}{' '}
                                                             FCFA
                                                         </span>
                                                         <span className="text-[10px] bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full font-semibold">
@@ -579,7 +580,7 @@ const Explore = () => {
                                                         {item.created_at
                                                             ? new Date(
                                                                   item.created_at,
-                                                              ).toLocaleDateString('fr-FR', {
+                                                              ).toLocaleDateString(getLocale(), {
                                                                   day: 'numeric',
                                                                   month: 'short',
                                                               })

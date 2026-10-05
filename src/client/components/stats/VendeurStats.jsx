@@ -4,8 +4,9 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { RefreshCw, Package, AlertTriangle, Star } from 'lucide-react';
 import { getStatsVendeur } from '../../../services/api';
 import { useLang } from '../../context/LangContext';
+import { getLocale } from '../../i18n/format';
 
-const fmt = (n) => Number(n || 0).toLocaleString('fr-FR');
+const fmt = (n) => Number(n || 0).toLocaleString(getLocale());
 
 const Kpi = ({ label, value, sub, alert }) => (
   <div className={`p-4 bg-white border rounded-2xl shadow-sm ${alert ? 'border-orange-300' : 'border-gray-100'}`}>

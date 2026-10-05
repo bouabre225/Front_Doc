@@ -8,6 +8,7 @@ import { getAnnonces, getImageUrl } from '../../../services/api';
 import { useCart } from '../../context/CartContext';
 import ImageViewer from '../common/ImageViewer';
 import { useImageViewer } from '../../../hooks/useImageViewer';
+import { getLocale } from '../../i18n/format';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -216,13 +217,13 @@ const PopularEquipments = () => {
                       <div className='flex items-end justify-between pt-4 border-t border-gray-100'>
                         <div>
                           <div className='text-2xl font-bold text-[#1DBF73] flex items-baseline gap-1'>
-                            {Number(equipment.prix_vendeur).toLocaleString('fr-FR')}
+                            {Number(equipment.prix_vendeur).toLocaleString(getLocale())}
                             <span className='text-sm font-medium text-gray-500'>FCFA</span>
                           </div>
                           <div className='flex items-center gap-1 mt-0.5'>
                             <span className='text-xs text-gray-400'>{t.explore.totalPrice}</span>
                             <span className='text-xs font-semibold text-gray-600'>
-                              {Math.round(Number(equipment.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
+                              {Math.round(Number(equipment.prix_vendeur) * 1.08).toLocaleString(getLocale())} FCFA
                             </span>
                             <span className='text-[10px] bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full font-semibold'>
                               🛡️ +8%

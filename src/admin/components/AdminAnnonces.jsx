@@ -7,12 +7,13 @@ import {
   Shield, Calendar, Box, DollarSign, Image as ImageIcon, AlertTriangle
 } from 'lucide-react';
 import { getAnnonces, deleteAdminAnnonce, getImageUrl } from '../../services/api';
+import { getLocale } from '../../client/i18n/format';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const formatPrice = (p) => Number(p || 0).toLocaleString('fr-FR') + ' FCFA';
+const formatPrice = (p) => Number(p || 0).toLocaleString(getLocale()) + ' FCFA';
 const formatDate  = (d) => d
-  ? new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })
+  ? new Date(d).toLocaleDateString(getLocale(), { day: '2-digit', month: 'short', year: 'numeric' })
   : '—';
 
 const ETAT_CONFIG = {

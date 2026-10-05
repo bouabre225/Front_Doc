@@ -9,6 +9,7 @@ import { getConversations, getConversation, sendMessage, getImageUrl, parseList,
 import { SkeletonConversations, SkeletonChat } from '../common/Skeleton';
 import echo from '../../../echo';
 import { useLang } from '../../context/LangContext';
+import { getLocale } from '../../i18n/format';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -19,12 +20,12 @@ const timeAgo = (dateStr) => {
   if (diff < 3600)   return `${Math.floor(diff / 60)}min`;
   if (diff < 86400)  return `${Math.floor(diff / 3600)}h`;
   if (diff < 604800) return `${Math.floor(diff / 86400)}j`;
-  return new Date(dateStr).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+  return new Date(dateStr).toLocaleDateString(getLocale(), { day: '2-digit', month: 'short' });
 };
 
 const formatTime = (dateStr) => {
   if (!dateStr) return '';
-  return new Date(dateStr).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  return new Date(dateStr).toLocaleTimeString(getLocale(), { hour: '2-digit', minute: '2-digit' });
 };
 
 const formatDateSeparator = (dateStr) => {
@@ -32,7 +33,7 @@ const formatDateSeparator = (dateStr) => {
   const diff = Math.floor((new Date() - d) / 86400000);
   if (diff === 0) return "Aujourd'hui";
   if (diff === 1) return 'Hier';
-  return d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+  return d.toLocaleDateString(getLocale(), { weekday: 'long', day: 'numeric', month: 'long' });
 };
 
 const isSameDay = (a, b) =>

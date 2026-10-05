@@ -6,9 +6,10 @@ import {
 import { RefreshCw, Download, TrendingUp, ShoppingCart, Users, Package, Star, AlertTriangle } from 'lucide-react';
 import { getAdminStats } from '../../services/api';
 import { useLang } from '../../client/context/LangContext';
+import { getLocale } from '../../client/i18n/format';
 
 const COLORS = ['#1DBF73', '#09B1BA', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#64748b', '#14b8a6'];
-const fmt = (n) => Number(n || 0).toLocaleString('fr-FR');
+const fmt = (n) => Number(n || 0).toLocaleString(getLocale());
 
 const Kpi = ({ label, value, sub }) => (
   <div className='p-4 bg-white border border-gray-100 rounded-2xl shadow-sm'>

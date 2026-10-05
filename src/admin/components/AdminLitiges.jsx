@@ -18,6 +18,7 @@ import {
 getAdminLitiges, prendreEnChargeLitige, resoldreLitige
 
 } from '../../services/api';
+import { getLocale } from '../../client/i18n/format';
 
 
 
@@ -27,13 +28,13 @@ getAdminLitiges, prendreEnChargeLitige, resoldreLitige
 
 const formatDate = (d) =>
 
-new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+new Date(d).toLocaleDateString(getLocale(), { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 
 
 const formatPrice = (p) =>
 
-Number(p || 0).toLocaleString('fr-FR') + ' FCFA';
+Number(p || 0).toLocaleString(getLocale()) + ' FCFA';
 
 
 
@@ -510,7 +511,7 @@ className='overflow-hidden'
 
 <p className='font-bold text-gray-700 text-xs'>
 
-{new Date(litige.date_signalement || litige.created_at).toLocaleDateString('fr-FR')}
+{new Date(litige.date_signalement || litige.created_at).toLocaleDateString(getLocale())}
 
 </p>
 

@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { Heart, Trash2, RefreshCw } from 'lucide-react';
 import { getFavoris, toggleFavori, getImageUrl, parseList } from '../../../services/api';
 import { useLang } from '../../context/LangContext';
+import { getLocale } from '../../i18n/format';
 
-const fmt = (n) => Number(n || 0).toLocaleString('fr-FR');
+const fmt = (n) => Number(n || 0).toLocaleString(getLocale());
 
 export default function MesFavoris() {
   const { t } = useLang();

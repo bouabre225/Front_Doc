@@ -43,9 +43,10 @@ const handleResponse = async (res) => {
     throw e;
   }
   if (!res.ok) {
-    const message =
+    const rawMessage =
       data?.message ||
       (data?.errors ? Object.values(data.errors).flat().join(' ') : 'Erreur serveur');
+    const message = translateApiMessage(rawMessage);
     const err = new Error(message);
     err.status = res.status;
     err.errors = data?.errors;
@@ -65,6 +66,52 @@ const handleResponse = async (res) => {
   return data;
 };
 
+// Messages back (FR) -> EN quand la langue est anglaise.
+// Le back renvoie des messages custom en français ; on les traduit à la volée.
+const API_FR2EN = {
+  'Identifiants invalides': 'Invalid credentials.',
+  'Email already used': 'Email already in use.',
+  'Compte suspendu': 'Account suspended.',
+  'Challenge expiré ou invalide.': 'Challenge expired or invalid.',
+  'Code 2FA invalide': 'Invalid 2FA code.',
+  'Utilisateur introuvable.': 'User not found.',
+  'Token invalide ou expiré.': 'Invalid or expired token.',
+  'Token expiré.': 'Token expired.',
+  'Aucun compte associé à cet email.': 'No account for this email.',
+  'Non authentifié': 'Not authenticated.',
+  'Non authentifié.': 'Not authenticated.',
+  'Non autorisé': 'Not allowed.',
+  'Non autorisé.': 'Not allowed.',
+  'Action non autorisée': 'Not allowed.',
+  'Action non autorisée.': 'Not allowed.',
+  'Commande introuvable.': 'Order not found.',
+  'Document introuvable.': 'Document not found.',
+  'Cette commande a déjà été notée.': 'This order has already been rated.',
+  'Vous pourrez noter après livraison.': 'You can rate after delivery.',
+  "Seul l'acheteur peut noter cette commande.": 'Only the buyer can rate this order.',
+  'Cette commande ne peut pas être payée': 'This order cannot be paid',
+  'Montant minimum 100 FCFA pour le paiement en ligne (FedaPay).': 'Minimum amount 100 FCFA for online payment (FedaPay).',
+  'Un paiement est déjà en cours': 'A payment is already in progress',
+  'Impossible de supprimer un document déjà traité': 'Cannot delete an already processed document',
+  'Impossible de s\u2019envoyer un message à soi-même.': 'Cannot send a message to yourself.',
+  'Si cet email existe, un lien de réinitialisation a été envoyé.': 'If this email exists, a reset link was sent.',
+  'Mot de passe réinitialisé avec succès.': 'Password reset successfully.',
+  'Trop de tentatives. Reconnecte-toi.': 'Too many attempts. Log in again.',
+  'Facture disponible uniquement après paiement.': 'Invoice available only after payment.',
+  'Envoi impossible pour le moment.': 'Unable to send right now.',
+  'Signature manquante': 'Missing signature',
+  'Signature invalide': 'Invalid signature',
+  'Erreur serveur': 'Server error',
+};
+
+const translateApiMessage = (message) => {
+  try {
+    if (localStorage.getItem('docspace_lang') !== 'en' || !message) return message;
+    return API_FR2EN[message] || API_FR2EN[message.trim()] || message;
+  } catch {
+    return message;
+  }
+};
 // Purge complète de session (à appeler au logout / 401)
 export const clearSession = () => {
   try {

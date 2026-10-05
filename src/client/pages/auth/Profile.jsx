@@ -17,6 +17,7 @@ import Footer from '../../components/layout/Footer';
 import { SkeletonProfile } from '../../components/common/Skeleton';
 import { getMe, getCommandes, getMyAnnonces, deleteAnnonce, logoutUser, getImageUrl, getKycStatus, updateProfile, getCommandesRecues, marquerCommandeLivree } from '../../../services/api';
 import { COUNTRIES } from '../../constants/countries';
+import { getLocale } from '../../i18n/format';
 
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -394,7 +395,7 @@ function Profile() {
                               <h3 className='font-bold text-gray-900 truncate'>{annonce.titre}</h3>
                               <p className='text-xs text-gray-400 mt-0.5'>{annonce.categorie} · {annonce.etat}</p>
                               <p className='text-base font-bold text-[#1DBF73] mt-1'>
-                                {Number(annonce.prix_vendeur).toLocaleString('fr-FR')} FCFA
+                                {Number(annonce.prix_vendeur).toLocaleString(getLocale())} FCFA
                               </p>
                             </div>
                             <div className='flex flex-col gap-2 shrink-0'>
@@ -437,14 +438,14 @@ function Profile() {
                                 </p>
                                 <p className='text-xs text-gray-400 mt-0.5 flex items-center gap-1'>
                                   <Calendar className='w-3 h-3' />
-                                  {new Date(cmd.created_at).toLocaleDateString('fr-FR')}
+                                  {new Date(cmd.created_at).toLocaleDateString(getLocale())}
                                 </p>
                               </div>
                               <div className='flex flex-col items-end gap-2'>
                                 <StatutBadge statut={cmd.statut} />
                                 {cmd.prix_total != null && !isNaN(Number(cmd.prix_total)) && (
                                   <p className='text-sm font-bold text-[#1DBF73]'>
-                                    {Number(cmd.prix_total).toLocaleString('fr-FR')} FCFA
+                                    {Number(cmd.prix_total).toLocaleString(getLocale())} FCFA
                                   </p>
                                 )}
                               </div>
@@ -485,7 +486,7 @@ function Profile() {
                                 </p>
                                 <p className='text-xs text-gray-400 mt-0.5 flex items-center gap-1'>
                                   <Calendar className='w-3 h-3' />
-                                  {new Date(cmd.created_at).toLocaleDateString('fr-FR')}
+                                  {new Date(cmd.created_at).toLocaleDateString(getLocale())}
                                   {cmd.acheteur?.nom && (
                                     <span className='ml-1'>· {cmd.acheteur.nom}</span>
                                   )}
@@ -495,7 +496,7 @@ function Profile() {
                                 <StatutBadge statut={cmd.statut} />
                                 {cmd.montant != null && !isNaN(Number(cmd.montant)) && (
                                   <p className='text-sm font-bold text-[#1DBF73]'>
-                                    {Number(cmd.montant).toLocaleString('fr-FR')} FCFA
+                                    {Number(cmd.montant).toLocaleString(getLocale())} FCFA
                                   </p>
                                 )}
                                 {/* ✅ Bouton livraison — seulement si payée */}

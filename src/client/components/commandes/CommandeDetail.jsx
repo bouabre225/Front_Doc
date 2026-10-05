@@ -10,6 +10,7 @@ import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande, renvoyerFacture, createAvis } from '../../../services/api';
 import { useLang } from '../../context/LangContext';
+import { getLocale } from '../../i18n/format';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -59,10 +60,10 @@ const STATUT_CONFIG = {
 };
 
 const formatDate = (d) =>
-  new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  new Date(d).toLocaleDateString(getLocale(), { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 const formatPrice = (p) =>
-  Number(p).toLocaleString('fr-FR') + ' FCFA';
+  Number(p).toLocaleString(getLocale()) + ' FCFA';
 
 // ─── Modal confirmation ───────────────────────────────────────────────────────
 

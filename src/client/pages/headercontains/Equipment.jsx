@@ -16,6 +16,7 @@ import { useImageViewer } from '../../../hooks/useImageViewer';
 import { useFavoris } from '../../hooks/useFavoris';
 import { useLang } from '../../context/LangContext';
 import { useTracking } from '../../hooks/useTracking';
+import { getLocale } from '../../i18n/format';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -282,7 +283,7 @@ function Equipment() {
             <div className='p-5 bg-gradient-to-br from-[#1DBF73]/5 to-[#09B1BA]/5 rounded-2xl border border-[#1DBF73]/15'>
               <p className='text-xs text-gray-500 mb-1'>{t.equipment.sellerPrice}</p>
               <div className='text-4xl font-black text-[#1DBF73]'>
-                {Number(annonce.prix_vendeur).toLocaleString('fr-FR')}
+                {Number(annonce.prix_vendeur).toLocaleString(getLocale())}
                 <span className='ml-2 text-lg font-semibold text-gray-400'>FCFA</span>
               </div>
 
@@ -291,7 +292,7 @@ function Equipment() {
                 <div className='flex items-center justify-between text-sm'>
                   <span className='text-gray-500'>{t.equipment.sellerPrice}</span>
                   <span className='text-gray-700 font-medium'>
-                    {Number(annonce.prix_vendeur).toLocaleString('fr-FR')} FCFA
+                    {Number(annonce.prix_vendeur).toLocaleString(getLocale())} FCFA
                   </span>
                 </div>
                 <div className='flex items-center justify-between text-sm'>
@@ -301,13 +302,13 @@ function Equipment() {
                     <span className='text-xs bg-[#09B1BA]/10 text-[#09B1BA] px-1.5 py-0.5 rounded-full font-semibold'>8%</span>
                   </div>
                   <span className='text-[#09B1BA] font-medium'>
-                    + {Math.round(Number(annonce.prix_vendeur) * 0.08).toLocaleString('fr-FR')} FCFA
+                    + {Math.round(Number(annonce.prix_vendeur) * 0.08).toLocaleString(getLocale())} FCFA
                   </span>
                 </div>
                 <div className='flex items-center justify-between pt-2 border-t border-[#1DBF73]/15'>
                   <span className='font-bold text-gray-800'>{t.equipment.total}</span>
                   <span className='font-black text-xl text-[#1DBF73]'>
-                    {Math.round(Number(annonce.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
+                    {Math.round(Number(annonce.prix_vendeur) * 1.08).toLocaleString(getLocale())} FCFA
                   </span>
                 </div>
               </div>
@@ -325,7 +326,7 @@ function Equipment() {
               {[
                 { icon: Package,  color: 'bg-[#1DBF73]/10', iconColor: 'text-[#1DBF73]',  label: 'État',      value: annonce.etat },
                 { icon: Layers,   color: 'bg-[#09B1BA]/10', iconColor: 'text-[#09B1BA]',  label: 'Quantité',  value: `${annonce.quantite} dispo.` },
-                { icon: Calendar, color: 'bg-orange-50',    iconColor: 'text-orange-400', label: 'Publié le', value: annonce.created_at ? new Date(annonce.created_at).toLocaleDateString('fr-FR') : '—' },
+                { icon: Calendar, color: 'bg-orange-50',    iconColor: 'text-orange-400', label: 'Publié le', value: annonce.created_at ? new Date(annonce.created_at).toLocaleDateString(getLocale()) : '—' },
               ].map(({ icon: Icon, color, iconColor, label, value }, index, arr) => (
                     <div
                         key={label}
@@ -493,7 +494,7 @@ function Equipment() {
                   {a.commentaire && <p className='text-sm text-gray-600 leading-relaxed'>{a.commentaire}</p>}
                   {a.created_at && (
                     <p className='text-xs text-gray-400 mt-2'>
-                      {new Date(a.created_at).toLocaleDateString('fr-FR')}
+                      {new Date(a.created_at).toLocaleDateString(getLocale())}
                     </p>
                   )}
                 </div>

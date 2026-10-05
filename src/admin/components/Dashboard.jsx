@@ -10,17 +10,18 @@ import {
   getAdminLitiges, getKycPending, getAdminCommandes, getAnnonces
 } from '../../services/api';
 import { useLang } from '../../client/context/LangContext';
+import { getLocale } from '../../client/i18n/format';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-const formatPrice = (p) => Number(p || 0).toLocaleString('fr-FR') + ' FCFA';
+const formatPrice = (p) => Number(p || 0).toLocaleString(getLocale()) + ' FCFA';
 
 const timeAgo = (d) => {
   const diff = Math.floor((Date.now() - new Date(d)) / 1000);
   if (diff < 60)    return "À l'instant";
   if (diff < 3600)  return `Il y a ${Math.floor(diff / 60)} min`;
   if (diff < 86400) return `Il y a ${Math.floor(diff / 3600)} h`;
-  return new Date(d).toLocaleDateString('fr-FR');
+  return new Date(d).toLocaleDateString(getLocale());
 };
 
 const LITIGE_STATUT = {
@@ -53,7 +54,7 @@ const StatCard = ({ icon: Icon, title, value, color, bgColor, sub, loading }) =>
           <div className='h-8 w-20 bg-gray-200 rounded animate-pulse' />
         ) : (
           <h3 className='text-3xl font-bold text-gray-800'>
-            {typeof value === 'number' ? value.toLocaleString('fr-FR') : value}
+            {typeof value === 'number' ? value.toLocaleString(getLocale()) : value}
           </h3>
         )}
         {sub && <p className='text-xs text-gray-400 mt-1'>{sub}</p>}

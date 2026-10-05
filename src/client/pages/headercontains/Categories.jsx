@@ -20,6 +20,7 @@ import {
     getImageUrl,
     getCountsParCategorie,
 } from '../../../services/api';
+import { getLocale } from '../../i18n/format';
 
 // ─── Config catégories (UI seulement) ───────────────────────────────────────
 
@@ -197,14 +198,14 @@ const AnnonceCard = ({ annonce, index }) => (
                     <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                         <div>
                             <p className="text-xl font-black text-[#1DBF73]">
-                                {Number(annonce.prix_vendeur).toLocaleString('fr-FR')}
+                                {Number(annonce.prix_vendeur).toLocaleString(getLocale())}
                                 <span className="ml-1 text-sm font-medium text-gray-400">FCFA</span>
                             </p>
                             <div className="flex items-center gap-1 mt-0.5">
                                 <span className="text-xs text-gray-400">{t.categoriesPage.total}</span>
                                 <span className="text-xs font-semibold text-gray-600">
                                     {Math.round(Number(annonce.prix_vendeur) * 1.08).toLocaleString(
-                                        'fr-FR',
+                                        getLocale(),
                                     )}{' '}
                                     FCFA
                                 </span>

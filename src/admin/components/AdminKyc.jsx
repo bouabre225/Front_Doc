@@ -7,11 +7,12 @@ import {
   AlertCircle, Clock, Shield, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { getKycPending, decideKyc } from '../../services/api';
+import { getLocale } from '../../client/i18n/format';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const formatDate = (d) =>
-  new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  new Date(d).toLocaleDateString(getLocale(), { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 // ─── Modal de décision ────────────────────────────────────────────────────────
 

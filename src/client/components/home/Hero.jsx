@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import AnimatedBackground from './AnimatedBackground';
 import { getAnnonces } from '../../../services/api';
 import { useLang } from '../../context/LangContext';
+import { getLocale } from '../../i18n/format';
 
 const SUGGESTIONS = ['Échographe', 'Stéthoscope', 'Scanner', 'Lit médical', 'Défibrillateur'];
 
@@ -205,7 +206,7 @@ const Hero = () => {
               >
                 <div className='text-5xl font-extrabold text-[#1DBF73] mb-2'>
                   {stats.equipements != null
-                    ? `${stats.equipements.toLocaleString('fr-FR')}+`
+                    ? `${stats.equipements.toLocaleString(getLocale())}+`
                     : '—'}
                 </div>
                 <div className='text-base font-semibold text-gray-700'>{t.home.statEquipments}</div>

@@ -9,6 +9,7 @@ import {
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { createAnnonce, uploadAnnonceImages, getKycStatus } from '../../../services/api';
+import { getLocale } from '../../i18n/format';
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -647,7 +648,7 @@ const PublishEquipment = () => {
                       <div className='flex items-center justify-between text-sm'>
                         <span className='text-gray-500'>{t.vendeur.priceHint}</span>
                         <span className='font-semibold text-gray-700'>
-                          {Number(formData.prix_vendeur).toLocaleString('fr-FR')} FCFA
+                          {Number(formData.prix_vendeur).toLocaleString(getLocale())} FCFA
                         </span>
                       </div>
                       <div className='flex items-center justify-between text-sm'>
@@ -655,13 +656,13 @@ const PublishEquipment = () => {
                           🛡️ {t.equipment.buyerProtection} <span className='text-xs'>(8%)</span>
                         </span>
                         <span className='font-semibold text-[#09B1BA]'>
-                          + {Math.round(Number(formData.prix_vendeur) * 0.08).toLocaleString('fr-FR')} FCFA
+                          + {Math.round(Number(formData.prix_vendeur) * 0.08).toLocaleString(getLocale())} FCFA
                         </span>
                       </div>
                       <div className='border-t border-[#1DBF73]/20 pt-1.5 flex items-center justify-between'>
                         <span className='font-bold text-gray-800'>{t.vendeur.priceBuyer}</span>
                         <span className='font-black text-[#1DBF73] text-base'>
-                          {Math.round(Number(formData.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
+                          {Math.round(Number(formData.prix_vendeur) * 1.08).toLocaleString(getLocale())} FCFA
                         </span>
                       </div>
                     </div>
