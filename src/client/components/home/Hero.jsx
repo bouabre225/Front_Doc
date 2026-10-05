@@ -166,7 +166,7 @@ const Hero = () => {
       type='submit'
       className='w-full sm:w-auto px-8 py-4 text-base sm:text-lg bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl sm:rounded-full hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 shrink-0'
     >
-      {t.common.search}
+      {t.search}
     </button>
   </div>
 </form>
