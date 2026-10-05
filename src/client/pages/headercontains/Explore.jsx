@@ -320,7 +320,7 @@ const Explore = () => {
                             type="submit"
                             className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-lg text-sm"
                         >
-                            {t.common.search}
+                            {t.search}
                         </button>
                     </div>
                 </form>
