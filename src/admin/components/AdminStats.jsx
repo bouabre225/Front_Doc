@@ -139,8 +139,22 @@ export default function AdminStats() {
                 <p className='text-xs font-bold text-gray-400 uppercase mb-2'>Top annonces vues</p>
                 {(data.audience.top_vues || []).length ? (
                   <table className='w-full text-sm'>
-                    <tbody>{data.audience.top_vues.map((v) => <tr key={v.id} className='border-t border-gray-50 first:border-0'><td className='py-1.5 font-medium'>{v.titre}</td><td className='text-right'>{v.vues} vues • {v.visiteurs} visiteurs</td></tr>)}</tbody>
+                    <tbody>{data.audience.top_vues.map((v) => <tr key={v.id} className='border-t border-gray-50 first:border-0'><td className='py-1.5 font-medium'>{v.titre}<span className='ml-2 text-xs text-gray-400'>{v.categorie}</span></td><td className='text-right whitespace-nowrap'>{v.vues} vues • {v.visiteurs} visiteurs</td></tr>)}</tbody>
                   </table>
+                ) : <p className='text-sm text-gray-400'>Pas encore de données de visite.</p>}
+                <p className='text-xs font-bold text-gray-400 uppercase mt-4 mb-2'>Types de produits visités</p>
+                {(data.audience.vues_par_categorie || []).length ? (
+                  <div className='space-y-2'>
+                    {(() => {
+                      const max = Math.max(...data.audience.vues_par_categorie.map((c) => c.vues), 1);
+                      return data.audience.vues_par_categorie.map((c, i) => (
+                        <div key={c.categorie || 'Autres'}>
+                          <div className='flex justify-between text-xs mb-1'><span className='font-semibold'>{c.categorie || 'Autres'}</span><span>{c.vues} vues • {c.visiteurs} visiteurs</span></div>
+                          <div className='h-2 bg-gray-100 rounded-full'><div className='h-2 rounded-full' style={{ width: `${(c.vues / max) * 100}%`, background: ['#1DBF73', '#09B1BA', '#f59e0b', '#8b5cf6', '#ec4899', '#64748b'][i % 6] }} /></div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
                 ) : <p className='text-sm text-gray-400'>Pas encore de données de visite.</p>}
               </Section>
             )}
