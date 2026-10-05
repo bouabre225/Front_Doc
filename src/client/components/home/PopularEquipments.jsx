@@ -191,7 +191,7 @@ const PopularEquipments = () => {
                         {equipment.titre}
                       </h3>
 
-                      <div className='flex items-center gap-1.5 mb-4 text-sm text-gray-500'>
+                      <div className='flex items-center gap-1.5 mb-4 text-sm text-gray-600'>
                         <MapPin className='w-4 h-4 text-[#1DBF73] shrink-0' />
                         <span className='font-medium truncate'>
                           {equipment.pays_expedition || t.common.notSpecified}

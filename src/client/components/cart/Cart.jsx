@@ -336,7 +336,7 @@ const Cart = () => {
 
             {/* Erreur */}
             {error && (
-              <div className='flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700'>
+              <div role='alert' className='flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700'>
                 <AlertCircle className='w-4 h-4 shrink-0 mt-0.5' />
                 {error}
               </div>

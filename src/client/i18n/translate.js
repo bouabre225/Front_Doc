@@ -134,6 +134,8 @@ const fr = {
     none: 'Aucun équipement trouvé',
     noneHint: 'Essayez de modifier vos filtres ou votre recherche',
     details: 'Voir détails',
+    zoom: 'Agrandir',
+    page: 'Page',
     totalPrice: 'Prix total :',
   },
   equipment: {
@@ -1004,6 +1006,8 @@ const en = {
     none: 'No equipment found',
     noneHint: 'Try adjusting your filters or search',
     details: 'View details',
+    zoom: 'Zoom',
+    page: 'Page',
     totalPrice: 'Total price:',
   },
   equipment: {

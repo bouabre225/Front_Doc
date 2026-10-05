@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -11,6 +11,7 @@ import {
     AlertCircle,
     X,
     SlidersHorizontal,
+    ZoomIn,
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
@@ -136,6 +137,8 @@ const Pagination = ({ current, last, onChange }) => {
                     ) : (
                         <button
                             key={p}
+                            aria-label={`${t.explore.page} ${p}`}
+                            aria-current={current === p ? 'page' : undefined}
                             onClick={() => onChange(p)}
                             className={`w-9 h-9 rounded-full font-semibold text-sm transition-all ${
                                 current === p
@@ -178,6 +181,25 @@ const Explore = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [lastPage, setLastPage] = useState(1);
     const [total, setTotal] = useState(0);
+    const sortRef = useRef(null);
+    const resultsRef = useRef(null);
+
+    // Fermer le tri : clic extérieur + Escape
+    useEffect(() => {
+      if (!sortOpen) return;
+      const onDown = (e) => {
+        if (sortRef.current && !sortRef.current.contains(e.target)) setSortOpen(false);
+      };
+      const onKey = (e) => { if (e.key === 'Escape') setSortOpen(false); };
+      document.addEventListener('mousedown', onDown);
+      document.addEventListener('keydown', onKey);
+      return () => { document.removeEventListener('mousedown', onDown); document.removeEventListener('keydown', onKey); };
+    }, [sortOpen]);
+
+    const goToPage = (p) => {
+      setCurrentPage(p);
+      resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
     // ─── Favoris (serveur si connecté, local sinon) ────────────────────────
     const { favorites, isFavorite, toggle: handleFavorite } = useFavoris();
     const { t } = useLang();
@@ -326,8 +348,8 @@ const Explore = () => {
                     </div>
                 </form>
 
-                {/* Filtres */}
-                <div className="mb-6 space-y-3">
+                {/* Filtres sticky */}
+                <div className="mb-6 space-y-3 sticky top-16 z-20 bg-gray-50/95 backdrop-blur py-3 -mx-4 px-4">
                     {/* Catégories */}
                     <div className="flex flex-wrap gap-2">
                         {CATEGORIES.map((cat) => (
@@ -362,9 +384,12 @@ const Explore = () => {
                         ))}
 
                         {/* Tri */}
-                        <div className="relative ml-2">
+                        <div className="relative ml-2" ref={sortRef}>
                             <button
                                 onClick={() => setSortOpen(!sortOpen)}
+                                aria-expanded={sortOpen}
+                                aria-haspopup="listbox"
+                                aria-label={t.explore.sort}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
                                     sortBy !== 'recent'
                                         ? 'border-[#1DBF73] text-[#1DBF73] bg-[#1DBF73]/5'
@@ -386,6 +411,8 @@ const Explore = () => {
                                         {SORTS.map((opt) => (
                                             <button
                                                 key={opt.key}
+                                                role="option"
+                                                aria-selected={sortBy === opt.key}
                                                 onClick={() => {
                                                     setSortBy(opt.key);
                                                     setSortOpen(false);
@@ -434,8 +461,9 @@ const Explore = () => {
                 {/* Résultats */}
                 {!error && (
                     <>
+                        <div ref={resultsRef} className="scroll-mt-32" />
                         {!loading && annonces.length > 0 && (
-                            <p className="mb-4 text-sm text-gray-400">
+                            <p className="mb-4 text-sm text-gray-500">
                                 {annonces.length} {annonces.length > 1 ? t.explore.equipmentPlural : t.explore.equipment} {annonces.length > 1 ? t.explore.shownPlural : t.explore.shown}
                                 {total > annonces.length ? ` ${t.explore.of} ${total}` : ''}
                             </p>
@@ -481,18 +509,28 @@ const Explore = () => {
                                             {/* Image */}
                                             <div className="relative overflow-hidden bg-gray-100 h-48">
                                                 {item.images?.[0] ? (
-                                                    <img
-                                                        src={getImageUrl(item.images[0].image_url)}
-                                                        alt={item.titre}
-                                                        className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105 cursor-zoom-in"
-                                                        onClick={() =>
-                                                            openViewer(item.images, 0, item.titre)
-                                                        }
-                                                    />
+                                                    <Link to={`/equipment/${item.id}`} aria-label={item.titre} className="block w-full h-full">
+                                                        <img
+                                                            src={getImageUrl(item.images[0].image_url)}
+                                                            alt={item.titre}
+                                                            loading="lazy"
+                                                            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+                                                        />
+                                                    </Link>
                                                 ) : (
-                                                    <div className="flex items-center justify-center w-full h-full text-5xl">
+                                                    <div className="flex items-center justify-center w-full h-full text-5xl" aria-hidden="true">
                                                         🏥
                                                     </div>
+                                                )}
+                                                {item.images?.length > 0 && (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openViewer(item.images, 0, item.titre)}
+                                                        aria-label={t.explore.zoom}
+                                                        className="absolute bottom-3 right-3 w-11 h-11 flex items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 transition-all"
+                                                    >
+                                                        <ZoomIn className="w-5 h-5" />
+                                                    </button>
                                                 )}
 
                                                 {viewer.open && (
@@ -526,11 +564,13 @@ const Explore = () => {
                                                         {item.categorie}
                                                     </div>
                                                 )}
-                                                <h3 className="mb-3 text-base font-bold text-gray-900 line-clamp-2 min-h-[48px] group-hover:text-[#1DBF73] transition-colors">
-                                                    {item.titre}
-                                                </h3>
+                                                <Link to={`/equipment/${item.id}`}>
+                                                    <h3 className="mb-3 text-base font-bold text-gray-900 line-clamp-2 min-h-[48px] group-hover:text-[#1DBF73] transition-colors">
+                                                        {item.titre}
+                                                    </h3>
+                                                </Link>
 
-                                                <div className="flex items-center gap-1 mb-3 text-xs text-gray-400">
+                                                <div className="flex items-center gap-1 mb-3 text-xs text-gray-500">
                                                     <MapPin className="w-3.5 h-3.5 text-[#1DBF73]" />
                                                     <span className="truncate">
                                                         {item.pays_expedition || t.common.notSpecified}
@@ -594,7 +634,7 @@ const Explore = () => {
                                 <Pagination
                                     current={currentPage}
                                     last={lastPage}
-                                    onChange={setCurrentPage}
+                                    onChange={goToPage}
                                 />
                             </>
                         )}

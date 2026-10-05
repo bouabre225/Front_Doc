@@ -142,7 +142,7 @@ const Register = () => {
 
           {/* Erreur */}
           {error && (
-            <div className='flex items-center gap-2 p-3 mb-5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl'>
+            <div role='alert' className='flex items-center gap-2 p-3 mb-5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl'>
               <AlertCircle className='w-4 h-4 shrink-0' />
               <span>{error}</span>
             </div>
