@@ -18,6 +18,7 @@ import { SkeletonProfile } from '../../components/common/Skeleton';
 import { getMe, getCommandes, getMyAnnonces, deleteAnnonce, logoutUser, getImageUrl, getKycStatus, updateProfile, getCommandesRecues, marquerCommandeLivree } from '../../../services/api';
 import { COUNTRIES } from '../../constants/countries';
 import { getLocale } from '../../i18n/format';
+import { useLang } from '../../context/LangContext';
 
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -45,6 +46,7 @@ const StatutBadge = ({ statut }) => {
 // ─── Composant principal ─────────────────────────────────────────────────────
 
 function Profile() {
+  const { t } = useLang();
   const navigate = useNavigate();
 
   const [user, setUser]               = useState(null);
