@@ -281,6 +281,13 @@ export const getCountsParCategorie = async () => {
   return handleResponse(res);
 };
 
+export const getStatsPublic = async () => {
+  const res = await fetch(`${API_URL}/stats-public`, {
+    headers: { 'Accept': 'application/json' },
+  });
+  return handleResponse(res);
+};
+
 export const getMyAnnonces = async () => {
   const res = await fetch(`${API_URL}/annonces?my=true`, {
     headers: authHeaders(),
@@ -767,7 +774,7 @@ export default {
   getAdminLitiges, prendreEnChargeLitige, resoldreLitige,
   getAdminCommandes, getAdminUsers, getAdminStats,
   suspendUser, reactivateUser, deleteAdminUser,
-  getImageUrl, getCountsParCategorie,
+  getImageUrl, getCountsParCategorie, getStatsPublic,
   getKycDocumentUrl,
   marquerCommandeLivree,
 };

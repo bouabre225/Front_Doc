@@ -322,7 +322,7 @@ const Header = () => {
               )}
             </div>
 
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className='p-2 transition-all rounded-lg md:hidden hover:bg-gray-100'>
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className='p-2 transition-all rounded-lg md:hidden hover:bg-gray-100 min-w-[44px] min-h-[44px] flex items-center justify-center'>
               {mobileMenuOpen ? <X className='w-5 h-5' /> : <Menu className='w-5 h-5' />}
             </button>
           </div>

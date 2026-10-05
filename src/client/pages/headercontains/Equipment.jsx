@@ -220,14 +220,14 @@ function Equipment() {
                   <button
                     onClick={() => setSelectedImage(i => Math.max(0, i - 1))}
                     disabled={selectedImage === 0}
-                    className='absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all disabled:opacity-30'
+                    className='absolute left-3 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all disabled:opacity-30'
                   >
                     <ChevronLeft className='w-4 h-4 text-gray-700' />
                   </button>
                   <button
                     onClick={() => setSelectedImage(i => Math.min(images.length - 1, i + 1))}
                     disabled={selectedImage === images.length - 1}
-                    className='absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all disabled:opacity-30'
+                    className='absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center hover:bg-white transition-all disabled:opacity-30'
                   >
                     <ChevronRight className='w-4 h-4 text-gray-700' />
                   </button>
@@ -237,8 +237,11 @@ function Equipment() {
                       <button
                         key={i}
                         onClick={() => setSelectedImage(i)}
-                        className={`w-2 h-2 rounded-full transition-all ${i === selectedImage ? 'bg-white w-5' : 'bg-white/50'}`}
-                      />
+                        aria-label={`Image ${i + 1}`}
+                        className='w-8 h-8 flex items-center justify-center'
+                      >
+                        <span className={`h-2 rounded-full transition-all ${i === selectedImage ? 'bg-white w-5' : 'bg-white/50 w-2'}`} />
+                      </button>
                     ))}
                   </div>
                 </>

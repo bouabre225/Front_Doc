@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import { Search, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AnimatedBackground from './AnimatedBackground';
-import { getAnnonces } from '../../../services/api';
+import { useStatsPublic } from '../../hooks/useStatsPublic';
 import { useLang } from '../../context/LangContext';
 import { getLocale } from '../../i18n/format';
 
-const SUGGESTIONS = ['Échographe', 'Stéthoscope', 'Scanner', 'Lit médical', 'Défibrillateur'];
+
 
 const FEATURES = [
   { image: 'https://images.unsplash.com/photo-1584362917165-526a968579e8?w=400&h=300&fit=crop', tk: 'featCertified', dk: 'featCertifiedD', overlay: 'from-blue-500/80 to-blue-600/80' },
@@ -29,44 +29,11 @@ const Hero = () => {
   const { t } = useLang();
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [statsLoading, setStatsLoading] = useState(true);
-  const [stats, setStats] = useState({
-    equipements: null,
-    vendeurs:    null,
-  });
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      setStatsLoading(true);
-      try {
-        // Page 1 pour total + vendeurs uniques sur toutes les pages
-        const first    = await getAnnonces(1);
-        const total    = first.total ?? (first.data || []).length;
-        const lastPage = first.last_page || 1;
-
-        // Récupérer toutes les pages pour compter les vendeurs uniques réels
-        let allItems = [...(first.data || [])];
-        if (lastPage > 1) {
-          const rest = await Promise.all(
-            Array.from({ length: lastPage - 1 }, (_, i) => getAnnonces(i + 2))
-          );
-          rest.forEach(p => allItems.push(...(p.data || [])));
-        }
-
-        const vendeurIds = new Set(allItems.map(a => a.vendeur_id).filter(Boolean));
-
-        setStats({
-          equipements: total,
-          vendeurs:    vendeurIds.size || null,
-        });
-      } catch {
-        // Garde null → affiche '—'
-      } finally {
-        setStatsLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
+  const { stats: publicStats, loading: statsLoading } = useStatsPublic();
+  const stats = {
+    equipements: publicStats?.annonces ?? null,
+    vendeurs: publicStats?.vendeurs ?? null,
+  };
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -174,7 +141,7 @@ const Hero = () => {
           {/* Suggestions */}
           <div className='flex flex-wrap justify-center items-center gap-3 mt-6'>
             <span className='text-sm font-medium text-gray-500'>{t.home.heroPopular}</span>
-            {SUGGESTIONS.map((term, index) => (
+            {(t.home.heroSuggests || []).map((term, index) => (
               <motion.button
                 key={index}
                 whileHover={{ scale: 1.05 }}
@@ -209,7 +176,7 @@ const Hero = () => {
                     ? `${stats.equipements.toLocaleString(getLocale())}+`
                     : '—'}
                 </div>
-                <div className='text-base font-semibold text-gray-700'>{t.home.statEquipments}</div>
+                <div className='text-base font-semibold text-gray-700'>{t.home.statEquipmentShort}</div>
               </motion.div>
 
               <motion.div
@@ -228,8 +195,8 @@ const Hero = () => {
                 whileHover={{ y: -4 }}
                 className='p-8 text-center transition-all duration-300 bg-white border border-gray-100 shadow-xl rounded-2xl hover:shadow-2xl'
               >
-                <div className='text-5xl font-extrabold text-[#1DBF73] mb-2'>98%</div>
-                <div className='text-base font-semibold text-gray-700'>{t.home.statSatisfaction}</div>
+                <div className='text-5xl font-extrabold text-[#1DBF73] mb-2'>{publicStats?.avis_total ? `${publicStats.note_moyenne}/5` : '—'}</div>
+                <div className='text-base font-semibold text-gray-700'>{t.home.statSatisfaction}{publicStats?.avis_total ? ` (${publicStats.avis_total})` : ''}</div>
               </motion.div>
             </>
           )}

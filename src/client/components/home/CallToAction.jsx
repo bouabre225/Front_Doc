@@ -3,72 +3,40 @@ import { useLang } from '../../context/LangContext';
 import { motion } from 'framer-motion';
 import { ArrowRight, Upload } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getAnnonces, getKycStatus } from '../../../services/api';
+import { getKycStatus } from '../../../services/api';
+import { useStatsPublic } from '../../hooks/useStatsPublic';
 
 const CallToAction = () => {
   const { t } = useLang();
-  const [stats, setStats] = useState({
-    equipements: '500+',
-    vendeurs:    '150+',
-    pays:        '8',
-  });
+  const { stats: pub } = useStatsPublic();
+  const stats = {
+    equipements: pub?.annonces != null ? `${pub.annonces}+` : '…',
+    vendeurs:    pub?.vendeurs != null ? `${pub.vendeurs}+` : '…',
+    pays:        pub?.pays != null ? `${pub.pays}` : '…',
+  };
 
   const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || '{}'));
   const [kycValide, setKycValide] = useState(
     () => JSON.parse(localStorage.getItem('user') || '{}')?.verifie_kyc === true
   );
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const first = await getAnnonces(1);
-        const total = first.total ?? (first.data || []).length;
-        const lastPage = first.last_page || 1;
 
-        // Récupère toutes les pages
-        let allItems = [...(first.data || [])];
-        if (lastPage > 1) {
-          const rest = await Promise.all(
-            Array.from({ length: lastPage - 1 }, (_, i) => getAnnonces(i + 2))
-          );
-          rest.forEach(p => allItems.push(...(p.data || [])));
-        }
-
-        // Vendeurs uniques
-        const vendeurIds = new Set(allItems.map(a => a.vendeur_id).filter(Boolean));
-
-        // Pays uniques (depuis vendeur.pays + pays_expedition)
-        const pays = new Set();
-        allItems.forEach(a => {
-          if (a.vendeur?.pays) pays.add(a.vendeur.pays.trim().toLowerCase());
-          if (a.pays_expedition) pays.add(a.pays_expedition.trim().toLowerCase());
-        });
-
-        setStats({
-          equipements: total >= 1000 ? `${Math.floor(total / 100) * 100}+` : `${total}+`,
-          vendeurs:    vendeurIds.size > 0 ? `${vendeurIds.size}+` : '150+',
-          pays:        pays.size > 0 ? `${pays.size}+` : '8',
-        });
-      } catch {}
-    };
-    fetchStats();
-  }, []);
 
   const STAT_CARDS = [
     {
       number:  stats.equipements,
-      label:   'Équipements disponibles',
+      label:   t.home.statEquipments,
       image:   'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=300&h=300&fit=crop',
       overlay: 'from-blue-500/80 to-blue-600/80',
     },
     {
       number:  stats.vendeurs,
-      label:   'Vendeurs vérifiés',
+      label:   t.home.statSellersOk,
       image:   'https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=300&h=300&fit=crop',
       overlay: 'from-purple-500/80 to-purple-600/80',
     },
     {
       number:  stats.pays,
-      label:   'Pays couverts',
+      label:   t.home.statCountries,
       image:   'https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=300&h=300&fit=crop',
       overlay: 'from-yellow-500/80 to-orange-500/80',
     },

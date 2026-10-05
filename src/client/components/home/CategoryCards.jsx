@@ -91,25 +91,9 @@ const CategoryCards = () => {
         const fetchCounts = async () => {
             setLoading(true);
             try {
-                // Récupère toutes les pages pour avoir les vrais totaux
-                const first = await getAnnonces(1);
-                const lastPage = first.last_page || 1;
-                const items = [...(first.data || [])];
-
-                // Si plusieurs pages, charger les suivantes en parallèle
-                if (lastPage > 1) {
-                    const pages = await Promise.all(
-                        Array.from({ length: lastPage - 1 }, (_, i) => getAnnonces(i + 2)),
-                    );
-                    pages.forEach((p) => items.push(...(p.data || [])));
-                }
-
-                // Compter par catégorie
-                const c = {};
-                items.forEach((a) => {
-                    if (a.categorie) c[a.categorie] = (c[a.categorie] || 0) + 1;
-                });
-                setCounts(c);
+                // Endpoint agrégé : 1 seule requête
+                const data = await getCountsParCategorie();
+                setCounts(data || {});
             } catch {
                 // Silencieux — les cards s'affichent sans compteur
             } finally {
