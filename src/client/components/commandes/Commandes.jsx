@@ -8,6 +8,7 @@ import {
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { getCommandes } from '../../../services/api';
+import { useLang } from '../../context/LangContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -68,6 +69,7 @@ const Skeleton = () => (
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 const Commandes = () => {
+  const { t } = useLang();
   const navigate    = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -101,12 +103,12 @@ const Commandes = () => {
   };
 
   const FILTERS = [
-    { key: 'tous',        label: 'Toutes' },
-    { key: 'en_attente',  label: 'En attente' },
-    { key: 'payee',       label: 'Payées' },
-    { key: 'livree',      label: 'Livrées' },
-    { key: 'annulee',     label: 'Annulées' },
-    { key: 'litige',      label: 'Litiges' },
+    { key: 'tous',        label: t.commandes.all },
+    { key: 'en_attente',  label: t.commandes.statuts.en_attente },
+    { key: 'payee',       label: t.commandes.statuts.payee },
+    { key: 'livree',      label: t.commandes.statuts.livree },
+    { key: 'annulee',     label: t.commandes.statuts.annulee },
+    { key: 'litige',      label: t.commandes.statuts.litige },
   ];
 
   const isVendeur  = currentUser.role === 'vendeur';
@@ -123,13 +125,13 @@ const Commandes = () => {
             className='inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#1DBF73] transition-colors mb-4'
           >
             <ArrowLeft className='w-4 h-4' />
-            Retour
+            {t.common.back}
           </button>
           <div className='flex items-center justify-between'>
             <div>
-              <h1 className='text-2xl font-bold text-gray-900'>Mes commandes</h1>
+              <h1 className='text-2xl font-bold text-gray-900'>{t.commandes.mine}</h1>
               <p className='text-sm text-gray-500 mt-0.5'>
-                {total} commande{total > 1 ? 's' : ''} au total
+                {total} {total > 1 ? t.commandes.orderPlural : t.commandes.order} {t.commandes.totalOf}
               </p>
             </div>
             <div className='w-12 h-12 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-2xl flex items-center justify-center shadow-lg'>
@@ -171,9 +173,9 @@ const Commandes = () => {
               <div className='w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mb-4'>
                 <Package className='w-8 h-8 text-gray-300' />
               </div>
-              <p className='font-semibold text-gray-600 mb-1'>Aucune commande</p>
+              <p className='font-semibold text-gray-600 mb-1'>{t.commandes.empty}</p>
               <p className='text-sm text-gray-400 mb-6'>
-                {filter === 'tous' ? 'Vous n\'avez pas encore passé de commande.' : `Aucune commande avec le statut "${STATUT_CONFIG[filter]?.label}".`}
+                {filter === 'tous' ? 'Vous n\'avez pas encore passé de commande.' : `${t.commandes.emptyFilter}`}
               </p>
               {filter !== 'tous' ? (
                 <button
@@ -233,11 +235,11 @@ const Commandes = () => {
                           <div className='flex flex-col items-end gap-2 shrink-0'>
                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${cfg.color}`}>
                               <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                              {cfg.label}
+                              {t.commandes.statuts[commande.statut] ?? cfg.label}
                             </span>
                             {!isVendeur && ['livree', 'cloturee'].includes(commande.statut) && (
                               <span className='inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-yellow-100 text-yellow-700'>
-                                ★ À noter
+                                ★ {t.commandes.rateIt}
                               </span>
                             )}
                             <ChevronRight className='w-4 h-4 text-gray-300 group-hover:text-[#1DBF73] transition-colors' />

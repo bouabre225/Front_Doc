@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLang } from '../../context/LangContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -26,6 +27,7 @@ const ETATS = [
 // ─── Composant principal ─────────────────────────────────────────────────────
 
 const PublishEquipment = () => {
+  const { t } = useLang();
   const navigate = useNavigate();
 
   const [currentStep, setCurrentStep]   = useState(1);
@@ -189,9 +191,9 @@ const PublishEquipment = () => {
     setError('');
 
     if (currentStep === 2) {
-      if (!formData.categorie) { setError('Veuillez sélectionner une catégorie'); return; }
-      if (!formData.etat)      { setError("Veuillez sélectionner l'état"); return; }
-      if (Number(formData.quantite) < 1) { setError('Quantité minimum : 1'); return; }
+      if (!formData.categorie) { setError(t.vendeur.needCategory); return; }
+      if (!formData.etat)      { setError(t.vendeur.needState); return; }
+      if (Number(formData.quantite) < 1) { setError(t.vendeur.minQty); return; }
     }
 
     setCurrentStep(prev => prev + 1);
@@ -201,12 +203,12 @@ const PublishEquipment = () => {
   const handleSubmit = async () => {
     setError('');
 
-    if (!formData.titre.trim())       { setError('Le titre est requis'); return; }
-    if (!formData.description.trim()) { setError('La description est requise'); return; }
-    if (formData.titre.trim().length > 200) { setError('Titre trop long (200 max)'); return; }
-    if (formData.description.trim().length > 5000) { setError('Description trop longue (5000 max)'); return; }
+    if (!formData.titre.trim())       { setError(t.vendeur.titleRequired); return; }
+    if (!formData.description.trim()) { setError(t.vendeur.descRequired); return; }
+    if (formData.titre.trim().length > 200) { setError(t.vendeur.titleTooLong); return; }
+    if (formData.description.trim().length > 5000) { setError(t.vendeur.descTooLong); return; }
     if (!formData.prix_vendeur || Number(formData.prix_vendeur) < 100) {
-      setError('Le prix minimum est de 100 FCFA (minimum FedaPay)'); return;
+      setError(t.vendeur.priceMin); return;
     }
 
     setLoading(true);
@@ -223,7 +225,7 @@ const PublishEquipment = () => {
       });
 
       const annonceId = created?.annonce?.id ?? created?.data?.id ?? created?.id;
-      if (!annonceId) throw new Error('ID annonce introuvable');
+      if (!annonceId) throw new Error(t.vendeur.noAnnonceId);
 
       // 2. Upload images si présentes
       if (images.length > 0) {
@@ -232,7 +234,7 @@ const PublishEquipment = () => {
 
       navigate(`/equipment/${annonceId}`);
     } catch (err) {
-      setError(err.message || 'Erreur lors de la publication');
+      setError(err.message || t.vendeur.publishError);
     } finally {
       setLoading(false);
     }
@@ -279,18 +281,18 @@ const PublishEquipment = () => {
 
             <h2 className='text-2xl font-bold text-gray-900 mb-3'>
               {kycDoc?.statut === 'en_attente'
-                ? 'Vérification en cours'
+                ? t.vendeur.kycChecking
                 : kycDoc?.statut === 'refuse'
-                ? 'Document refusé'
-                : 'Vérification KYC requise'}
+                ? t.vendeur.kycRefused
+                : t.vendeur.kycRequired}
             </h2>
 
             <p className='text-gray-500 mb-8 text-sm leading-relaxed'>
               {kycDoc?.statut === 'en_attente'
-                ? 'Votre document est en cours de vérification par notre équipe. Vous pourrez publier des annonces une fois votre identité validée.'
+                ? t.vendeur.kycCheckingHint
                 : kycDoc?.statut === 'refuse'
-                ? 'Votre document a été refusé. Veuillez soumettre un nouveau document valide pour pouvoir publier.'
-                : 'Vous devez vérifier votre identité avant de pouvoir publier des annonces sur DocSpace.'}
+                ? t.vendeur.kycRefusedHint
+                : t.vendeur.kycRequiredHint}
             </p>
 
             <div className='flex flex-col gap-3'>
@@ -305,7 +307,7 @@ const PublishEquipment = () => {
                 >
                   <span className='flex items-center justify-center gap-2'>
                     <Shield className='w-4 h-4' />
-                    Soumettre mon document KYC
+                    {t.vendeur.kycSubmit}
                   </span>
                 </Link>
               )}
@@ -313,7 +315,7 @@ const PublishEquipment = () => {
                 onClick={() => navigate(-1)}
                 className='w-full py-3 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all'
               >
-                Retour
+                {t.vendeur.back}
               </button>
             </div>
           </motion.div>
@@ -324,7 +326,7 @@ const PublishEquipment = () => {
   }
 
   // ─── Steps labels ───────────────────────────────────────────────────────
-  const STEP_LABELS = ['Intro', 'Détails', 'Description'];
+  const STEP_LABELS = [t.vendeur.stepIntro, t.vendeur.stepDetails, t.vendeur.stepDesc];
 
   // ─── Render formulaire ──────────────────────────────────────────────────
   return (
@@ -398,17 +400,17 @@ const PublishEquipment = () => {
                 className='p-8 bg-white shadow-lg rounded-2xl'
               >
                 <h2 className='mb-2 text-3xl font-bold text-center text-gray-800'>
-                  Publier une annonce
+                  {t.vendeur.publishTitle}
                 </h2>
-                <p className='text-center text-gray-500 mb-10 text-sm'>Votre compte vendeur est vérifié ✓</p>
+                <p className='text-center text-gray-500 mb-10 text-sm'>{t.vendeur.accountVerified}</p>
 
                 <div className='flex justify-center mb-10'>
                   <div className='p-8 border-2 rounded-2xl border-[#1DBF73] bg-[#1DBF73]/5 max-w-sm w-full text-center'>
                     <div className='w-16 h-16 rounded-full bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] flex items-center justify-center mx-auto mb-4'>
                       <Package className='w-8 h-8 text-white' />
                     </div>
-                    <h3 className='text-xl font-bold text-gray-800 mb-2'>Équipement médical</h3>
-                    <p className='text-sm text-gray-500'>Publiez votre matériel médical à vendre</p>
+                    <h3 className='text-xl font-bold text-gray-800 mb-2'>{t.vendeur.equipmentType}</h3>
+                    <p className='text-sm text-gray-500'>{t.vendeur.equipmentTypeHint}</p>
                   </div>
                 </div>
 
@@ -418,7 +420,7 @@ const PublishEquipment = () => {
                   onClick={handleNext}
                   className='w-full py-4 font-semibold text-white rounded-xl bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] hover:shadow-xl transition-all'
                 >
-                  Commencer →
+                  {t.vendeur.start}
                 </motion.button>
               </motion.div>
             )}
@@ -432,11 +434,11 @@ const PublishEquipment = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className='p-8 bg-white shadow-lg rounded-2xl'
               >
-                <h2 className='mb-6 text-2xl font-bold text-gray-800'>Détails de l'annonce</h2>
+                <h2 className='mb-6 text-2xl font-bold text-gray-800'>{t.vendeur.detailsTitle}</h2>
 
                 {/* Catégorie */}
                 <div className='mb-6'>
-                  <label className='block mb-3 text-sm font-semibold text-gray-700'>Catégorie *</label>
+                  <label className='block mb-3 text-sm font-semibold text-gray-700'>{t.vendeur.category}</label>
                   <div className='grid grid-cols-2 gap-2'>
                     {CATEGORIES.map(cat => (
                       <button
@@ -461,23 +463,23 @@ const PublishEquipment = () => {
                 <div className='grid grid-cols-1 gap-5 md:grid-cols-2'>
                   {/* État */}
                   <div>
-                    <label className='block mb-2 text-sm font-semibold text-gray-700'>État *</label>
+                    <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.vendeur.state}</label>
                     <select
                       name='etat'
                       value={formData.etat}
                       onChange={handleChange}
                       className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                     >
-                      <option value=''>Choisir l'état</option>
+                      <option value=''>{t.vendeur.chooseState}</option>
                       {ETATS.map(e => (
-                        <option key={e.value} value={e.value}>{e.label}</option>
+                        <option key={e.value} value={e.value}>{t.etats[e.value] ?? e.label}</option>
                       ))}
                     </select>
                   </div>
 
                   {/* Quantité */}
                   <div>
-                    <label className='block mb-2 text-sm font-semibold text-gray-700'>Quantité *</label>
+                    <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.vendeur.quantity}</label>
                     <input
                       type='number'
                       name='quantite'
@@ -491,14 +493,14 @@ const PublishEquipment = () => {
                   {/* Pays expédition */}
                   <div className='md:col-span-2'>
                     <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                      Pays d'expédition <span className='text-gray-400 font-normal'>(optionnel)</span>
+                      {t.vendeur.shipCountry} <span className='text-gray-400 font-normal'>({t.vendeur.shipCountryOpt})</span>
                     </label>
                     <input
                       type='text'
                       name='pays_expedition'
                       value={formData.pays_expedition}
                       onChange={handleChange}
-                      placeholder='ex: Bénin, France...'
+                      placeholder={t.vendeur.shipCountryPh}
                       className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                     />
                   </div>
@@ -510,7 +512,7 @@ const PublishEquipment = () => {
                     onClick={() => setCurrentStep(1)}
                     className='flex-1 py-3.5 font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all'
                   >
-                    Précédent
+                    {t.vendeur.prev}
                   </button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -519,7 +521,7 @@ const PublishEquipment = () => {
                     onClick={handleNext}
                     className='flex-1 py-3.5 font-semibold text-white rounded-xl bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] hover:shadow-xl transition-all'
                   >
-                    Suivant →
+                    {t.vendeur.next}
                   </motion.button>
                 </div>
               </motion.div>
@@ -534,12 +536,12 @@ const PublishEquipment = () => {
                 exit={{ opacity: 0, x: -20 }}
                 className='p-8 bg-white shadow-lg rounded-2xl'
               >
-                <h2 className='mb-6 text-2xl font-bold text-gray-800'>Description & Prix</h2>
+                <h2 className='mb-6 text-2xl font-bold text-gray-800'>{t.vendeur.descPriceTitle}</h2>
 
                 {/* Upload images */}
                 <div className='mb-6'>
                   <label className='block mb-2 text-sm font-semibold text-gray-700'>
-                    Images <span className='text-gray-400 font-normal'>(optionnel, max 10)</span>
+                    {t.vendeur.imagesLabel} <span className='text-gray-400 font-normal'>({t.vendeur.imagesOpt})</span>
                   </label>
                   <div className='relative p-10 border-2 border-dashed border-gray-300 rounded-xl hover:border-[#1DBF73] transition-all group'>
 
@@ -555,16 +557,16 @@ const PublishEquipment = () => {
                     <div className='text-center pointer-events-none'>
                       <Upload className='w-10 h-10 mx-auto mb-3 text-gray-300 group-hover:text-[#1DBF73] transition-colors' />
                       <p className='text-sm font-semibold text-gray-500 group-hover:text-[#1DBF73]'>
-                        Galerie ou appareil photo
+                        {t.vendeur.gallery}
                       </p>
-                      <p className='text-xs text-gray-400 mt-1'>JPG, PNG, HEIC — Max 10 images</p>
+                      <p className='text-xs text-gray-400 mt-1'>{t.vendeur.galleryHint}</p>
                     </div>
                   </div>
 
                   {/* Bouton caméra séparé — mobile uniquement */}
                   <div className='md:hidden mt-3'>
                     <label className='flex items-center justify-center gap-2 w-full py-3 border-2 border-[#1DBF73]/40 text-[#1DBF73] font-semibold rounded-xl cursor-pointer hover:bg-[#1DBF73]/5 transition-all text-sm'>
-                      📷 Prendre une photo
+                      📷 {t.vendeur.takePhoto}
                       <input
                         type='file'
                         accept='image/*'
@@ -589,7 +591,7 @@ const PublishEquipment = () => {
                           </button>
                           {i === 0 && (
                             <span className='absolute bottom-1 left-1 px-1.5 py-0.5 text-xs bg-[#1DBF73] text-white rounded font-semibold'>
-                              Principal
+                              {t.vendeur.main}
                             </span>
                           )}
                         </div>
@@ -600,33 +602,33 @@ const PublishEquipment = () => {
 
                 {/* Titre */}
                 <div className='mb-5'>
-                  <label className='block mb-2 text-sm font-semibold text-gray-700'>Titre *</label>
+                  <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.vendeur.titleLabel}</label>
                   <input
                     type='text'
                     name='titre'
                     value={formData.titre}
                     onChange={handleChange}
-                    placeholder="Ex: Échographe portable Mindray Z5"
+                    placeholder={t.vendeur.titlePh}
                     className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   />
                 </div>
 
                 {/* Description */}
                 <div className='mb-5'>
-                  <label className='block mb-2 text-sm font-semibold text-gray-700'>Description *</label>
+                  <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.vendeur.descLabel}</label>
                   <textarea
                     name='description'
                     value={formData.description}
                     onChange={handleChange}
                     rows={5}
-                    placeholder='Décrivez votre équipement en détail : marque, modèle, année, état, accessoires inclus...'
+                    placeholder={t.vendeur.descPh}
                     className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all resize-none'
                   />
                 </div>
 
                 {/* Prix */}
                 <div className='mb-8'>
-                  <label className='block mb-2 text-sm font-semibold text-gray-700'>Prix (FCFA) *</label>
+                  <label className='block mb-2 text-sm font-semibold text-gray-700'>{t.vendeur.priceLabel}</label>
                   <div className='relative'>
                     <input
                       type='number'
@@ -643,21 +645,21 @@ const PublishEquipment = () => {
                   {formData.prix_vendeur && Number(formData.prix_vendeur) > 0 && (
                     <div className='mt-3 p-3 bg-[#1DBF73]/5 border border-[#1DBF73]/20 rounded-xl space-y-1.5'>
                       <div className='flex items-center justify-between text-sm'>
-                        <span className='text-gray-500'>Prix vendeur</span>
+                        <span className='text-gray-500'>{t.vendeur.priceHint}</span>
                         <span className='font-semibold text-gray-700'>
                           {Number(formData.prix_vendeur).toLocaleString('fr-FR')} FCFA
                         </span>
                       </div>
                       <div className='flex items-center justify-between text-sm'>
                         <span className='flex items-center gap-1 text-[#09B1BA]'>
-                          🛡️ Protection acheteur <span className='text-xs'>(8%)</span>
+                          🛡️ {t.equipment.buyerProtection} <span className='text-xs'>(8%)</span>
                         </span>
                         <span className='font-semibold text-[#09B1BA]'>
                           + {Math.round(Number(formData.prix_vendeur) * 0.08).toLocaleString('fr-FR')} FCFA
                         </span>
                       </div>
                       <div className='border-t border-[#1DBF73]/20 pt-1.5 flex items-center justify-between'>
-                        <span className='font-bold text-gray-800'>Prix total acheteur</span>
+                        <span className='font-bold text-gray-800'>{t.vendeur.priceBuyer}</span>
                         <span className='font-black text-[#1DBF73] text-base'>
                           {Math.round(Number(formData.prix_vendeur) * 1.08).toLocaleString('fr-FR')} FCFA
                         </span>
@@ -672,7 +674,7 @@ const PublishEquipment = () => {
                     onClick={() => setCurrentStep(2)}
                     className='flex-1 py-3.5 font-semibold text-gray-700 bg-gray-100 rounded-xl hover:bg-gray-200 transition-all'
                   >
-                    Précédent
+                    {t.vendeur.prev}
                   </button>
                   <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -685,10 +687,10 @@ const PublishEquipment = () => {
                     {loading ? (
                       <>
                         <div className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin' />
-                        Publication...
+                        {t.vendeur.publishing}
                       </>
                     ) : (
-                      "Publier l'annonce ✓"
+                      t.vendeur.publishNow
                     )}
                   </motion.button>
                 </div>

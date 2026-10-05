@@ -90,7 +90,7 @@ const Register = () => {
       >
         <Link to='/' className='inline-flex items-center gap-2 mb-6 text-gray-600 hover:text-[#1DBF73] transition-colors'>
           <ArrowLeft className='w-5 h-5' />
-          <span className='font-medium'>Retour à l'accueil</span>
+          <span className='font-medium'>{t.common.backHome}</span>
         </Link>
 
         <div className='mb-8 text-center'>

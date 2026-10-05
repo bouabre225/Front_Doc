@@ -9,51 +9,43 @@ import {
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { getLitigeById } from '../../../services/api';
+import { useLang } from '../../context/LangContext';
 
 const STATUS_LITIGE = {
   ouvert: {
-    label: 'Litige ouvert',
     color: 'from-orange-400 to-red-500',
     bg: 'bg-orange-50 border-orange-200',
     text: 'text-orange-700',
     icon: Clock,
-    desc: 'Notre équipe examine actuellement votre demande.'
   },
   en_cours: {
-    label: 'En cours d\'examen',
     color: 'from-blue-400 to-blue-600',
     bg: 'bg-blue-50 border-blue-200',
     text: 'text-blue-700',
     icon: Scale,
-    desc: 'Un médiateur DocSpace a pris en charge le dossier.'
   },
   resolu: {
-    label: 'Litige résolu',
     color: 'from-[#1DBF73] to-[#09B1BA]',
     bg: 'bg-green-50 border-green-200',
     text: 'text-green-700',
     icon: CheckCircle,
-    desc: 'Une décision a été rendue pour ce litige.'
   },
   annule: {
-    label: 'Litige annulé',
     color: 'from-gray-400 to-gray-500',
     bg: 'bg-gray-50 border-gray-200',
     text: 'text-gray-600',
     icon: ShieldCheck,
-    desc: 'Le litige a été clos par l\'initiateur.'
   },
-  en_attente: {         
-    label: 'Litige ouvert',
+  en_attente: {
     color: 'from-orange-400 to-red-500',
     bg: 'bg-orange-50 border-orange-200',
     text: 'text-orange-700',
     icon: Clock,
-    desc: 'Notre équipe examine actuellement votre demande.'
   }
 };
 
 const LitigeDetail = () => {
+  const { t } = useLang();
   const { id } = useParams();
   const navigate = useNavigate();
   const [litige, setLitige] = useState(null);
@@ -92,8 +84,8 @@ const LitigeDetail = () => {
       <Header />
       <div className="flex flex-col items-center justify-center py-32 text-center">
         <AlertCircle className="w-16 h-16 text-red-400 mb-4" />
-        <p className="text-gray-600 font-medium">{error || "Litige introuvable"}</p>
-        <button onClick={() => navigate(-1)} className="mt-4 text-[#1DBF73] font-bold">Retour</button>
+        <p className="text-gray-600 font-medium">{error || t.dispute.notFound}</p>
+        <button onClick={() => navigate(-1)} className="mt-4 text-[#1DBF73] font-bold">{t.dispute.back}</button>
       </div>
       <Footer />
     </div>
@@ -112,7 +104,7 @@ const LitigeDetail = () => {
           className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#1DBF73] mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour
+          {t.dispute.back}
         </button>
 
         {/* --- Header du Litige --- */}
@@ -125,12 +117,12 @@ const LitigeDetail = () => {
               <StatusIcon className="w-6 h-6" />
             </div>
             <div>
-              <h1 className={`text-lg font-bold ${statusCfg.text}`}>{statusCfg.label}</h1>
-              <p className="text-xs text-gray-500">Référence Litige : #{String(litige.id ?? "").slice(0, 8).toUpperCase()}</p>
+              <h1 className={`text-lg font-bold ${statusCfg.text}`}>{t.dispute.status[litige.statut] ?? litige.statut}</h1>
+              <p className="text-xs text-gray-500">{t.dispute.ref} : #{String(litige.id ?? "").slice(0, 8).toUpperCase()}</p>
             </div>
           </div>
           <p className="mt-4 text-sm text-gray-600 leading-relaxed italic">
-            "{statusCfg.desc}"
+            {t.dispute.statusDesc[litige.statut] ?? ""}
           </p>
         </motion.div>
 
@@ -139,13 +131,13 @@ const LitigeDetail = () => {
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center gap-2 mb-4">
               <FileText className="w-4 h-4 text-orange-500" />
-              <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Détails du problème</span>
+              <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{t.dispute.problemDetails}</span>
             </div>
             <h3 className="font-bold text-gray-900 mb-2 capitalize">
               {litige.motif?.replace(/_/g, ' ')}
             </h3>
             <p className="text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-dashed border-gray-200">
-              {litige.preuves || "Aucune preuve fournie."}
+              {litige.preuves || t.dispute.noProof}
             </p>
           </div>
 
@@ -153,7 +145,7 @@ const LitigeDetail = () => {
           <div className="bg-white rounded-2xl border border-gray-100 p-6">
             <div className="flex items-center gap-2 mb-4">
               <Package className="w-4 h-4 text-[#1DBF73]" />
-              <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Commande liée</span>
+              <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{t.dispute.linkedOrder}</span>
             </div>
             <Link to={`/commandes/${litige.commande_id}`} className="group flex items-center justify-between p-3 rounded-xl border border-gray-50 hover:border-[#1DBF73]/30 hover:bg-green-50/30 transition-all">
                <div className="flex items-center gap-3">
@@ -161,7 +153,7 @@ const LitigeDetail = () => {
                     <Package className="w-5 h-5 text-gray-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-gray-800 group-hover:text-[#1DBF73]">Voir la commande</p>
+                    <p className="text-sm font-bold text-gray-800 group-hover:text-[#1DBF73]">{t.dispute.viewOrder}</p>
                     <p className="text-xs text-gray-400">#{String(litige.commande_id ?? "").slice(0, 8).toUpperCase()}</p>
                   </div>
                </div>
@@ -174,12 +166,12 @@ const LitigeDetail = () => {
              <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-2xl border border-blue-100 mb-4">
                 <ShieldCheck className="w-6 h-6 text-blue-500" />
                 <p className="text-xs text-blue-700 font-medium">
-                  La protection DocSpace sécurise vos fonds. L'argent est bloqué tant que le litige n'est pas résolu.
+                  {t.dispute.supportTitle} {t.dispute.supportText}
                 </p>
              </div>
              <button className="w-full py-3.5 bg-gray-900 text-white font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-gray-800 transition-all shadow-md">
                 <MessageCircle className="w-4 h-4" />
-                <a href='mailto:docspaceafrica@gmail.com'>Discuter avec le médiateur</a>
+                <a href='mailto:docspaceafrica@gmail.com'>{t.dispute.chatMediator}</a>
              </button>
           </div>
         </div>

@@ -11,6 +11,7 @@ import {
   markAllNotificationsRead, deleteNotification
 } from '../../../services/api';
 import ConfirmDialog from '../common/ConfirmDialog';
+import { useLang } from '../../context/LangContext';
 
 // ─── Config types de notifications ──────────────────────────────────────────
 
@@ -52,18 +53,20 @@ const getTypeConfig = (type) =>
 
 // ─── Formatage date relative ─────────────────────────────────────────────────
 
-const timeAgo = (dateStr) => {
+const timeAgo = (dateStr, t, lang = 'fr-FR') => {
   const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
-  if (diff < 60) return "À l'instant";
-  if (diff < 3600) return `Il y a ${Math.floor(diff / 60)} min`;
-  if (diff < 86400) return `Il y a ${Math.floor(diff / 3600)} h`;
-  if (diff < 604800) return `Il y a ${Math.floor(diff / 86400)} j`;
-  return new Date(dateStr).toLocaleDateString('fr-FR');
+  const ago = (n, u) => t?.notifs?.agoPrefix ? `${t.notifs.agoPrefix} ${n} ${u}` : `${n}${u}`;
+  if (diff < 60) return t?.notifs?.justNow ?? "À l'instant";
+  if (diff < 3600) return ago(Math.floor(diff / 60), t?.notifs?.minAgo ?? 'min');
+  if (diff < 86400) return ago(Math.floor(diff / 3600), t?.notifs?.hourAgo ?? 'h');
+  if (diff < 604800) return ago(Math.floor(diff / 86400), t?.notifs?.dayAgo ?? 'j');
+  return new Date(dateStr).toLocaleDateString(lang);
 };
 
 // ─── Composant carte notification ────────────────────────────────────────────
 
 const NotificationCard = ({ notif, onRead, onDelete }) => {
+  const { t } = useLang();
   const cfg = getTypeConfig(notif.type);
   const Icon = cfg.icon;
 
@@ -105,7 +108,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
             <p className={`text-sm leading-snug ${notif.lu ? 'text-gray-600' : 'text-gray-900 font-medium'}`}>
               {notif.message || notif.contenu}
             </p>
-            <p className='text-xs text-gray-400 mt-1'>{timeAgo(notif.created_at)}</p>
+            <p className='text-xs text-gray-400 mt-1'>{timeAgo(notif.created_at, t, currentLang === 'en' ? 'en-US' : 'fr-FR')}</p>
           </div>
         </div>
 
@@ -119,7 +122,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
             }}
             className='inline-flex items-center gap-1 mt-2 text-xs font-medium text-[#1DBF73] hover:text-[#09B1BA] transition-colors'
           >
-            Voir la commande <ChevronRight className='w-3 h-3' />
+            {t.notifs.viewOrder} <ChevronRight className='w-3 h-3' />
           </Link>
         )}
         {notif.reference_id && notif.type === 'litige' && (
@@ -131,7 +134,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
             }}
             className='inline-flex items-center gap-1 mt-2 text-xs font-medium text-orange-500 hover:text-orange-600 transition-colors'
           >
-            Voir le litige <ChevronRight className='w-3 h-3' />
+            {t.notifs.viewDispute} <ChevronRight className='w-3 h-3' />
           </Link>
         )}
         {notif.reference_id && notif.type === 'message' && (
@@ -143,7 +146,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
             }}
             className='inline-flex items-center gap-1 mt-2 text-xs font-medium text-purple-500 hover:text-purple-600 transition-colors'
           >
-            Ouvrir la conversation <ChevronRight className='w-3 h-3' />
+            {t.notifs.openChat} <ChevronRight className='w-3 h-3' />
           </Link>
         )}
       </div>
@@ -155,7 +158,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => onRead(notif.id)}
-            title='Marquer comme lu'
+            title={t.notifs.markRead}
             className='w-7 h-7 flex items-center justify-center rounded-full bg-[#1DBF73]/10 text-[#1DBF73] hover:bg-[#1DBF73]/20 transition-all'
           >
             <Check className='w-3.5 h-3.5' />
@@ -168,7 +171,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
             e.stopPropagation();
             onDelete(notif.id);
           }}
-          title='Supprimer'
+          title={t.notifs.deleteTitle}
           className='w-7 h-7 flex items-center justify-center rounded-full bg-red-50 text-red-400 hover:bg-red-100 transition-all'
         >
           <Trash2 className='w-3.5 h-3.5' />
@@ -181,6 +184,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
 // ─── Composant principal ─────────────────────────────────────────────────────
 
 const NotificationsPage = () => {
+  const { t, currentLang } = useLang();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('toutes');
@@ -282,10 +286,10 @@ const NotificationsPage = () => {
             <Bell className='w-5 h-5 text-white' />
           </div>
           <div>
-            <h1 className='text-xl font-bold text-gray-900'>Notifications</h1>
+            <h1 className='text-xl font-bold text-gray-900'>{t.notifs.title}</h1>
             {nonLuesCount > 0 && (
               <p className='text-xs text-[#1DBF73] font-medium'>
-                {nonLuesCount} non lue{nonLuesCount > 1 ? 's' : ''}
+                {nonLuesCount} {t.notifs.unread}
               </p>
             )}
           </div>
@@ -301,7 +305,7 @@ const NotificationsPage = () => {
               className='flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#1DBF73] bg-[#1DBF73]/10 hover:bg-[#1DBF73]/20 rounded-xl transition-all'
             >
               <CheckCheck className='w-3.5 h-3.5' />
-              Tout lire
+              {t.notifs.markAll}
             </motion.button>
           )}
           {notifications.some(n => n.lu) && (
@@ -312,7 +316,7 @@ const NotificationsPage = () => {
               className='flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-400 bg-red-50 hover:bg-red-100 rounded-xl transition-all'
             >
               <Trash2 className='w-3.5 h-3.5' />
-              Vider les lues
+              {t.notifs.clearRead}
             </motion.button>
           )}
         </div>
@@ -321,9 +325,9 @@ const NotificationsPage = () => {
       {/* Filtres lecture */}
       <div className='flex items-center gap-2 mb-4'>
         {[
-          { key: 'toutes',    label: 'Toutes' },
-          { key: 'non_lues',  label: `Non lues${nonLuesCount > 0 ? ` (${nonLuesCount})` : ''}` },
-          { key: 'lues',      label: 'Lues' },
+          { key: 'toutes',    label: t.notifs.filterAll },
+          { key: 'non_lues',  label: `${t.notifs.filterUnread}${nonLuesCount > 0 ? ` (${nonLuesCount})` : ''}` },
+          { key: 'lues',      label: t.notifs.filterRead },
         ].map(f => (
           <button
             key={f.key}
@@ -349,7 +353,7 @@ const NotificationsPage = () => {
             }`}
           >
             <Filter className='w-3.5 h-3.5' />
-            {typeFilter === 'tous' ? 'Type' : TYPE_CONFIG[typeFilter]?.label}
+            {typeFilter === 'tous' ? t.notifs.allTypes : t.notifs.types[typeFilter] ?? TYPE_CONFIG[typeFilter]?.label}
           </button>
 
           <AnimatePresence>
@@ -375,7 +379,7 @@ const NotificationsPage = () => {
                       }`}
                     >
                       {Icon ? <Icon className='w-3.5 h-3.5' /> : <Bell className='w-3.5 h-3.5' />}
-                      {type === 'tous' ? 'Tous les types' : cfg?.label}
+                      {type === 'tous' ? t.notifs.allTypes : t.notifs.types[type] ?? cfg?.label}
                     </button>
                   );
                 })}
@@ -399,9 +403,9 @@ const NotificationsPage = () => {
           <div className='w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4'>
             <BellOff className='w-8 h-8 text-gray-300' />
           </div>
-          <p className='text-gray-500 font-medium'>Aucune notification</p>
+          <p className='text-gray-500 font-medium'>{t.notifs.empty}</p>
           <p className='text-gray-400 text-sm mt-1'>
-            {filter === 'non_lues' ? 'Tout est lu !' : 'Vous êtes à jour.'}
+            {filter === 'non_lues' ? t.notifs.allRead : t.notifs.upToDate}
           </p>
         </motion.div>
       ) : (
@@ -420,9 +424,9 @@ const NotificationsPage = () => {
       )}
       <ConfirmDialog
         open={confirmDeleteAll}
-        title='Vider les lues ?'
-        message='Toutes les notifications déjà lues seront définitivement supprimées.'
-        confirmLabel='Supprimer'
+        title={t.notifs.confirmClearTitle}
+        message={t.notifs.confirmClearMsg}
+        confirmLabel={t.common.delete}
         tone='danger'
         loading={deletingAll}
         onConfirm={doDeleteAll}

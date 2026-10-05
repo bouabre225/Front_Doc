@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLang } from '../../client/context/LangContext';
 import {
   Search, RefreshCw, Eye, Trash2, AlertCircle, CheckCircle,
   Package, ChevronLeft, ChevronRight, MapPin, Tag, User, X,
@@ -90,7 +91,7 @@ const AnnonceModal = ({ annonce, onClose }) => {
             <div className='h-40 bg-gray-50 rounded-xl flex items-center justify-center'>
               <div className='text-center'>
                 <ImageIcon className='w-10 h-10 text-gray-200 mx-auto mb-1' />
-                <p className='text-xs text-gray-400'>Aucune image</p>
+                <p className='text-xs text-gray-400'>{t.admin.noImage}</p>
               </div>
             </div>
           )}
@@ -105,7 +106,7 @@ const AnnonceModal = ({ annonce, onClose }) => {
           {/* Description */}
           {annonce.description && (
             <div className='p-4 bg-gray-50 rounded-xl'>
-              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-1'>Description</p>
+              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-1'>{t.admin.description}</p>
               <p className='text-sm text-gray-700 leading-relaxed'>{annonce.description}</p>
             </div>
           )}
@@ -133,7 +134,7 @@ const AnnonceModal = ({ annonce, onClose }) => {
           {/* Vendeur */}
           {annonce.vendeur && (
             <div className='p-4 border border-gray-100 rounded-xl'>
-              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-3'>Vendeur</p>
+              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-3'>{t.admin.seller}</p>
               <div className='flex items-center gap-3'>
                 <div className='w-10 h-10 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0'>
                   {annonce.vendeur.nom?.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()}
@@ -159,6 +160,7 @@ const AnnonceModal = ({ annonce, onClose }) => {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export default function AdminAnnonces() {
+  const { t } = useLang();
   const [annonces,     setAnnonces]     = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [search,       setSearch]       = useState('');
@@ -188,7 +190,7 @@ export default function AdminAnnonces() {
       setTotal(res?.total ?? res?.data?.total ?? 0);
       setPage(p);
     } catch {
-      setError('Erreur lors du chargement des annonces.');
+      setError(t.admin.loadError);
     } finally {
       setLoading(false);
     }
@@ -221,11 +223,11 @@ export default function AdminAnnonces() {
   };
 
   const FILTERS = [
-    { key: 'tous',      label: 'Toutes'    },
-    { key: 'active',    label: 'Actives'   },
-    { key: 'inactive',  label: 'Inactives' },
-    { key: 'vendue',    label: 'Vendues'   },
-    { key: 'suspendue', label: 'Suspendues'},
+    { key: 'tous',      label: t.admin.listFilters.all    },
+    { key: 'active',    label: t.admin.listFilters.active   },
+    { key: 'inactive',  label: t.admin.listFilters.inactive },
+    { key: 'vendue',    label: t.admin.listFilters.sold   },
+    { key: 'suspendue', label: t.admin.listFilters.suspended},
   ];
 
   return (
@@ -235,13 +237,13 @@ export default function AdminAnnonces() {
         {/* Header */}
         <div className='flex items-center justify-between mb-6'>
           <div>
-            <h1 className='text-2xl font-bold text-gray-900'>Annonces</h1>
-            <p className='text-sm text-gray-500 mt-0.5'>{total} annonce{total > 1 ? 's' : ''} au total</p>
+            <h1 className='text-2xl font-bold text-gray-900'>{t.admin.listings}</h1>
+            <p className='text-sm text-gray-500 mt-0.5'>{total} {t.admin.listingCount}</p>
           </div>
           <button onClick={() => fetchAnnonces(page)} disabled={loading}
             className='flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:border-[#1DBF73] hover:text-[#1DBF73] transition-all'>
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Actualiser
+            {t.admin.refresh}
           </button>
         </div>
 
@@ -266,7 +268,7 @@ export default function AdminAnnonces() {
           <form onSubmit={e => { e.preventDefault(); fetchAnnonces(1); }} className='relative flex-1'>
             <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
             <input type='text' value={search} onChange={e => setSearch(e.target.value)}
-              placeholder='Rechercher par titre, catégorie...'
+              placeholder={t.admin.searchListings}
               className='w-full pl-11 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all' />
           </form>
           <div className='flex gap-2 overflow-x-auto'>
@@ -297,7 +299,7 @@ export default function AdminAnnonces() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className='flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-gray-100'>
             <Package className='w-16 h-16 text-gray-200 mb-4' />
-            <p className='font-semibold text-gray-500'>Aucune annonce trouvée</p>
+            <p className='font-semibold text-gray-500'>{t.admin.noListing}</p>
           </motion.div>
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
@@ -382,9 +384,9 @@ export default function AdminAnnonces() {
               <div className='w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
                 <Trash2 className='w-6 h-6 text-red-500' />
               </div>
-              <h3 className='text-lg font-bold text-gray-900 text-center mb-2'>Supprimer l'annonce ?</h3>
+              <h3 className='text-lg font-bold text-gray-900 text-center mb-2'>{t.admin.delListingTitle}</h3>
               <p className='text-sm text-gray-500 text-center mb-5'>
-                <span className='font-semibold'>"{confirmDel.titre}"</span> sera définitivement supprimée.
+                <span className='font-semibold'>"{confirmDel.titre}"</span> {t.admin.delListingMsgShort}
               </p>
               <div className='flex gap-3'>
                 <button onClick={() => setConfirmDel(null)}
@@ -407,7 +409,7 @@ export default function AdminAnnonces() {
               <div className='w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-4'>
                 <AlertTriangle className='w-6 h-6 text-orange-500' />
               </div>
-              <h3 className='text-lg font-bold text-gray-900 text-center mb-2'>Forcer la suppression ?</h3>
+              <h3 className='text-lg font-bold text-gray-900 text-center mb-2'>{t.admin.forceDelTitle}</h3>
               <p className='text-sm text-gray-500 text-center mb-5'>{confirmForce.message}</p>
               <div className='flex gap-3'>
                 <button onClick={() => setConfirmForce(null)}
@@ -416,7 +418,7 @@ export default function AdminAnnonces() {
                 </button>
                 <button onClick={() => { const id = confirmForce.id; setConfirmForce(null); handleDelete(id, true); }} disabled={deleting}
                   className='flex-1 py-2.5 bg-orange-500 text-white font-semibold rounded-xl hover:bg-orange-600 text-sm disabled:opacity-50'>
-                  Forcer
+                  {t.admin.forceBtn}
                 </button>
               </div>
             </motion.div>

@@ -33,4 +33,4 @@ export const LangProvider = ({ children }) => {
   );
 };
 
-export const useLang = () => useContext(LangContext);
+export const useLang = () => useContext(LangContext) ?? { currentLang: 'fr', setCurrentLang: () => {}, t: translations.fr, langList: Object.values(translations) };

@@ -282,7 +282,7 @@ const Header = () => {
                                 currentUser.role === 'admin'  ? 'bg-purple-100 text-purple-600' :
                                 'bg-[#1DBF73]/10 text-[#1DBF73]'
                               }`}>
-                                {currentUser.role === 'vendeur' ? 'Vendeur' : currentUser.role === 'admin' ? 'Admin' : 'Acheteur'}
+                                {currentUser.role === 'vendeur' ? t.auth.seller : currentUser.role === 'admin' ? 'Admin' : t.auth.buyer}
                               </span>
                             </div>
                           </div>
@@ -358,7 +358,7 @@ const Header = () => {
             </form>
 
             <div className='mb-3'>
-              <p className='px-4 mb-1 text-xs font-medium text-gray-400'>Langue</p>
+              <p className='px-4 mb-1 text-xs font-medium text-gray-400'>{t.admin.langLabel}</p>
               <div className='grid grid-cols-3 gap-1 px-2'>
                 {langList.map((lang) => (
                   <button key={lang.code} onClick={() => setCurrentLang(lang.code)}
@@ -391,7 +391,7 @@ const Header = () => {
                     <div>
                       <p className='font-semibold text-gray-900 text-sm'>{currentUser.nom}</p>
                       <p className='text-xs text-gray-500'>
-                        {currentUser.role === 'vendeur' ? 'Vendeur' : currentUser.role === 'admin' ? 'Admin' : 'Acheteur'}
+                        {currentUser.role === 'vendeur' ? t.auth.seller : currentUser.role === 'admin' ? 'Admin' : t.auth.buyer}
                       </p>
                     </div>
                   </div>
@@ -406,7 +406,7 @@ const Header = () => {
                           </span>
                         )}
                       </div>
-                      <span className='text-[10px] text-gray-500 font-medium'>Notifs</span>
+                      <span className='text-[10px] text-gray-500 font-medium'>{t.layout.mobileNav.notifs}</span>
                     </Link>
 
                     <Link to='/messages' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
@@ -418,7 +418,7 @@ const Header = () => {
                           </span>
                         )}
                       </div>
-                      <span className='text-[10px] text-gray-500 font-medium'>Messages</span>
+                      <span className='text-[10px] text-gray-500 font-medium'>{t.layout.mobileNav.messages}</span>
                     </Link>
 
                     <Link to='/cart' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
@@ -430,21 +430,21 @@ const Header = () => {
                           </span>
                         )}
                       </div>
-                      <span className='text-[10px] text-gray-500 font-medium'>Panier</span>
+                      <span className='text-[10px] text-gray-500 font-medium'>{t.layout.mobileNav.cart}</span>
                     </Link>
 
                     <Link to='/commandes' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
                       <div className='p-2.5 bg-white rounded-full shadow-sm'>
                         <ShoppingBag className='w-5 h-5 text-gray-600' />
                       </div>
-                      <span className='text-[10px] text-gray-500 font-medium'>Commandes</span>
+                      <span className='text-[10px] text-gray-500 font-medium'>{t.layout.mobileNav.orders}</span>
                     </Link>
 
                     <Link to='/profile' onClick={() => setMobileMenuOpen(false)} className='flex flex-col items-center gap-1'>
                       <div className='p-2.5 bg-white rounded-full shadow-sm'>
                         <User className='w-5 h-5 text-gray-600' />
                       </div>
-                      <span className='text-[10px] text-gray-500 font-medium'>Profil</span>
+                      <span className='text-[10px] text-gray-500 font-medium'>{t.layout.mobileNav.profile}</span>
                     </Link>
                   </div>
 

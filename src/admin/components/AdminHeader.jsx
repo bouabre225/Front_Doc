@@ -9,6 +9,7 @@ import {
 import {
   getNotifications, getNotificationsCount, clearSession
 } from '../../services/api';
+import { useLang } from '../../client/context/LangContext';
 
 // ─── Config types notifs ──────────────────────────────────────────────────────
 
@@ -34,6 +35,7 @@ const timeAgo = (d) => {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export default function AdminHeader({ onSearch }) {
+  const { t } = useLang();
   const navigate    = useNavigate();
   const notifRef    = useRef(null);
   const profileRef  = useRef(null);
@@ -143,7 +145,7 @@ export default function AdminHeader({ onSearch }) {
               <Shield className='w-5 h-5 text-white' />
             </div>
             <div className='flex flex-col'>
-              <span className='text-sm font-bold text-gray-800'>Admin Panel</span>
+              <span className='text-sm font-bold text-gray-800'>{t.admin.panel}</span>
               <span className='text-xs text-gray-500'>DocSpace</span>
             </div>
           </div>
@@ -155,7 +157,7 @@ export default function AdminHeader({ onSearch }) {
                 type='text'
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder='Rechercher utilisateurs, commandes, litiges...'
+                placeholder={t.admin.searchAll}
                 className='w-full py-2.5 pl-11 pr-4 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 bg-gray-50 hover:bg-white transition-all'
               />
             </div>
@@ -272,7 +274,7 @@ export default function AdminHeader({ onSearch }) {
                 <p className='text-sm font-semibold text-gray-800 leading-tight'>
                   {currentUser?.nom?.split(' ')[0] || 'Admin'}
                 </p>
-                <p className='text-xs text-gray-400'>Administrateur</p>
+                <p className='text-xs text-gray-400'>{t.admin.administrator}</p>
               </div>
               <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform duration-200 ${showProfile ? 'rotate-180' : ''}`} />
             </button>
@@ -299,7 +301,7 @@ export default function AdminHeader({ onSearch }) {
                     </div>
                     <div className='flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-lg'>
                       <Shield className='w-3.5 h-3.5 text-white' />
-                      <span className='text-xs font-bold text-white'>Administrateur</span>
+                      <span className='text-xs font-bold text-white'>{t.admin.administrator}</span>
                     </div>
                   </div>
 
@@ -310,7 +312,7 @@ export default function AdminHeader({ onSearch }) {
                       className='flex items-center w-full gap-3 px-4 py-2.5 text-sm text-left hover:bg-red-50 group transition-colors'
                     >
                       <LogOut className='w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors' />
-                      <span className='text-gray-700 group-hover:text-red-500 font-medium transition-colors'>Déconnexion</span>
+                      <span className='text-gray-700 group-hover:text-red-500 font-medium transition-colors'>{t.admin.logout}</span>
                     </button>
                   </div>
                 </motion.div>

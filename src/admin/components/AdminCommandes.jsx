@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { getAdminCommandes, marquerCommandeLivree } from '../../services/api';
 import ConfirmDialog from '../../client/components/common/ConfirmDialog';
+import { useLang } from '../../client/context/LangContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ const getInitials = (nom) =>
 // ─── Modal détail commande ────────────────────────────────────────────────────
 
 const CommandeModal = ({ commande: c, onClose, onLivree }) => {
+  const { t } = useLang();
   const [loading, setLoading] = useState(false);
   const [confirm, setConfirm] = useState(false);
   const cfg = STATUT_CONFIG[c.statut] || STATUT_CONFIG.en_attente;
@@ -62,7 +64,7 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
               <ShoppingCart className='w-4 h-4 text-white' />
             </div>
             <div>
-              <h3 className='font-bold text-gray-900 text-base'>Détail commande</h3>
+              <h3 className='font-bold text-gray-900 text-base'>{t.admin.orderDetail}</h3>
               <p className='text-xs text-gray-400 font-mono'>{String(c.id ?? "").slice(0, 8)}...</p>
             </div>
           </div>
@@ -76,7 +78,7 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
           {/* Statut + Montant */}
           <div className='flex items-center justify-between p-4 bg-gradient-to-r from-[#1DBF73]/5 to-[#09B1BA]/5 rounded-xl'>
             <div>
-              <p className='text-xs text-gray-400 mb-1'>Montant total</p>
+              <p className='text-xs text-gray-400 mb-1'>{t.admin.totalAmount}</p>
               <p className='text-2xl font-black text-[#1DBF73]'>{formatPrice(c.montant)}</p>
               <p className='text-xs text-gray-400 mt-0.5'>Quantité : {c.quantite}</p>
             </div>
@@ -96,8 +98,8 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
               className='w-full flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl shadow hover:shadow-lg disabled:opacity-50 transition-all'
             >
               {loading
-                ? <><Loader2 className='w-4 h-4 animate-spin' /> Traitement...</>
-                : <><PackageCheck className='w-4 h-4' /> Marquer comme livrée</>
+                ? <><Loader2 className='w-4 h-4 animate-spin' /> {t.cart.processing}</>
+                : <><PackageCheck className='w-4 h-4' /> {t.admin.markDelivered}</>
               }
             </motion.button>
           )}
@@ -105,7 +107,7 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
           {/* Annonce */}
           {c.annonce && (
             <div className='p-4 border border-gray-100 rounded-xl'>
-              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-2'>Annonce</p>
+              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-2'>{t.admin.listings}</p>
               <p className='font-bold text-gray-900'>{c.annonce.titre}</p>
               <div className='flex items-center gap-3 mt-2 text-xs text-gray-500'>
                 <span className='flex items-center gap-1'><Package className='w-3 h-3' />{c.annonce.categorie}</span>
@@ -145,14 +147,14 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
             <div className='flex items-start gap-2 p-3 bg-gray-50 rounded-xl'>
               <Calendar className='w-4 h-4 text-gray-400 mt-0.5 shrink-0' />
               <div>
-                <p className='text-[10px] text-gray-400 font-medium'>Créée le</p>
+                <p className='text-[10px] text-gray-400 font-medium'>{t.admin.createdOn}</p>
                 <p className='text-sm font-semibold text-gray-800'>{formatDate(c.created_at)}</p>
               </div>
             </div>
             <div className='flex items-start gap-2 p-3 bg-gray-50 rounded-xl'>
               <Calendar className='w-4 h-4 text-gray-400 mt-0.5 shrink-0' />
               <div>
-                <p className='text-[10px] text-gray-400 font-medium'>Mise à jour</p>
+                <p className='text-[10px] text-gray-400 font-medium'>{t.admin.updatedOn}</p>
                 <p className='text-sm font-semibold text-gray-800'>{formatDate(c.updated_at)}</p>
               </div>
             </div>
@@ -161,10 +163,10 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
           {/* Prix détail */}
           {c.annonce && (
             <div className='p-4 bg-gray-50 rounded-xl space-y-2'>
-              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-2'>Détail prix</p>
+              <p className='text-xs font-bold text-gray-400 uppercase tracking-wider mb-2'>{t.admin.priceDetail}</p>
               {[
-                { label: 'Prix unitaire',    value: formatPrice(c.annonce.prix_vendeur) },
-                { label: 'Frais protection', value: formatPrice(c.annonce.frais_protection) },
+                { label: t.admin.unitPrice,    value: formatPrice(c.annonce.prix_vendeur) },
+                { label: t.admin.protectionFee, value: formatPrice(c.annonce.frais_protection) },
                 { label: 'Quantité',         value: `× ${c.quantite}` },
                 { label: 'Total commande',   value: formatPrice(c.montant), highlight: true },
               ].map(({ label, value, highlight }) => (
@@ -178,9 +180,9 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
         </div>
         <ConfirmDialog
           open={confirm}
-          title='Marquer livrée ?'
-          message={`La commande #${String(c.id ?? '').slice(0, 8)} passera au statut livrée.`}
-          confirmLabel='Confirmer'
+          title={t.admin.markDeliveredQ}
+          message={t.admin.markDeliveredMsg}
+          confirmLabel={t.common.confirm}
           tone='success'
           loading={loading}
           onConfirm={handleLivree}
@@ -194,6 +196,7 @@ const CommandeModal = ({ commande: c, onClose, onLivree }) => {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export default function AdminCommandes() {
+  const { t } = useLang();
   const [commandes,  setCommandes]  = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [search,     setSearch]     = useState('');
@@ -226,7 +229,7 @@ export default function AdminCommandes() {
       setTotal(res?.data?.total ?? res?.total ?? 0);
       setPage(p);
     } catch {
-      setError('Erreur lors du chargement des commandes.');
+      setError(t.admin.loadError);
     } finally {
       setLoading(false);
     }
@@ -235,12 +238,12 @@ export default function AdminCommandes() {
   useEffect(() => { fetchCommandes(1); }, [filter]);
 
   const FILTERS = [
-    { key: 'tous',       label: 'Toutes'     },
-    { key: 'en_attente', label: 'En attente' },
-    { key: 'payee',      label: 'Payées'     },
-    { key: 'livree',     label: 'Livrées'    },
-    { key: 'annulee',    label: 'Annulées'   },
-    { key: 'litige',     label: 'Litiges'    },
+    { key: 'tous',       label: t.commandes.all     },
+    { key: 'en_attente', label: t.commandes.statuts.en_attente },
+    { key: 'payee',      label: t.commandes.statuts.payee     },
+    { key: 'livree',     label: t.commandes.statuts.livree    },
+    { key: 'annulee',    label: t.commandes.statuts.annulee    },
+    { key: 'litige',     label: t.commandes.statuts.litige    },
   ];
 
   const filtered = commandes.filter(c =>
@@ -264,23 +267,23 @@ export default function AdminCommandes() {
         {/* Header */}
         <div className='flex items-center justify-between mb-6'>
           <div>
-            <h1 className='text-2xl font-bold text-gray-900'>Commandes</h1>
-            <p className='text-sm text-gray-500 mt-0.5'>{total} commande{total > 1 ? 's' : ''} au total</p>
+            <h1 className='text-2xl font-bold text-gray-900'>{t.admin.orders}</h1>
+            <p className='text-sm text-gray-500 mt-0.5'>{total} {total > 1 ? t.commandes.orderPlural : t.commandes.order} {t.commandes.totalOf}</p>
           </div>
           <button onClick={() => fetchCommandes(page)} disabled={loading}
             className='flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:border-[#1DBF73] hover:text-[#1DBF73] transition-all'>
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Actualiser
+            {t.admin.refresh}
           </button>
         </div>
 
         {/* Stats rapides */}
         <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6'>
           {[
-            { label: 'Total',      value: stats.total,      color: 'text-gray-800',   bg: 'bg-white'     },
-            { label: 'En attente', value: stats.en_attente, color: 'text-yellow-700', bg: 'bg-yellow-50' },
-            { label: 'Payées',     value: stats.payee,      color: 'text-blue-700',   bg: 'bg-blue-50'   },
-            { label: 'Litiges',    value: stats.litige,     color: 'text-orange-700', bg: 'bg-orange-50' },
+            { label: t.admin.userStats.total,      value: stats.total,      color: 'text-gray-800',   bg: 'bg-white'     },
+            { label: t.commandes.statuts.en_attente, value: stats.en_attente, color: 'text-yellow-700', bg: 'bg-yellow-50' },
+            { label: t.commandes.statuts.payee,     value: stats.payee,      color: 'text-blue-700',   bg: 'bg-blue-50'   },
+            { label: t.commandes.statuts.litige,     value: stats.litige,     color: 'text-orange-700', bg: 'bg-orange-50' },
           ].map(s => (
             <div key={s.label} className={`p-4 ${s.bg} border border-gray-100 rounded-xl text-center shadow-sm`}>
               <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
@@ -304,7 +307,7 @@ export default function AdminCommandes() {
           <div className='relative flex-1'>
             <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
             <input type='text' value={search} onChange={e => setSearch(e.target.value)}
-              placeholder='Rechercher par annonce, acheteur, vendeur...'
+              placeholder={t.admin.searchOrders}
               className='w-full pl-11 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all' />
           </div>
           <div className='flex gap-2 overflow-x-auto'>
@@ -323,12 +326,12 @@ export default function AdminCommandes() {
         {/* Table */}
         <div className='bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden'>
           <div className='hidden md:grid grid-cols-12 gap-4 px-5 py-3 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-400 uppercase tracking-wider'>
-            <div className='col-span-3'>Annonce</div>
-            <div className='col-span-2'>Acheteur</div>
-            <div className='col-span-2'>Vendeur</div>
-            <div className='col-span-2'>Montant</div>
-            <div className='col-span-1'>Statut</div>
-            <div className='col-span-2'>Actions</div>
+            <div className='col-span-3'>{t.admin.listings}</div>
+            <div className='col-span-2'>{t.admin.buyer}</div>
+            <div className='col-span-2'>{t.admin.seller}</div>
+            <div className='col-span-2'>{t.admin.amount}</div>
+            <div className='col-span-1'>{t.admin.orderStatus}</div>
+            <div className='col-span-2'>{t.admin.actionsCol}</div>
           </div>
 
           {loading ? (
@@ -344,7 +347,7 @@ export default function AdminCommandes() {
           ) : filtered.length === 0 ? (
             <div className='flex flex-col items-center justify-center py-16'>
               <ShoppingCart className='w-12 h-12 text-gray-200 mb-3' />
-              <p className='text-sm text-gray-400 font-medium'>Aucune commande</p>
+              <p className='text-sm text-gray-400 font-medium'>{t.admin.noOrders}</p>
             </div>
           ) : (
             <div className='divide-y divide-gray-50'>
@@ -434,6 +437,7 @@ export default function AdminCommandes() {
 
 // ✅ Bouton livraison isolé avec son propre état loading
 const BoutonLivree = ({ commandeId, onLivree }) => {
+  const { t } = useLang();
   const [loading, setLoading] = useState(false);
   const [confirm, setConfirm] = useState(false);
 
@@ -457,20 +461,20 @@ const BoutonLivree = ({ commandeId, onLivree }) => {
       whileTap={{ scale: 0.95 }}
       onClick={() => setConfirm(true)}
       disabled={loading}
-      title='Marquer livrée'
+      title={t.admin.markDelivered}
       className='flex items-center gap-1.5 px-2.5 py-1.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white text-xs font-bold rounded-xl shadow hover:shadow-md disabled:opacity-50 transition-all'
     >
       {loading
         ? <Loader2 className='w-3.5 h-3.5 animate-spin' />
         : <PackageCheck className='w-3.5 h-3.5' />
       }
-      {!loading && 'Livrer'}
+      {!loading && t.admin.deliver}
     </motion.button>
     <ConfirmDialog
       open={confirm}
-      title='Marquer livrée ?'
-      message='La commande passera au statut livrée.'
-      confirmLabel='Confirmer'
+      title={t.admin.markDeliveredQ}
+      message={t.admin.markDeliveredMsg}
+      confirmLabel={t.common.confirm}
       tone='success'
       loading={loading}
       onConfirm={handle}

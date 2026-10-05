@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLang } from '../../client/context/LangContext';
 import {
   Users, Search, RefreshCw, AlertCircle, CheckCircle,
   Mail, Phone, MapPin, Shield, Star, Package,
@@ -20,10 +21,11 @@ const getInitials = (nom) =>
 // ─── Modal confirmation ───────────────────────────────────────────────────────
 
 const ConfirmModal = ({ type, user, onConfirm, onCancel, loading }) => {
+  const { t } = useLang();
   const config = {
-    suspend:    { icon: Ban,    color: 'bg-orange-100', iconColor: 'text-orange-500', btn: 'bg-orange-500 hover:bg-orange-600', label: 'Suspendre',   msg: `Le compte de ${user.nom} sera suspendu. Il ne pourra plus se connecter.` },
-    reactivate: { icon: Play,   color: 'bg-green-100',  iconColor: 'text-green-500',  btn: 'bg-green-500 hover:bg-green-600',   label: 'Réactiver',   msg: `Le compte de ${user.nom} sera réactivé.` },
-    delete:     { icon: Trash2, color: 'bg-red-100',    iconColor: 'text-red-500',    btn: 'bg-red-500 hover:bg-red-600',       label: 'Supprimer',   msg: `Le compte de ${user.nom} sera définitivement supprimé. Cette action est irréversible.` },
+    suspend:    { icon: Ban,    color: 'bg-orange-100', iconColor: 'text-orange-500', btn: 'bg-orange-500 hover:bg-orange-600', label: t.admin.userActions.suspend,   msg: t.admin.userActions.suspendMsg.replace('{nom}', user.nom) },
+    reactivate: { icon: Play,   color: 'bg-green-100',  iconColor: 'text-green-500',  btn: 'bg-green-500 hover:bg-green-600',   label: t.admin.userActions.reactivate,   msg: t.admin.userActions.reactivateMsg.replace('{nom}', user.nom) },
+    delete:     { icon: Trash2, color: 'bg-red-100',    iconColor: 'text-red-500',    btn: 'bg-red-500 hover:bg-red-600',       label: t.admin.userActions.delete,   msg: t.admin.userActions.deleteMsg.replace('{nom}', user.nom) },
   }[type];
 
   const Icon = config.icon;
@@ -36,16 +38,16 @@ const ConfirmModal = ({ type, user, onConfirm, onCancel, loading }) => {
         <div className={`w-12 h-12 ${config.color} rounded-xl flex items-center justify-center mx-auto mb-4`}>
           <Icon className={`w-6 h-6 ${config.iconColor}`} />
         </div>
-        <h3 className='text-lg font-bold text-gray-900 text-center mb-2'>{config.label} l'utilisateur ?</h3>
+        <h3 className='text-lg font-bold text-gray-900 text-center mb-2'>{config.label} {t.admin.modalUserAction}</h3>
         <p className='text-sm text-gray-500 text-center mb-5'>{config.msg}</p>
         <div className='flex gap-3'>
           <button onClick={onCancel} disabled={loading}
             className='flex-1 py-2.5 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 text-sm transition-all disabled:opacity-50'>
-            Annuler
+            {t.common.cancel}
           </button>
           <button onClick={onConfirm} disabled={loading}
             className={`flex-1 py-2.5 ${config.btn} text-white font-semibold rounded-xl text-sm transition-all disabled:opacity-50`}>
-            {loading ? 'En cours...' : config.label}
+            {loading ? t.admin.inProgress : config.label}
           </button>
         </div>
       </motion.div>
@@ -77,7 +79,7 @@ const UserCard = ({ user, onAction }) => {
         <div className='flex-1 min-w-0'>
           <div className='flex items-center gap-2'>
             <p className='font-bold text-gray-900 truncate'>{user.nom}</p>
-            {user.verifie_kyc   && <CheckCircle className='w-4 h-4 text-green-500 shrink-0' title='KYC vérifié' />}
+            {user.verifie_kyc   && <CheckCircle className='w-4 h-4 text-green-500 shrink-0' title={t.admin.kycVerified} />}
             {user.badge_verifie && <Shield className='w-4 h-4 text-blue-500 shrink-0' title='Badge vérifié' />}
           </div>
           <p className='text-xs text-gray-400 truncate'>{user.email}</p>
@@ -93,7 +95,7 @@ const UserCard = ({ user, onAction }) => {
             <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${
               isSuspendu ? 'bg-orange-100 text-orange-600' : 'bg-green-100 text-green-700'
             }`}>
-              {isSuspendu ? 'Suspendu' : 'Actif'}
+              {isSuspendu ? t.admin.suspendedSt : t.admin.active}
             </span>
           </div>
         </div>
@@ -101,17 +103,17 @@ const UserCard = ({ user, onAction }) => {
         {/* Actions rapides */}
         <div className='flex items-center gap-1 shrink-0'>
           {isSuspendu ? (
-            <button onClick={() => onAction('reactivate', user)} title='Réactiver'
+            <button onClick={() => onAction('reactivate', user)} title={t.admin.userActions.reactivate}
               className='p-2 hover:bg-green-50 rounded-xl transition-colors group'>
               <Play className='w-4 h-4 text-gray-400 group-hover:text-green-500 transition-colors' />
             </button>
           ) : (
-            <button onClick={() => onAction('suspend', user)} title='Suspendre'
+            <button onClick={() => onAction('suspend', user)} title={t.admin.userActions.suspend}
               className='p-2 hover:bg-orange-50 rounded-xl transition-colors group'>
               <Ban className='w-4 h-4 text-gray-400 group-hover:text-orange-500 transition-colors' />
             </button>
           )}
-          <button onClick={() => onAction('delete', user)} title='Supprimer'
+          <button onClick={() => onAction('delete', user)} title={t.admin.userActions.delete}
             className='p-2 hover:bg-red-50 rounded-xl transition-colors group'>
             <Trash2 className='w-4 h-4 text-gray-400 group-hover:text-red-500 transition-colors' />
           </button>
@@ -130,12 +132,12 @@ const UserCard = ({ user, onAction }) => {
             <div className='px-5 pb-5 border-t border-gray-100 pt-4'>
               <div className='grid grid-cols-2 gap-3'>
                 {[
-                  { icon: Mail,    label: 'Email',      value: user.email },
-                  { icon: Phone,   label: 'Téléphone',  value: user.telephone || '—' },
-                  { icon: MapPin,  label: 'Pays',       value: user.pays     || '—' },
-                  { icon: MapPin,  label: 'Adresse',    value: user.adresse  || '—' },
-                  { icon: Package, label: 'Inscrit le', value: formatDate(user.created_at) },
-                  { icon: Star,    label: 'Note',       value: Number(user.note_moyenne) > 0 ? `${Number(user.note_moyenne).toFixed(1)}/5` : 'Aucune note' },
+                  { icon: Mail,    label: t.auth.email,      value: user.email },
+                  { icon: Phone,   label: t.auth.phone,  value: user.telephone || '—' },
+                  { icon: MapPin,  label: t.auth.country,       value: user.pays     || '—' },
+                  { icon: MapPin,  label: t.profil.address,    value: user.adresse  || '—' },
+                  { icon: Package, label: t.admin.registeredOn, value: formatDate(user.created_at) },
+                  { icon: Star,    label: t.admin.noteLabel,       value: Number(user.note_moyenne) > 0 ? `${Number(user.note_moyenne).toFixed(1)}/5` : t.admin.noteNone },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className='flex items-start gap-2 p-3 bg-gray-50 rounded-xl'>
                     <Icon className='w-4 h-4 text-[#1DBF73] mt-0.5 shrink-0' />
@@ -151,8 +153,8 @@ const UserCard = ({ user, onAction }) => {
                   user.verifie_kyc ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
                 }`}>
                   {user.verifie_kyc
-                    ? <><UserCheck className='w-3.5 h-3.5' /> KYC vérifié</>
-                    : <><UserX className='w-3.5 h-3.5' /> KYC non vérifié</>
+                    ? <><UserCheck className='w-3.5 h-3.5' /> {t.admin.kycVerified}</>
+                    : <><UserX className='w-3.5 h-3.5' /> {t.admin.kycUnverified}</>
                   }
                 </div>
                 {user.badge_verifie && (
@@ -177,6 +179,7 @@ const UserCard = ({ user, onAction }) => {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export default function AdminUsers() {
+  const { t } = useLang();
   const [users,    setUsers]    = useState([]);
   const [loading,  setLoading]  = useState(true);
   const [search,   setSearch]   = useState('');
@@ -201,7 +204,7 @@ export default function AdminUsers() {
       setTotal(res?.data?.total ?? 0);
       setPage(p);
     } catch {
-      setError('Erreur lors du chargement des utilisateurs.');
+      setError(t.admin.loadError);
     } finally {
       setLoading(false);
     }
@@ -219,21 +222,21 @@ export default function AdminUsers() {
       if (type === 'suspend') {
         await suspendUser(user.id);
         setUsers(prev => prev.map(u => u.id === user.id ? { ...u, statut: 'suspendu' } : u));
-        setSuccess(`${user.nom} a été suspendu.`);
+        setSuccess(`${user.nom} ${t.admin.userSuspended}`);
       } else if (type === 'reactivate') {
         await reactivateUser(user.id);
         setUsers(prev => prev.map(u => u.id === user.id ? { ...u, statut: 'actif' } : u));
-        setSuccess(`${user.nom} a été réactivé.`);
+        setSuccess(`${user.nom} ${t.admin.userReactivated}`);
       } else if (type === 'delete') {
         await deleteAdminUser(user.id);
         setUsers(prev => prev.filter(u => u.id !== user.id));
         setTotal(prev => prev - 1);
-        setSuccess(`${user.nom} a été supprimé.`);
+        setSuccess(`${user.nom} ${t.admin.userDeleted}`);
       }
       setConfirm(null);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {
-      setError(err.message || 'Une erreur est survenue.');
+      setError(err.message || t.admin.genericError);
       setConfirm(null);
     } finally {
       setActLoading(false);
@@ -241,12 +244,12 @@ export default function AdminUsers() {
   };
 
   const FILTERS = [
-    { key: 'tous',        label: 'Tous'            },
-    { key: 'vendeur',     label: 'Vendeurs'        },
-    { key: 'acheteur',    label: 'Acheteurs'       },
-    { key: 'verifie',     label: 'KYC vérifié'     },
-    { key: 'non_verifie', label: 'KYC non vérifié' },
-    { key: 'suspendu',    label: 'Suspendus'       },
+    { key: 'tous',        label: t.admin.filters.all            },
+    { key: 'vendeur',     label: t.admin.userStats.sellers        },
+    { key: 'acheteur',    label: t.admin.userStats.buyers       },
+    { key: 'verifie',     label: t.admin.filters.verified     },
+    { key: 'non_verifie', label: t.admin.filters.unverified },
+    { key: 'suspendu',    label: t.admin.filters.suspended       },
   ];
 
   const filtered = users.filter(u => {
@@ -279,23 +282,23 @@ export default function AdminUsers() {
         {/* Header */}
         <div className='flex items-center justify-between mb-6'>
           <div>
-            <h1 className='text-2xl font-bold text-gray-900'>Utilisateurs</h1>
-            <p className='text-sm text-gray-500 mt-0.5'>{total} utilisateur{total > 1 ? 's' : ''} au total</p>
+            <h1 className='text-2xl font-bold text-gray-900'>{t.admin.users}</h1>
+            <p className='text-sm text-gray-500 mt-0.5'>{total} {t.admin.userCount}</p>
           </div>
           <button onClick={() => fetchUsers(page)} disabled={loading}
             className='flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:border-[#1DBF73] hover:text-[#1DBF73] transition-all'>
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Actualiser
+            {t.admin.refresh}
           </button>
         </div>
 
         {/* Stats */}
         <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6'>
           {[
-            { label: 'Total',     value: stats.total,     color: 'text-gray-800',  bg: 'bg-white'       },
-            { label: 'Vendeurs',  value: stats.vendeurs,  color: 'text-[#09B1BA]', bg: 'bg-[#09B1BA]/5' },
-            { label: 'Acheteurs', value: stats.acheteurs, color: 'text-[#1DBF73]', bg: 'bg-[#1DBF73]/5' },
-            { label: 'Suspendus', value: stats.suspendus, color: 'text-orange-600', bg: 'bg-orange-50'  },
+            { label: t.admin.userStats.total,     value: stats.total,     color: 'text-gray-800',  bg: 'bg-white'       },
+            { label: t.admin.userStats.sellers,  value: stats.vendeurs,  color: 'text-[#09B1BA]', bg: 'bg-[#09B1BA]/5' },
+            { label: t.admin.userStats.buyers, value: stats.acheteurs, color: 'text-[#1DBF73]', bg: 'bg-[#1DBF73]/5' },
+            { label: t.admin.suspended, value: stats.suspendus, color: 'text-orange-600', bg: 'bg-orange-50'  },
           ].map(s => (
             <div key={s.label} className={`p-4 ${s.bg} border border-gray-100 rounded-xl text-center shadow-sm`}>
               <p className={`text-2xl font-black ${s.color}`}>{s.value}</p>
@@ -325,7 +328,7 @@ export default function AdminUsers() {
           <div className='relative flex-1'>
             <Search className='absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400' />
             <input type='text' value={search} onChange={e => setSearch(e.target.value)}
-              placeholder='Rechercher par nom, email, pays...'
+              placeholder={t.admin.searchUsers}
               className='w-full pl-11 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all' />
           </div>
           <div className='flex gap-2 overflow-x-auto'>
@@ -360,7 +363,7 @@ export default function AdminUsers() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
             className='flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-gray-100'>
             <Users className='w-12 h-12 text-gray-200 mb-3' />
-            <p className='text-sm text-gray-400 font-medium'>Aucun utilisateur trouvé</p>
+            <p className='text-sm text-gray-400 font-medium'>{t.admin.noUser}</p>
           </motion.div>
         ) : (
           <div className='space-y-3'>
@@ -377,12 +380,12 @@ export default function AdminUsers() {
           <div className='flex items-center justify-center gap-3 mt-6'>
             <button onClick={() => fetchUsers(page - 1)} disabled={page <= 1 || loading}
               className='flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:border-[#1DBF73] disabled:opacity-40 disabled:cursor-not-allowed transition-all'>
-              <ChevronLeft className='w-4 h-4' /> Précédent
+              <ChevronLeft className='w-4 h-4' /> {t.admin.prev}
             </button>
-            <span className='text-sm text-gray-500 font-medium'>Page {page} / {lastPage}</span>
+            <span className='text-sm text-gray-500 font-medium'>{t.admin.pageOf} {page} / {lastPage}</span>
             <button onClick={() => fetchUsers(page + 1)} disabled={page >= lastPage || loading}
               className='flex items-center gap-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:border-[#1DBF73] disabled:opacity-40 disabled:cursor-not-allowed transition-all'>
-              Suivant <ChevronRight className='w-4 h-4' />
+              {t.admin.next} <ChevronRight className='w-4 h-4' />
             </button>
           </div>
         )}

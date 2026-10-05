@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Trash2, CheckCircle, XCircle, Filter, RefreshCw, MapPin, Package } from 'lucide-react';
 import { getImageUrl, deleteAdminAnnonce } from '../../services/api';
+import { useLang } from '../../client/context/LangContext';
 import ConfirmDialog from '../../client/components/common/ConfirmDialog';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://docspace.bj/api';
 const getToken = () => localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
 
 export default function ManageEquipments() {
+  const { t } = useLang();
   const [annonces, setAnnonces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -73,13 +75,13 @@ export default function ManageEquipments() {
         {/* En-tête */}
         <div className='flex flex-col justify-between gap-3 mb-6 sm:flex-row sm:items-center'>
           <div>
-            <h1 className='text-xl font-bold text-gray-800'>Gestion des équipements</h1>
-            <p className='text-sm text-gray-500 mt-0.5'>{total} équipement(s) au total</p>
+            <h1 className='text-xl font-bold text-gray-800'>{t.admin.manageEquipments}</h1>
+            <p className='text-sm text-gray-500 mt-0.5'>{total} {t.admin.totalListings}</p>
           </div>
           <button onClick={fetchAnnonces}
             className='flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-xl hover:shadow-md transition-all self-start sm:self-auto'>
             <RefreshCw className='w-4 h-4' />
-            Actualiser
+            {t.admin.refresh}
           </button>
         </div>
 
@@ -89,18 +91,18 @@ export default function ManageEquipments() {
             <Search className='absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2' />
             <input type='text' value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              placeholder='Rechercher un équipement...'
+              placeholder={t.admin.searchEquipment}
               className='w-full pl-9 pr-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] bg-white' />
           </div>
           <div className='relative'>
             <Filter className='absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2' />
             <select value={filterEtat} onChange={(e) => setFilterEtat(e.target.value)}
               className='pl-9 pr-8 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] bg-white appearance-none cursor-pointer'>
-              <option value=''>Tous les états</option>
-              <option value='Neuf'>Neuf</option>
-              <option value='Occasion'>Occasion</option>
-              <option value='Reconditionné'>Reconditionné</option>
-              <option value='Comme neuf'>Comme neuf</option>
+              <option value=''>{t.admin.states.all}</option>
+              <option value='Neuf'>{t.etats.neuf}</option>
+              <option value='Occasion'>{t.etats.occasion}</option>
+              <option value='Reconditionné'>{t.etats.reconditionne}</option>
+              <option value='Comme neuf'>{t.etats.tres_bon}</option>
             </select>
           </div>
         </div>
@@ -114,7 +116,7 @@ export default function ManageEquipments() {
           ) : filtered.length === 0 ? (
             <div className='flex flex-col items-center justify-center py-20 text-center'>
               <Package className='w-12 h-12 mb-3 text-gray-200' />
-              <p className='font-medium text-gray-500'>Aucun équipement trouvé</p>
+              <p className='font-medium text-gray-500'>{t.admin.noListing}</p>
             </div>
           ) : (
             <>
@@ -123,12 +125,12 @@ export default function ManageEquipments() {
                 <table className='w-full'>
                   <thead>
                     <tr className='border-b border-gray-100 bg-gray-50'>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Équipement</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Vendeur</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Catégorie</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>État</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Prix</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Actions</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.listingTable.equipment}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.listingTable.seller}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.listingTable.category}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.listingTable.state}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.listingTable.price}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.listingTable.actions}</th>
                     </tr>
                   </thead>
                   <tbody className='divide-y divide-gray-50'>
@@ -158,7 +160,7 @@ export default function ManageEquipments() {
                         </td>
                         <td className='px-4 py-3'>
                           <span className={`px-2 py-1 text-xs font-semibold rounded-lg ${etatStyle(a.etat)}`}>
-                            {a.etat}
+                            {t.etats[a.etat] ?? a.etat}
                           </span>
                         </td>
                         <td className='px-4 py-3'>
@@ -205,7 +207,7 @@ export default function ManageEquipments() {
                         <p className='text-xs text-gray-400 mt-0.5'>{a.categorie} · {a.vendeur?.nom}</p>
                         <div className='flex items-center justify-between mt-2'>
                           <span className={`px-2 py-0.5 text-xs font-semibold rounded-lg ${etatStyle(a.etat)}`}>
-                            {a.etat}
+                            {t.etats[a.etat] ?? a.etat}
                           </span>
                           <p className='text-sm font-bold text-[#1DBF73]'>
                             {Number(a.prix_vendeur).toLocaleString()} FCFA
@@ -234,15 +236,15 @@ export default function ManageEquipments() {
           {/* Pagination */}
           {lastPage > 1 && (
             <div className='flex items-center justify-between px-4 py-3 border-t border-gray-100'>
-              <p className='text-xs text-gray-500'>Page {page} sur {lastPage}</p>
+              <p className='text-xs text-gray-500'>{t.admin.pageOf} {page} / {lastPage}</p>
               <div className='flex gap-2'>
                 <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
                   className='px-3 py-1.5 text-xs font-semibold text-gray-600 bg-gray-100 rounded-lg disabled:opacity-40 hover:bg-gray-200 transition-all'>
-                  Précédent
+                  {t.admin.prev}
                 </button>
                 <button onClick={() => setPage(p => Math.min(lastPage, p + 1))} disabled={page === lastPage}
                   className='px-3 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-lg disabled:opacity-40 transition-all'>
-                  Suivant
+                  {t.admin.next}
                 </button>
               </div>
             </div>
@@ -251,9 +253,9 @@ export default function ManageEquipments() {
       </div>
       <ConfirmDialog
         open={!!confirmDel}
-        title="Supprimer l'annonce ?"
-        message="L'annonce sera définitivement supprimée."
-        confirmLabel='Supprimer'
+        title={t.admin.delListingTitle}
+        message={t.admin.delListingMsg}
+        confirmLabel={t.common.delete}
         tone='danger'
         loading={actionLoading === confirmDel}
         onConfirm={handleDelete}

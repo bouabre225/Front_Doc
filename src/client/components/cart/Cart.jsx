@@ -11,8 +11,10 @@ import Footer from '../../components/layout/Footer';
 import { useCart } from '../../context/CartContext';
 import { getImageUrl, createCommande } from '../../../services/api';
 import ConfirmDialog from '../common/ConfirmDialog';
+import { useLang } from '../../context/LangContext';
 
 const Cart = () => {
+  const { t } = useLang();
   const navigate = useNavigate();
   const { cart, removeFromCart, updateQuantite, clearCart, totalPrice, totalItems } = useCart();
 
@@ -34,12 +36,12 @@ const Cart = () => {
 
     const propresArticles = cart.filter(item => item.vendeur_id === currentUser.id);
     if (propresArticles.length > 0) {
-      setError(`Vous ne pouvez pas commander vos propres articles : ${propresArticles.map(i => i.titre).join(', ')}`);
+      setError(t.cart.ownArticles);
       return;
     }
 
-    if (!adresse.trim())   { setError("L'adresse de livraison est requise"); return; }
-    if (!telephone.trim()) { setError("Le numéro de téléphone est requis");  return; }
+    if (!adresse.trim())   { setError(t.cart.addressRequired); return; }
+    if (!telephone.trim()) { setError(t.cart.phoneRequired);  return; }
 
     setLoading(true);
     setError('');
@@ -68,7 +70,7 @@ const Cart = () => {
       }, 2000);
 
     } catch (err) {
-      setError(err.message || 'Erreur lors de la commande');
+      setError(err.message || t.cart.orderError);
     } finally {
       setLoading(false);
     }
@@ -84,14 +86,14 @@ const Cart = () => {
             <div className='w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6'>
               <ShoppingCart className='w-12 h-12 text-gray-300' />
             </div>
-            <h2 className='text-2xl font-bold text-gray-800 mb-2'>Votre panier est vide</h2>
-            <p className='text-gray-500 mb-8'>Ajoutez des équipements depuis la page d'exploration</p>
+            <h2 className='text-2xl font-bold text-gray-800 mb-2'>{t.cart.empty}</h2>
+            <p className='text-gray-500 mb-8'>{t.cart.emptyHint}</p>
             <Link
               to='/explore'
               className='inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all'
             >
               <Package className='w-5 h-5' />
-              Explorer les équipements
+              {t.cart.explore}
             </Link>
           </motion.div>
         </div>
@@ -114,9 +116,9 @@ const Cart = () => {
             <div className='w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6'>
               <CheckCircle className='w-10 h-10 text-green-500' />
             </div>
-            <h2 className='text-2xl font-bold text-gray-900 mb-2'>Commande passée !</h2>
+            <h2 className='text-2xl font-bold text-gray-900 mb-2'>{t.cart.ordered}</h2>
             <p className='text-gray-500 text-sm mb-4'>
-              Votre commande a été enregistrée. Redirection en cours...
+              {t.cart.orderedHint}
             </p>
             <div className='w-8 h-8 border-4 border-[#1DBF73] rounded-full border-t-transparent animate-spin mx-auto' />
           </motion.div>
@@ -139,8 +141,8 @@ const Cart = () => {
               <ArrowLeft className='w-5 h-5' />
             </button>
             <div>
-              <h1 className='text-2xl font-bold text-gray-900'>Mon panier</h1>
-              <p className='text-sm text-gray-400'>{totalItems} article{totalItems > 1 ? 's' : ''}</p>
+              <h1 className='text-2xl font-bold text-gray-900'>{t.cart.title}</h1>
+              <p className='text-sm text-gray-400'>{totalItems} {totalItems > 1 ? t.explore.equipmentPlural : t.explore.equipment}</p>
             </div>
           </div>
           <button
@@ -148,12 +150,12 @@ const Cart = () => {
             className='flex items-center gap-1.5 text-xs text-red-400 hover:text-red-500 font-medium transition-colors'
           >
             <Trash2 className='w-3.5 h-3.5' />
-            Vider le panier
+            {t.cart.clear}
           </button>
           <ConfirmDialog
             open={confirmClear}
-            title='Vider le panier ?'
-            message='Tous les articles seront retirés du panier.'
+            title={t.cart.clearTitle}
+            message={t.cart.clearMsg}
             confirmLabel='Vider'
             tone='danger'
             onConfirm={() => { clearCart(); setConfirmClear(false); }}
@@ -201,7 +203,7 @@ const Cart = () => {
                       <span className='text-xs text-gray-400'>FCFA</span>
                     </div>
                     <p className='text-xs text-gray-400'>
-                      {Number(item.prix_vendeur).toLocaleString('fr-FR')} / unité
+                      {Number(item.prix_vendeur).toLocaleString('fr-FR')}{t.home.perUnit}
                     </p>
                   </div>
 
@@ -240,7 +242,7 @@ const Cart = () => {
 
             {/* Récap prix */}
             <div className='p-5 bg-white border border-gray-100 rounded-2xl shadow-sm'>
-              <h3 className='font-bold text-gray-800 mb-4'>Récapitulatif</h3>
+              <h3 className='font-bold text-gray-800 mb-4'>{t.cart.summary}</h3>
               <div className='space-y-2 mb-4'>
                 {cart.map(item => (
                   <div key={item.id} className='flex justify-between text-sm'>
@@ -253,21 +255,21 @@ const Cart = () => {
               </div>
               <div className='border-t border-gray-100 pt-3 space-y-2'>
                 <div className='flex justify-between text-sm'>
-                  <span className='text-gray-500'>Sous-total</span>
+                  <span className='text-gray-500'>{t.cart.subtotal}</span>
                   <span className='font-medium text-gray-800'>
                     {totalPrice.toLocaleString('fr-FR')} FCFA
                   </span>
                 </div>
                 <div className='flex justify-between text-sm'>
                   <span className='flex items-center gap-1 text-[#09B1BA]'>
-                    🛡️ Protection acheteur <span className='text-xs bg-[#09B1BA]/10 px-1.5 py-0.5 rounded-full font-semibold'>8%</span>
+                    🛡️ {t.cart.buyerProtection} <span className='text-xs bg-[#09B1BA]/10 px-1.5 py-0.5 rounded-full font-semibold'>8%</span>
                   </span>
                   <span className='font-medium text-[#09B1BA]'>
                     + {Math.round(totalPrice * 0.08).toLocaleString('fr-FR')} FCFA
                   </span>
                 </div>
                 <div className='flex justify-between pt-2 border-t border-gray-100'>
-                  <span className='font-bold text-gray-900'>Total</span>
+                  <span className='font-bold text-gray-900'>{t.cart.total}</span>
                   <span className='text-xl font-black text-[#1DBF73]'>
                     {Math.round(totalPrice * 1.08).toLocaleString('fr-FR')} FCFA
                   </span>
@@ -277,20 +279,20 @@ const Cart = () => {
 
             {/* Formulaire livraison */}
             <div className='p-5 bg-white border border-gray-100 rounded-2xl shadow-sm'>
-              <h3 className='font-bold text-gray-800 mb-4'>Informations de livraison</h3>
+              <h3 className='font-bold text-gray-800 mb-4'>{t.cart.delivery}</h3>
               <div className='space-y-3'>
                 <div>
-                  <label className='block text-xs font-semibold text-gray-600 mb-1'>Adresse *</label>
+                  <label className='block text-xs font-semibold text-gray-600 mb-1'>{t.cart.address} *</label>
                   <input
                     type='text'
                     value={adresse}
                     onChange={e => setAdresse(e.target.value)}
-                    placeholder='Votre adresse de livraison'
+                    placeholder={t.cart.addressPh}
                     className='w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                   />
                 </div>
                 <div>
-                  <label className='block text-xs font-semibold text-gray-600 mb-1'>Téléphone *</label>
+                  <label className='block text-xs font-semibold text-gray-600 mb-1'>{t.cart.phone} *</label>
                   <input
                     type='tel'
                     value={telephone}
@@ -319,14 +321,14 @@ const Cart = () => {
               className='w-full py-4 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 disabled:opacity-60'
             >
               {loading ? (
-                <><div className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin' /> Traitement...</>
+                <><div className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin' /> {t.cart.processing}</>
               ) : (
-                <><ShieldCheck className='w-5 h-5' /> Commander pour {Math.round(totalPrice * 1.08).toLocaleString('fr-FR')} FCFA</>
+                <><ShieldCheck className='w-5 h-5' /> {t.cart.orderFor} {Math.round(totalPrice * 1.08).toLocaleString('fr-FR')} FCFA</>
               )}
             </motion.button>
 
             <p className='text-xs text-center text-gray-400'>
-              Paiement sécurisé • Vous serez contacté par le vendeur
+              {t.cart.secureNote}
             </p>
           </div>
         </div>

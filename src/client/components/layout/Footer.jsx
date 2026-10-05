@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useLang } from '../../context/LangContext';
 import { Heart, Mail, Phone, MapPin, Facebook, Twitter, Instagram, Linkedin } from 'lucide-react';
 
 const SOCIAL_LINKS = [
@@ -10,6 +11,7 @@ const SOCIAL_LINKS = [
 ];
 
 const Footer = () => {
+  const { t } = useLang();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const isVendeur = user?.role === 'vendeur';
   return (
@@ -27,7 +29,7 @@ const Footer = () => {
               />
             </div>
             <p className='mb-3 text-sm text-gray-600'>
-              Marketplace d'équipements médicaux d'occasion certifiés.
+              {t.layout.tagline}
             </p>
             <div className='flex items-center gap-2'>
               {/*{SOCIAL_LINKS.map(({ icon: Icon, href, label }) => (
@@ -47,30 +49,30 @@ const Footer = () => {
 
           {/* Liens rapides */}
           <div>
-            <h3 className='mb-3 font-bold text-gray-900'>Liens Rapides</h3>
+            <h3 className='mb-3 font-bold text-gray-900'>{t.layout.quickLinks}</h3>
             <ul className='space-y-2 text-sm'>
-              <li><Link to='/explore'    className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Explorer</Link></li>
-              <li><Link to='/categories' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Catégories</Link></li>
+              <li><Link to='/explore'    className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.nav.explore}</Link></li>
+              <li><Link to='/categories' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.nav.categories}</Link></li>
               {isVendeur && (
-                <li><Link to='/publish-equipment' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Vendre</Link></li>
+                <li><Link to='/publish-equipment' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.layout.sell}</Link></li>
               )}
-              <li><Link to='/contact' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Contact</Link></li>
+              <li><Link to='/contact' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.nav.contact}</Link></li>
             </ul>
           </div>
 
           {/* Support */}
           <div>
-            <h3 className='mb-3 font-bold text-gray-900'>Support</h3>
+            <h3 className='mb-3 font-bold text-gray-900'>{t.layout.support}</h3>
             <ul className='space-y-2 text-sm'>
-              <li><Link to='/contact' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Contact</Link></li>
-              <li><Link to='/terms'   className='text-gray-600 hover:text-[#1DBF73] transition-colors'>CGU</Link></li>
-              <li><Link to='/privacy' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>Confidentialité</Link></li>
+              <li><Link to='/contact' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.nav.contact}</Link></li>
+              <li><Link to='/terms'   className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.layout.terms}</Link></li>
+              <li><Link to='/privacy' className='text-gray-600 hover:text-[#1DBF73] transition-colors'>{t.layout.privacy}</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h3 className='mb-3 font-bold text-gray-900'>Contact</h3>
+            <h3 className='mb-3 font-bold text-gray-900'>{t.layout.contactTitle}</h3>
             <ul className='space-y-2 text-sm'>
               <li>
                 <a href='mailto:docspaceafrica@gmail.com' className='flex items-center gap-2 text-gray-600 hover:text-[#1DBF73] transition-colors'>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Trash2, CheckCircle, Info } from 'lucide-react';
+import { useLang } from '../../context/LangContext';
 
 const ICONS = {
   danger: { Icon: Trash2, bg: 'bg-red-100', color: 'text-red-500', btn: 'bg-red-500 hover:bg-red-600' },
@@ -11,9 +12,12 @@ const ICONS = {
 
 // Popup de confirmation réutilisable (remplace window.confirm)
 const ConfirmDialog = ({
-  open, title, message, confirmLabel = 'Confirmer', cancelLabel = 'Annuler',
+  open, title, message, confirmLabel, cancelLabel,
   tone = 'warning', loading = false, onConfirm, onCancel,
 }) => {
+  const { t } = useLang();
+  const okLabel = confirmLabel || t.common.confirm;
+  const koLabel = cancelLabel || t.common.cancel;
   if (!open) return null;
   const { Icon, bg, color, btn } = ICONS[tone] || ICONS.warning;
 
@@ -36,11 +40,11 @@ const ConfirmDialog = ({
           {message && <p className='text-sm text-gray-500 text-center mb-5'>{message}</p>}
           <div className='flex gap-3'>
             <button onClick={onCancel} disabled={loading} className='flex-1 py-3 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all text-sm disabled:opacity-50'>
-              {cancelLabel}
+              {koLabel}
             </button>
             <button onClick={onConfirm} disabled={loading} className={`flex-1 py-3 ${btn} text-white font-semibold rounded-xl text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2`}>
               {loading && <span className='w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin' />}
-              {confirmLabel}
+              {okLabel}
             </button>
           </div>
         </motion.div>

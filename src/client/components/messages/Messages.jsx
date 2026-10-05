@@ -8,6 +8,7 @@ import {
 import { getConversations, getConversation, sendMessage, getImageUrl, parseList, safeParse } from '../../../services/api';
 import { SkeletonConversations, SkeletonChat } from '../common/Skeleton';
 import echo from '../../../echo';
+import { useLang } from '../../context/LangContext';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -59,11 +60,12 @@ const Avatar = ({ name, avatar, size = 'md', online = false }) => {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 const Messages = () => {
+  const { t } = useLang();
   const navigate       = useNavigate();
   const [searchParams] = useSearchParams();
   const initUserId     = searchParams.get('userId') || null;
   const initAnnonceId  = searchParams.get('annonceId') || null;
-  const initVendeurNom = searchParams.get('vendeurNom') || 'Vendeur';
+  const initVendeurNom = searchParams.get('vendeurNom') || t.messages.seller;
 
   const currentUser = safeParse('user', {});
 
@@ -252,7 +254,7 @@ const Messages = () => {
             <ArrowLeft className='w-5 h-5 text-gray-600' />
           </button>
           <div className='flex items-center gap-2 flex-1 min-w-0'>
-            <h1 className='text-lg font-bold text-gray-900'>Messages</h1>
+            <h1 className='text-lg font-bold text-gray-900'>{t.messages.title}</h1>
             {totalUnread > 0 && (
               <span className='px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white rounded-full shrink-0'>
                 {totalUnread}
@@ -268,7 +270,7 @@ const Messages = () => {
               type='text'
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder='Rechercher...'
+              placeholder={t.messages.search}
               style={{ fontSize: '16px' }}
               className='w-full pl-9 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
             />
@@ -292,7 +294,7 @@ const Messages = () => {
                 {search ? 'Aucun résultat' : 'Aucune conversation'}
               </p>
               <p className='text-xs text-gray-400 mt-1'>
-                {search ? 'Essayez un autre terme' : 'Contactez un vendeur depuis une annonce'}
+                {search ? t.messages.tryOther : t.messages.contactSeller}
               </p>
             </div>
           ) : (
@@ -349,9 +351,9 @@ const Messages = () => {
             >
               <MessageCircle className='w-10 h-10 text-[#1DBF73]' />
             </motion.div>
-            <h2 className='text-xl font-bold text-gray-800 mb-2'>Vos messages</h2>
+            <h2 className='text-xl font-bold text-gray-800 mb-2'>{t.messages.empty}</h2>
             <p className='text-sm text-gray-500 max-w-xs'>
-              Sélectionnez une conversation ou contactez un vendeur depuis une annonce.
+              {t.messages.emptyHint}
             </p>
           </div>
         ) : (
@@ -375,7 +377,7 @@ const Messages = () => {
                 <p className='font-bold text-gray-900 truncate'>{selectedConv.name}</p>
                 <div className='flex items-center gap-1.5'>
                   <Circle className='w-2 h-2 fill-green-400 text-green-400' />
-                  <span className='text-xs text-green-500 font-medium'>En ligne</span>
+                  <span className='text-xs text-green-500 font-medium'>{t.messages.online}</span>
                 </div>
               </div>
             </div>
@@ -393,8 +395,8 @@ const Messages = () => {
                   <div className='w-12 h-12 bg-white rounded-2xl shadow flex items-center justify-center mb-3'>
                     <MessageCircle className='w-6 h-6 text-gray-300' />
                   </div>
-                  <p className='text-sm text-gray-500 font-medium'>Démarrez la conversation</p>
-                  <p className='text-xs text-gray-400 mt-1'>Envoyez votre premier message à {selectedConv.name}</p>
+                  <p className='text-sm text-gray-500 font-medium'>{t.messages.start}</p>
+                  <p className='text-xs text-gray-400 mt-1'>{t.messages.firstTo} {selectedConv.name}</p>
                 </div>
               ) : (
                 <div className='space-y-0.5'>
@@ -422,7 +424,7 @@ const Messages = () => {
                             <div className='flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 rounded-xl shadow-sm max-w-xs'>
                               <Package className='w-4 h-4 text-[#1DBF73] shrink-0' />
                               <div className='min-w-0'>
-                                <p className='text-xs text-gray-400'>À propos de</p>
+                                <p className='text-xs text-gray-400'>{t.messages.about}</p>
                                 <p className='text-sm font-semibold text-gray-700 truncate'>{msg.annonce?.titre}</p>
                               </div>
                             </div>
@@ -493,7 +495,7 @@ const Messages = () => {
                     value={input}
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={`Message à ${selectedConv.name}...`}
+                    placeholder={`${t.messages.messageTo} ${selectedConv.name}...`}
                     rows={1}
                     style={{ resize: 'none', fontSize: '16px' }} // ✅ pas de zoom iOS
                     className='w-full px-4 py-3 bg-gray-50 border-2 border-gray-200 rounded-2xl focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all max-h-32 overflow-y-auto'

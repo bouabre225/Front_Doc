@@ -8,32 +8,19 @@ import {
 import Header from '../components/layout/Header';
 import Footer from '../components/layout/Footer';
 import { submitKyc } from '../../services/api';
+import { useLang } from '../context/LangContext';
 
 const TYPE_DOCS = [
-  {
-    key:   'cni',
-    label: "Carte Nationale d'Identité",
-    desc:  'CNI recto-verso en cours de validité',
-    icon:  '🪪',
-  },
-  {
-    key:   'passeport',
-    label: 'Passeport',
-    desc:  'Page principale du passeport',
-    icon:  '📕',
-  },
-  {
-    key:   'permis',
-    label: 'Permis de conduire',
-    desc:  'Permis recto-verso en cours de validité',
-    icon:  '🚗',
-  },
+  { key: 'cni', tk: 'docCni', dk: 'docCniD', icon: '🪪' },
+  { key: 'passeport', tk: 'docPassport', dk: 'docPassportD', icon: '📕' },
+  { key: 'permis', tk: 'docLicense', dk: 'docLicenseD', icon: '🚗' },
 ];
 
 const ACCEPTED = '.jpg,.jpeg,.png,.pdf,.docx';
 const MAX_MB   = 5;
 
 export default function SellerKyc() {
+  const { t } = useLang();
   const navigate    = useNavigate();
   const inputRef    = useRef(null);
 
@@ -68,8 +55,8 @@ export default function SellerKyc() {
   };
 
   const handleSubmit = async () => {
-    if (!typeDoc) { setError('Sélectionnez un type de document.'); return; }
-    if (!file)    { setError('Ajoutez un fichier.'); return; }
+    if (!typeDoc) { setError(t.vendeur.kycNeedType); return; }
+    if (!file)    { setError(t.vendeur.kycNeedFile); return; }
     setError('');
     setLoading(true);
     try {
@@ -96,19 +83,19 @@ export default function SellerKyc() {
             <div className='w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5'>
               <CheckCircle className='w-10 h-10 text-green-500' />
             </div>
-            <h2 className='text-2xl font-bold text-gray-900 mb-2'>Document soumis !</h2>
+            <h2 className='text-2xl font-bold text-gray-900 mb-2'>{t.vendeur.kycSubmitted}</h2>
             <p className='text-gray-500 mb-6'>
-              Votre document KYC est en cours d'examen. Vous serez notifié dès la validation de votre compte.
+              {t.vendeur.kycReview}. Vous serez notifié dès la validation de votre compte.
             </p>
             <div className='p-4 bg-yellow-50 border border-yellow-200 rounded-xl mb-6 text-left'>
-              <p className='text-sm font-semibold text-yellow-700 mb-1'>⏳ Délai estimé</p>
-              <p className='text-sm text-yellow-600'>La vérification prend généralement 24 à 48h ouvrées.</p>
+              <p className='text-sm font-semibold text-yellow-700 mb-1'>⏳ {t.vendeur.kycEta}</p>
+              <p className='text-sm text-yellow-600'>{t.vendeur.kycEtaHint}</p>
             </div>
             <button
               onClick={() => navigate('/')}
               className='w-full py-3 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl hover:shadow-lg transition-all'
             >
-              Retour à l'accueil
+              {t.vendeur.kycBackHome}
             </button>
           </motion.div>
         </div>
@@ -129,7 +116,7 @@ export default function SellerKyc() {
           className='flex items-center gap-2 text-sm text-gray-500 hover:text-[#1DBF73] transition-colors mb-6'
         >
           <ArrowLeft className='w-4 h-4' />
-          Retour
+          {t.vendeur.back}
         </button>
 
         {/* Header */}
@@ -138,9 +125,9 @@ export default function SellerKyc() {
             <Shield className='w-7 h-7 text-white' />
           </div>
           <div>
-            <h1 className='text-2xl font-bold text-gray-900'>Vérification KYC</h1>
+            <h1 className='text-2xl font-bold text-gray-900'>{t.vendeur.kycPageTitle}</h1>
             <p className='text-sm text-gray-500 mt-0.5'>
-              Soumettez un document d'identité pour vérifier votre compte vendeur
+              {t.vendeur.kycPageHint}
             </p>
           </div>
         </div>
@@ -150,8 +137,8 @@ export default function SellerKyc() {
           <div className='flex items-start gap-3'>
             <AlertCircle className='w-5 h-5 text-blue-500 shrink-0 mt-0.5' />
             <div className='text-sm text-blue-700'>
-              <p className='font-semibold mb-1'>Pourquoi vérifier mon identité ?</p>
-              <p className='opacity-80'>La vérification KYC protège les acheteurs et renforce la confiance sur la plateforme. Un compte vérifié bénéficie d'un badge de confiance.</p>
+              <p className='font-semibold mb-1'>{t.vendeur.kycWhy}</p>
+              <p className='opacity-80'>{t.vendeur.kycWhyHint} DocSpace.</p>
             </div>
           </div>
         </div>
@@ -176,24 +163,24 @@ export default function SellerKyc() {
           {/* Étape 1 : Type de document */}
           <div>
             <p className='text-sm font-bold text-gray-700 mb-3'>
-              1. Choisissez le type de document
+              {t.vendeur.kycStep1}
             </p>
             <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
-              {TYPE_DOCS.map(t => (
+              {TYPE_DOCS.map(d => (
                 <button
-                  key={t.key}
-                  onClick={() => setTypeDoc(t.key)}
+                  key={d.key}
+                  onClick={() => setTypeDoc(d.key)}
                   className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 text-center transition-all ${
-                    typeDoc === t.key
+                    typeDoc === d.key
                       ? 'border-[#1DBF73] bg-[#1DBF73]/5'
                       : 'border-gray-200 hover:border-[#1DBF73]/40 hover:bg-gray-50'
                   }`}
                 >
-                  <span className='text-2xl'>{t.icon}</span>
-                  <span className={`text-sm font-semibold ${typeDoc === t.key ? 'text-[#1DBF73]' : 'text-gray-700'}`}>
-                    {t.label}
+                  <span className='text-2xl'>{d.icon}</span>
+                  <span className={`text-sm font-semibold ${typeDoc === d.key ? 'text-[#1DBF73]' : 'text-gray-700'}`}>
+                    {t.vendeur[d.tk]}
                   </span>
-                  <span className='text-xs text-gray-400'>{t.desc}</span>
+                  <span className='text-xs text-gray-400'>{t.vendeur[d.dk]}</span>
                 </button>
               ))}
             </div>
@@ -202,7 +189,7 @@ export default function SellerKyc() {
           {/* Étape 2 : Upload */}
           <div>
             <p className='text-sm font-bold text-gray-700 mb-3'>
-              2. Importez votre document
+              {t.vendeur.kycStep2}
             </p>
 
             {/* Zone de drop */}
@@ -232,7 +219,7 @@ export default function SellerKyc() {
                   {preview ? (
                     <img
                       src={preview}
-                      alt='Aperçu'
+                      alt={t.vendeur.kycPreview}
                       className='w-24 h-24 object-cover rounded-xl border border-gray-200'
                     />
                   ) : (
@@ -251,7 +238,7 @@ export default function SellerKyc() {
                     className='flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-500 text-xs font-semibold rounded-lg hover:bg-red-100 transition-colors'
                   >
                     <X className='w-3.5 h-3.5' />
-                    Supprimer
+                    {t.vendeur.kycRemove}
                   </button>
                 </div>
               ) : (
@@ -261,7 +248,7 @@ export default function SellerKyc() {
                   </div>
                   <div>
                     <p className='font-semibold text-gray-700'>
-                      Glissez-déposez ou cliquez pour importer
+                      {t.vendeur.kycDrag}
                     </p>
                     <p className='text-xs text-gray-400 mt-1'>
                       JPG, PNG, PDF, DOCX · max {MAX_MB} Mo
@@ -274,7 +261,7 @@ export default function SellerKyc() {
 
           {/* Conseils */}
           <div className='p-4 bg-gray-50 rounded-xl'>
-            <p className='text-xs font-bold text-gray-500 uppercase tracking-wider mb-2'>Conseils</p>
+            <p className='text-xs font-bold text-gray-500 uppercase tracking-wider mb-2'>{t.vendeur.kycTips}</p>
             <ul className='space-y-1.5 text-xs text-gray-500'>
               {[
                 'Document en cours de validité',
@@ -299,12 +286,12 @@ export default function SellerKyc() {
             {loading ? (
               <span className='flex items-center justify-center gap-2'>
                 <Loader className='w-4 h-4 animate-spin' />
-                Envoi en cours...
+                {t.vendeur.kycSending}
               </span>
             ) : (
               <span className='flex items-center justify-center gap-2'>
                 <Shield className='w-4 h-4' />
-                Soumettre mon document
+                {t.vendeur.kycSubmitBtn}
               </span>
             )}
           </button>

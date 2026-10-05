@@ -2,10 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, Trash2, RefreshCw } from 'lucide-react';
 import { getFavoris, toggleFavori, getImageUrl, parseList } from '../../../services/api';
+import { useLang } from '../../context/LangContext';
 
 const fmt = (n) => Number(n || 0).toLocaleString('fr-FR');
 
 export default function MesFavoris() {
+  const { t } = useLang();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -39,7 +41,7 @@ export default function MesFavoris() {
     <div className='space-y-4'>
       <div className='flex items-center justify-between'>
         <h3 className='text-lg font-bold text-gray-900 flex items-center gap-2'>
-          <Heart className='w-5 h-5 fill-red-500 text-red-500' /> Mes favoris ({items.length})
+          <Heart className='w-5 h-5 fill-red-500 text-red-500' /> {t.profil.tabs.favoris} ({items.length})
         </h3>
         <button onClick={fetchFavoris} className='p-2 text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-xl'>
           <RefreshCw className='w-4 h-4' />
@@ -48,9 +50,9 @@ export default function MesFavoris() {
       {items.length === 0 ? (
         <div className='py-16 text-center bg-white border border-gray-100 rounded-2xl'>
           <Heart className='w-12 h-12 mx-auto mb-3 text-gray-200' />
-          <p className='font-semibold text-gray-600'>Aucun favori pour le moment</p>
-          <p className='text-sm text-gray-400 mt-1'>Clique le cœur sur une annonce pour la retrouver ici.</p>
-          <Link to='/explore' className='inline-block mt-4 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-xl'>Explorer</Link>
+          <p className='font-semibold text-gray-600'>{t.favoris.empty}</p>
+          <p className='text-sm text-gray-400 mt-1'>{t.favoris.emptyHint}</p>
+          <Link to='/explore' className='inline-block mt-4 px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-xl'>{t.cart.explore}</Link>
         </div>
       ) : (
         <div className='grid grid-cols-1 sm:grid-cols-2 gap-4'>

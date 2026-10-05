@@ -10,8 +10,10 @@ import AdminAnnonces from './components/AdminAnnonces';
 import AdminCommandes from './components/AdminCommandes';
 import AdminStats from './components/AdminStats';
 import { getMe } from '../services/api';
+import { useLang } from '../client/context/LangContext';
 
 function AdminApp() {
+  const { t } = useLang();
   const location = useLocation();
   const [checking, setChecking] = React.useState(true);
   const [isAdmin, setIsAdmin] = React.useState(false);
@@ -38,7 +40,7 @@ function AdminApp() {
   }, [location.pathname, checkAdmin]);
 
   const ProtectedRoute = ({ children }) => {
-    if (checking) return <div className='p-10 text-center'>Vérification...</div>;
+    if (checking) return <div className='p-10 text-center'>{t.admin.checking}</div>;
     return isAdmin
       ? <AdminLayout>{children}</AdminLayout>
       : <Navigate to="/admin/login" replace />;

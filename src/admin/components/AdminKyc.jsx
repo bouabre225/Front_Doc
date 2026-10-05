@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLang } from '../../client/context/LangContext';
 import {
   UserCheck, Search, RefreshCw, CheckCircle, XCircle,
   User, Mail, Phone, MapPin, Calendar, FileText,
@@ -15,6 +16,7 @@ const formatDate = (d) =>
 // ─── Modal de décision ────────────────────────────────────────────────────────
 
 const DecisionModal = ({ kyc, onConfirm, onClose, loading }) => {
+  const { t } = useLang();
   const [decision,     setDecision]     = useState('');
   const [commentaire,  setCommentaire]  = useState('');
 
@@ -41,7 +43,7 @@ const DecisionModal = ({ kyc, onConfirm, onClose, loading }) => {
             <Shield className='w-6 h-6 text-white' />
           </div>
           <div>
-            <h3 className='text-lg font-bold text-gray-900'>Décision KYC</h3>
+            <h3 className='text-lg font-bold text-gray-900'>{t.admin.kycDecision}</h3>
             <p className='text-sm text-gray-500'>{kyc.user?.nom}</p>
           </div>
         </div>
@@ -57,7 +59,7 @@ const DecisionModal = ({ kyc, onConfirm, onClose, loading }) => {
             }`}
           >
             <CheckCircle className='w-4 h-4' />
-            Valider
+            {t.admin.kycValidate}
           </button>
           <button
             onClick={() => setDecision('refuse')}
@@ -68,19 +70,19 @@ const DecisionModal = ({ kyc, onConfirm, onClose, loading }) => {
             }`}
           >
             <XCircle className='w-4 h-4' />
-            Refuser
+            {t.admin.kycRefuse}
           </button>
         </div>
 
         {/* Commentaire */}
         <div className='mb-5'>
           <label className='block text-sm font-semibold text-gray-700 mb-1.5'>
-            Commentaire {decision === 'refuse' && <span className='text-red-400'>*</span>}
+            {t.admin.kycComment} {decision === 'refuse' && <span className='text-red-400'>*</span>}
           </label>
           <textarea
             value={commentaire}
             onChange={e => setCommentaire(e.target.value)}
-            placeholder={decision === 'refuse' ? 'Raison du refus...' : 'Commentaire optionnel...'}
+            placeholder={decision === 'refuse' ? t.admin.kycRefuseReason : t.admin.kycCommentOpt}
             rows={3}
             className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all resize-none'
           />
@@ -91,7 +93,7 @@ const DecisionModal = ({ kyc, onConfirm, onClose, loading }) => {
             onClick={onClose}
             className='flex-1 py-3 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all text-sm'
           >
-            Annuler
+            {t.common.cancel}
           </button>
           <button
             onClick={handleConfirm}
@@ -105,10 +107,10 @@ const DecisionModal = ({ kyc, onConfirm, onClose, loading }) => {
             {loading ? (
               <span className='flex items-center justify-center gap-2'>
                 <span className='w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin' />
-                En cours...
+                {t.admin.inProgress}
               </span>
             ) : (
-              decision === 'valide' ? 'Valider le KYC' : decision === 'refuse' ? 'Refuser le KYC' : 'Confirmer'
+              decision === 'valide' ? t.admin.kycValidateKyc : decision === 'refuse' ? t.admin.kycRefuseKyc : t.common.confirm
             )}
           </button>
         </div>
@@ -118,6 +120,7 @@ const DecisionModal = ({ kyc, onConfirm, onClose, loading }) => {
 };
 
 const DocumentModal = ({ kyc, onClose }) => {
+  const { t } = useLang();
   const [src, setSrc] = useState(null);
   const [mime, setMime] = useState('');
   const [loading, setLoading] = useState(true);
@@ -166,7 +169,7 @@ const DocumentModal = ({ kyc, onClose }) => {
               <FileText className='w-4 h-4 text-white' />
             </div>
             <div>
-              <p className='font-bold text-gray-900 text-sm'>Document KYC</p>
+              <p className='font-bold text-gray-900 text-sm'>{t.admin.docTitle}</p>
               <p className='text-xs text-gray-500'>{kyc.user?.nom}</p>
             </div>
           </div>
@@ -183,13 +186,13 @@ const DocumentModal = ({ kyc, onClose }) => {
           {loading && (
             <div className='flex flex-col items-center gap-3'>
               <div className='w-8 h-8 border-2 border-[#1DBF73] rounded-full border-t-transparent animate-spin' />
-              <p className='text-sm text-gray-400'>Chargement du document...</p>
+              <p className='text-sm text-gray-400'>{t.admin.docLoading}</p>
             </div>
           )}
           {error && (
             <div className='flex flex-col items-center gap-2'>
               <AlertCircle className='w-8 h-8 text-red-400' />
-              <p className='text-sm text-red-500'>Impossible de charger le document</p>
+              <p className='text-sm text-red-500'>{t.admin.docError}</p>
             </div>
           )}
           {src && !loading && (
@@ -202,7 +205,7 @@ const DocumentModal = ({ kyc, onClose }) => {
                 className='max-w-full max-h-[60vh] rounded-xl object-contain shadow-sm'
               />
             ) : (
-              <a href={src} download={`kyc-${kyc.id}`} className='px-4 py-2 text-sm font-semibold text-white bg-[#1DBF73] rounded-xl'>Télécharger le document</a>
+              <a href={src} download={`kyc-${kyc.id}`} className='px-4 py-2 text-sm font-semibold text-white bg-[#1DBF73] rounded-xl'>{t.admin.docDownload}</a>
             )
           )}
         </div>
@@ -314,20 +317,20 @@ const KycCard = ({ kyc, onDecide }) => {
               {/* Document */}
               {kyc.fichier ? (
                 <div className='mb-4 p-3 bg-blue-50 border border-blue-200 rounded-xl'>
-                  <p className='text-xs font-semibold text-blue-700 mb-2'>Document soumis</p>
+                  <p className='text-xs font-semibold text-blue-700 mb-2'>{t.admin.docSubmitted}</p>
                   <button
                     onClick={() => setDocModal(true)}
                     className='inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors'
                   >
                     <FileText className='w-4 h-4' />
-                    Voir le document
+                    {t.admin.seeDoc}
                   </button>
                 </div>
               ) : (
                 <div className='mb-4 p-3 bg-gray-50 border border-gray-200 rounded-xl'>
                   <p className='text-xs text-gray-400 flex items-center gap-1'>
                     <AlertCircle className='w-3.5 h-3.5' />
-                    Aucun document soumis
+                    {t.admin.docNone}
                   </p>
                 </div>
               )}
@@ -339,14 +342,14 @@ const KycCard = ({ kyc, onDecide }) => {
                   className='flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl text-sm hover:shadow-lg transition-all'
                 >
                   <CheckCircle className='w-4 h-4' />
-                  Valider
+                  {t.admin.kycValidate}
                 </button>
                 <button
                   onClick={() => onDecide(kyc, 'refuse')}
                   className='flex-1 flex items-center justify-center gap-2 py-2.5 border-2 border-red-200 text-red-500 font-semibold rounded-xl text-sm hover:bg-red-50 transition-all'
                 >
                   <XCircle className='w-4 h-4' />
-                  Refuser
+                  {t.admin.kycRefuse}
                 </button>
               </div>
             </div>
@@ -369,6 +372,7 @@ const KycCard = ({ kyc, onDecide }) => {
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export default function AdminKyc() {
+  const { t } = useLang();
   const [kycList,    setKycList]    = useState([]);
   const [loading,    setLoading]    = useState(true);
   const [search,     setSearch]     = useState('');
@@ -383,7 +387,7 @@ export default function AdminKyc() {
       const res = await getKycPending();
       setKycList(res.kyc_pending ?? res.data ?? res ?? []);
     } catch {
-      setError('Erreur lors du chargement des KYC.');
+      setError(t.admin.loadError);
     } finally {
       setLoading(false);
     }
@@ -424,9 +428,9 @@ export default function AdminKyc() {
         {/* Header */}
         <div className='flex items-center justify-between mb-6'>
           <div>
-            <h1 className='text-2xl font-bold text-gray-900'>Vérification KYC</h1>
+            <h1 className='text-2xl font-bold text-gray-900'>{t.admin.kyc}</h1>
             <p className='text-sm text-gray-500 mt-0.5'>
-              {kycList.length} vendeur{kycList.length > 1 ? 's' : ''} en attente de vérification
+              {kycList.length} {t.admin.kycPending}
             </p>
           </div>
           <button
@@ -472,7 +476,7 @@ export default function AdminKyc() {
             type='text'
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder='Rechercher par nom ou email...'
+            placeholder={t.admin.searchKyc}
             className='w-full pl-11 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
           />
         </div>

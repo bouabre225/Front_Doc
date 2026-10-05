@@ -13,48 +13,50 @@ import {
 } from 'lucide-react';
 
 import { clearSession } from '../../services/api';
+import { useLang } from '../../client/context/LangContext';
 
 export default function AdminSidebar({ kycCount = 0, litigeCount = 0 }) {
+  const { t } = useLang();
   const location = useLocation();
   const navigate = useNavigate();
 
   const menuItems = [
     {
-      title: 'Tableau de bord',
+      title: t.admin.dashboard,
       icon:  LayoutDashboard,
       path:  '/admin/dashboard',
     },
     {
-      title: 'Utilisateurs',
+      title: t.admin.users,
       icon:  Users,
       path:  '/admin/users',
     },
     {
-      title: 'Vérification KYC',
+      title: t.admin.kyc,
       icon:  UserCheck,
       path:  '/admin/kyc',
       badge: kycCount,
       badgeColor: '#1DBF73',
     },
     {
-      title: 'Annonces',
+      title: t.admin.listings,
       icon:  Stethoscope,
       path:  '/admin/annonces',
     },
     {
-      title: 'Commandes',
+      title: t.admin.orders,
       icon:  ShoppingCart,
       path:  '/admin/commandes',
     },
     {
-      title: 'Litiges',
+      title: t.admin.disputes,
       icon:  AlertCircle,
       path:  '/admin/litiges',
       badge: litigeCount,
       badgeColor: '#ef4444',
     },
     {
-      title: 'Statistiques',
+      title: t.admin.stats,
       icon:  BarChart3,
       path:  '/admin/stats',
     },
@@ -93,7 +95,7 @@ export default function AdminSidebar({ kycCount = 0, litigeCount = 0 }) {
           </h1>
           <div className='flex items-center gap-1'>
             <Shield className='w-3 h-3 text-gray-400' />
-            <p className='text-xs font-medium text-gray-400'>Admin Panel</p>
+            <p className='text-xs font-medium text-gray-400'>{t.admin.panel}</p>
           </div>
         </div>
       </Link>

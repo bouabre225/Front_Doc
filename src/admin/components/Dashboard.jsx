@@ -9,6 +9,7 @@ import {
 import {
   getAdminLitiges, getKycPending, getAdminCommandes, getAnnonces
 } from '../../services/api';
+import { useLang } from '../../client/context/LangContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -67,6 +68,7 @@ const StatCard = ({ icon: Icon, title, value, color, bgColor, sub, loading }) =>
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 export default function AdminDashboard() {
+  const { t } = useLang();
   const navigate = useNavigate();
 
   const [loading,   setLoading]   = useState(true);
@@ -156,9 +158,9 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className='flex items-center justify-between mb-8'>
           <div>
-            <h1 className='text-2xl font-bold text-gray-900'>Tableau de bord</h1>
+            <h1 className='text-2xl font-bold text-gray-900'>{t.admin.dashboard}</h1>
             <p className='text-sm text-gray-500 mt-0.5'>
-              Vue d'ensemble de la plateforme DocSpace
+              {t.admin.overview}
             </p>
           </div>
           <button
@@ -284,40 +286,40 @@ export default function AdminDashboard() {
           <div className='md:col-span-1 p-6 bg-gradient-to-br from-[#1DBF73] to-[#09B1BA] rounded-2xl shadow-lg text-white'>
             <div className='flex items-center gap-2 mb-3'>
               <TrendingUp className='w-5 h-5 opacity-80' />
-              <p className='text-sm font-semibold opacity-80'>Volume des transactions</p>
+              <p className='text-sm font-semibold opacity-80'>{t.admin.txnVolume}</p>
             </div>
             {loading ? (
               <div className='h-9 w-32 bg-white/20 rounded animate-pulse' />
             ) : (
               <p className='text-3xl font-black'>{formatPrice(montantTotal)}</p>
             )}
-            <p className='text-xs opacity-60 mt-1'>Commandes payées + livrées</p>
+            <p className='text-xs opacity-60 mt-1'>{t.admin.paidAndDelivered}</p>
           </div>
 
           <div className='p-6 bg-white border border-gray-100 rounded-2xl shadow-sm'>
             <div className='flex items-center gap-2 mb-3'>
               <CheckCircle className='w-5 h-5 text-green-500' />
-              <p className='text-sm font-semibold text-gray-600'>Litiges résolus</p>
+              <p className='text-sm font-semibold text-gray-600'>{t.admin.disputesResolved}</p>
             </div>
             {loading ? (
               <div className='h-9 w-16 bg-gray-200 rounded animate-pulse' />
             ) : (
               <p className='text-3xl font-bold text-gray-800'>{litigesResolus}</p>
             )}
-            <p className='text-xs text-gray-400 mt-1'>Sur {litiges.length} au total</p>
+            <p className='text-xs text-gray-400 mt-1'>{t.admin.ofTotal} {litiges.length}</p>
           </div>
 
           <div className='p-6 bg-white border border-gray-100 rounded-2xl shadow-sm'>
             <div className='flex items-center gap-2 mb-3'>
               <Users className='w-5 h-5 text-[#09B1BA]' />
-              <p className='text-sm font-semibold text-gray-600'>KYC traités</p>
+              <p className='text-sm font-semibold text-gray-600'>{t.admin.kycProcessed}</p>
             </div>
             {loading ? (
               <div className='h-9 w-16 bg-gray-200 rounded animate-pulse' />
             ) : (
               <p className='text-3xl font-bold text-gray-800'>{kycPending.length}</p>
             )}
-            <p className='text-xs text-gray-400 mt-1'>En attente de décision</p>
+            <p className='text-xs text-gray-400 mt-1'>{t.admin.pendingDecision}</p>
           </div>
         </div>
 
@@ -327,12 +329,12 @@ export default function AdminDashboard() {
           {/* Dernières commandes */}
           <div className='bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden'>
             <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100'>
-              <h3 className='text-base font-bold text-gray-800'>Dernières commandes</h3>
+              <h3 className='text-base font-bold text-gray-800'>{t.admin.latestOrders}</h3>
               <button
                 onClick={() => navigate('/admin/commandes')}
                 className='text-xs font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors'
               >
-                Voir tout →
+                {t.admin.seeAll}
               </button>
             </div>
             <div className='divide-y divide-gray-50'>
@@ -344,7 +346,7 @@ export default function AdminDashboard() {
                   </div>
                 ))
               ) : dernieresCommandes.length === 0 ? (
-                <div className='px-6 py-8 text-center text-sm text-gray-400'>Aucune commande</div>
+                <div className='px-6 py-8 text-center text-sm text-gray-400'>{t.admin.noOrders}</div>
               ) : (
                 dernieresCommandes.map(c => {
                   const cfg = COMMANDE_STATUT[c.statut] || COMMANDE_STATUT.en_attente;
@@ -374,12 +376,12 @@ export default function AdminDashboard() {
           {/* Derniers litiges */}
           <div className='bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden'>
             <div className='flex items-center justify-between px-6 py-4 border-b border-gray-100'>
-              <h3 className='text-base font-bold text-gray-800'>Derniers litiges</h3>
+              <h3 className='text-base font-bold text-gray-800'>{t.admin.latestDisputes}</h3>
               <button
                 onClick={() => navigate('/admin/litiges')}
                 className='text-xs font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors'
               >
-                Voir tout →
+                {t.admin.seeAll}
               </button>
             </div>
             <div className='divide-y divide-gray-50'>
@@ -391,7 +393,7 @@ export default function AdminDashboard() {
                   </div>
                 ))
               ) : derniersLitiges.length === 0 ? (
-                <div className='px-6 py-8 text-center text-sm text-gray-400'>Aucun litige</div>
+                <div className='px-6 py-8 text-center text-sm text-gray-400'>{t.admin.noDisputes}</div>
               ) : (
                 derniersLitiges.map(l => {
                   const cfg = LITIGE_STATUT[l.statut] || LITIGE_STATUT.en_attente;

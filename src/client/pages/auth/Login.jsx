@@ -58,7 +58,7 @@ const Login = () => {
       >
         <Link to='/' className='inline-flex items-center gap-2 mb-6 text-gray-600 hover:text-[#1DBF73] transition-colors'>
           <ArrowLeft className='w-5 h-5' />
-          <span className='font-medium'>Retour à l'accueil</span>
+          <span className='font-medium'>{t.common.backHome}</span>
         </Link>
 
         <div className='mb-8 text-center'>
@@ -148,7 +148,7 @@ const Login = () => {
 
           <div className='flex items-center gap-4 my-6'>
             <div className='flex-1 h-px bg-gray-200'></div>
-            <span className='text-sm text-gray-500'>OU</span>
+            <span className='text-sm text-gray-500'>{t.common.or}</span>
             <div className='flex-1 h-px bg-gray-200'></div>
           </div>
 

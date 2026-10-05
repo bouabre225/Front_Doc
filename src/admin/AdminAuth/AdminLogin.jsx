@@ -3,10 +3,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Lock, Mail, Shield, Stethoscope, KeyRound, ArrowLeft } from 'lucide-react';
 import { loginAdmin, login2fa } from '../../services/api';
+import { useLang } from '../../client/context/LangContext';
 
 // ─── Étape 1 : Formulaire email/password ─────────────────────────────────────
 
 const StepLogin = ({ onSuccess, loading, setLoading, error, setError }) => {
+  const { t } = useLang();
   const [email,        setEmail]        = useState('');
   const [password,     setPassword]     = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -21,10 +23,10 @@ const StepLogin = ({ onSuccess, loading, setLoading, error, setError }) => {
       if (res.requires_2fa && res.challenge_id) {
         onSuccess(String(res.challenge_id)); // ← forcer string ici aussi
       } else {
-        setError('Réponse inattendue du serveur.');
+        setError(t.admin.loadError);
       }
     } catch (err) {
-      setError(err.message || 'Email ou mot de passe incorrect.');
+      setError(err.message || t.auth.badCredentials);
     } finally {
       setLoading(false);
     }
@@ -46,7 +48,7 @@ const StepLogin = ({ onSuccess, loading, setLoading, error, setError }) => {
       <form onSubmit={handleSubmit} className='space-y-4'>
         <div>
           <label className='block mb-2 text-sm font-semibold text-gray-700'>
-            Adresse email
+            {t.auth.email}
           </label>
           <div className='relative'>
             <Mail className='absolute w-5 h-5 text-[#1DBF73] transform -translate-y-1/2 left-3 top-1/2' />
@@ -54,7 +56,7 @@ const StepLogin = ({ onSuccess, loading, setLoading, error, setError }) => {
               type='email'
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder='admin@docspace.com'
+              placeholder={t.auth.emailPlaceholder}
               required
               disabled={loading}
               className='w-full py-3 pr-4 text-sm text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-xl pl-11 focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all disabled:opacity-50'
@@ -64,7 +66,7 @@ const StepLogin = ({ onSuccess, loading, setLoading, error, setError }) => {
 
         <div>
           <label className='block mb-2 text-sm font-semibold text-gray-700'>
-            Mot de passe
+            {t.auth.password}
           </label>
           <div className='relative'>
             <Lock className='absolute w-5 h-5 text-[#1DBF73] transform -translate-y-1/2 left-3 top-1/2' />
@@ -96,12 +98,12 @@ const StepLogin = ({ onSuccess, loading, setLoading, error, setError }) => {
           {loading ? (
             <span className='flex items-center justify-center gap-2'>
               <span className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin' />
-              Connexion en cours...
+              {t.auth.loggingIn}
             </span>
           ) : (
             <span className='flex items-center justify-center gap-2'>
               <Shield className='w-5 h-5' />
-              Se connecter
+              {t.auth.loginCta}
             </span>
           )}
         </button>
@@ -113,6 +115,7 @@ const StepLogin = ({ onSuccess, loading, setLoading, error, setError }) => {
 // ─── Étape 2 : Code 2FA ───────────────────────────────────────────────────────
 
 const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) => {
+  const { t } = useLang();
   const navigate   = useNavigate();
   const [codes, setCodes] = useState(['', '', '', '', '', '']);
   const inputsRef  = useRef([]);
@@ -171,14 +174,14 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
       } else {
         //console.log('Condition non remplie:', res); // ← et ça
         verifyingRef.current = false;
-        setError('Code invalide. Vérifiez votre email et réessayez.');
+        setError(t.auth.twofaInvalid);
         setCodes(['', '', '', '', '', '']);
         inputsRef.current[0]?.focus();
       }
     } catch (err) {
       //console.log('ERREUR 2fa:', err); // ← et ça
       verifyingRef.current = false;
-      setError(err.message || 'Code incorrect ou expiré.');
+      setError(err.message || t.auth.twofaInvalid);
       setCodes(['', '', '', '', '', '']);
       inputsRef.current[0]?.focus();
     } finally {
@@ -204,7 +207,7 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
           <KeyRound className='w-7 h-7 text-[#1DBF73]' />
         </div>
         <p className='text-sm text-gray-600'>
-          Entrez le code à 6 chiffres envoyé par email.
+          {t.auth.twofaSubtitle}
         </p>
       </div>
 
@@ -247,12 +250,12 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
           {loading ? (
             <span className='flex items-center justify-center gap-2'>
               <span className='w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin' />
-              Vérification...
+              {t.auth.twofaVerifying}
             </span>
           ) : (
             <span className='flex items-center justify-center gap-2'>
               <Shield className='w-5 h-5' />
-              Vérifier le code
+              {t.auth.twofaValidate}
             </span>
           )}
         </button>
@@ -263,7 +266,7 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
         className='flex items-center justify-center gap-2 w-full mt-4 text-sm text-gray-500 hover:text-[#1DBF73] transition-colors'
       >
         <ArrowLeft className='w-4 h-4' />
-        Retour à la connexion
+        {t.auth.backToLogin}
       </button>
     </motion.div>
   );
@@ -276,6 +279,7 @@ export default function AdminLogin() {
   const [challengeId, setChallengeId] = useState(null);
   const [loading,     setLoading]     = useState(false);
   const [error,       setError]       = useState('');
+  const { t } = useLang();
 
   const handleLoginSuccess = (id) => {
     setChallengeId(String(id)); // ← forcer string
@@ -302,19 +306,19 @@ export default function AdminLogin() {
           </div>
           <span className='inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-red-600 border border-red-200 rounded-full bg-red-50'>
             <Shield className='w-4 h-4' />
-            Espace Administrateur
+            {t.admin.adminSpace}
           </span>
         </div>
 
         {/* Titre */}
         <div className='mb-6 text-center'>
           <h1 className='mb-2 text-2xl font-bold text-gray-800'>
-            {step === 'login' ? 'Administration DocSpace' : 'Vérification 2FA'}
+            {step === 'login' ? t.admin.adminLoginTitle : t.auth.twofaTitle}
           </h1>
           <p className='text-sm text-gray-600'>
             {step === 'login'
-              ? 'Connectez-vous au panel d\'administration'
-              : 'Authentification à deux facteurs requise'
+              ? t.admin.adminLoginHint
+              : t.auth.twofaSubtitle
             }
           </p>
         </div>
@@ -347,9 +351,9 @@ export default function AdminLogin() {
           {/* Footer carte */}
           <div className='pt-4 mt-4 text-center border-t border-gray-200'>
             <p className='text-sm text-gray-600'>
-              Accès réservé aux administrateurs.{' '}
+              {t.admin.adminOnly}{' '}
               <Link to='/login' className='font-semibold text-[#1DBF73] hover:text-[#09B1BA] transition-colors hover:no-underline'>
-                Retour à l'Espace Client
+                {t.admin.backToClient}
               </Link>
             </p>
           </div>
@@ -358,7 +362,7 @@ export default function AdminLogin() {
         {/* Footer page */}
         <div className='mt-6 text-center'>
           <p className='text-xs text-gray-500'>
-            En vous connectant, vous acceptez nos conditions d'utilisation
+            {t.admin.termsAccept}
           </p>
           <p className='mt-2 text-xs text-gray-400'>
             © 2026 DocSpace - Plateforme d'équipements médicaux
@@ -370,7 +374,7 @@ export default function AdminLogin() {
           <div className='flex items-start gap-2'>
             <Shield className='w-4 h-4 text-blue-600 mt-0.5 shrink-0' />
             <p className='text-xs text-blue-700'>
-              <strong>Sécurité :</strong> Cette page est protégée. Toutes les tentatives de connexion sont enregistrées et surveillées.
+              <strong>{t.admin.securityTitle} :</strong> {t.admin.securityNote}
             </p>
           </div>
         </div>

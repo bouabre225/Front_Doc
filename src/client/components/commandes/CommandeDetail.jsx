@@ -9,6 +9,7 @@ import {
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
 import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande, renvoyerFacture, createAvis } from '../../../services/api';
+import { useLang } from '../../context/LangContext';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -90,7 +91,7 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel, loading, danger = f
             onClick={onCancel}
             className='flex-1 py-3 border-2 border-gray-200 text-gray-600 font-semibold rounded-xl hover:bg-gray-50 transition-all text-sm'
           >
-            Annuler
+            {t.order.cancelTitle}
           </button>
           <button
             onClick={onConfirm}
@@ -104,9 +105,9 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel, loading, danger = f
             {loading ? (
               <span className='flex items-center justify-center gap-2'>
                 <span className='w-4 h-4 border-2 border-white rounded-full border-t-transparent animate-spin' />
-                Chargement...
+                {t.order.loadingTitle}
               </span>
-            ) : 'Confirmer'}
+            ) : t.order.confirmTitle}
           </button>
         </div>
       </motion.div>
@@ -117,6 +118,7 @@ const ConfirmModal = ({ title, message, onConfirm, onCancel, loading, danger = f
 // ─── Composant principal ──────────────────────────────────────────────────────
 
 const CommandeDetail = () => {
+  const { t } = useLang();
   const { id }      = useParams();
   const navigate    = useNavigate();
   const [searchParams] = useSearchParams();
@@ -151,7 +153,7 @@ const CommandeDetail = () => {
       const data = res.data ?? res;
       setCommande(data);
     } catch {
-      setError('Commande introuvable.');
+      setError(t.order.notFound);
     } finally {
       setLoading(false);
     }
@@ -190,11 +192,11 @@ const CommandeDetail = () => {
     setActionLoading(true);
     try {
       await cancelCommande(id);
-      setSuccess('Commande annulée avec succès.');
+      setSuccess(t.order.cancelledOk);
       setShowCancel(false);
       fetchCommande();
     } catch (err) {
-      setError(err.message || 'Erreur lors de l\'annulation.');
+      setError(err.message || t.order.cancelError);
       setShowCancel(false);
     } finally {
       setActionLoading(false);
@@ -216,7 +218,7 @@ const handlePay = async () => {
     window.location.href = payUrl;
 
   } catch (err) {
-    setError(err.message || 'Erreur lors du paiement.');
+    setError(err.message || t.order.payError);
     setShowPay(false);
   } finally {
     setActionLoading(false);
@@ -228,12 +230,12 @@ const handlePay = async () => {
     setError('');
     try {
       await createAvis(id, { note_vendeur: noteVendeur, note_conformite: noteConformite, commentaire: avisCommentaire.trim() || undefined });
-      setSuccess('Merci pour votre avis !');
+      setSuccess(t.order.reviewThanks);
       setAvisDepose(true);
       fetchCommande();
     } catch (err) {
       if ((err.message || '').toLowerCase().includes('déjà')) setAvisDepose(true);
-      else setError(err.message || "Erreur lors de l'envoi de l'avis.");
+      else setError(err.message || t.order.reviewError);
     } finally {
       setActionLoading(false);
     }
@@ -243,28 +245,28 @@ const handlePay = async () => {
     setError('');
     try {
       const res = await renvoyerFacture(id);
-      setSuccess(res.message || 'Facture renvoyée par email. Vérifie aussi tes spams.');
+      setSuccess(res.message || t.order.billResent);
     } catch (err) {
-      setError(err.message || "Erreur lors du renvoi de la facture.");
+      setError(err.message || t.order.billError);
     } finally {
       setActionLoading(false);
     }
   };
 
   const handleLitige = async () => {    if (!litigeMotif.trim()) {
-      setError('Veuillez sélectionner un motif.');
+      setError(t.order.disputeNeedReason);
       return;
     }
     setActionLoading(true);
     try {
       await createLitige({ commande_id: id, motif: litigeMotif, preuves: litigeDetails.trim() || undefined });
-      setSuccess('Litige ouvert avec succès. Notre équipe vous contactera.');
+      setSuccess(t.order.disputeOk);
       setShowLitige(false);
       setLitigeMotif('');
       setLitigeDetails('');
       fetchCommande();
     } catch (err) {
-      setError(err.message || 'Erreur lors de l\'ouverture du litige.');
+      setError(err.message || t.order.disputeError);
       setShowLitige(false);
     } finally {
       setActionLoading(false);
@@ -330,7 +332,7 @@ const handlePay = async () => {
           className='inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#1DBF73] transition-colors mb-6'
         >
           <ArrowLeft className='w-4 h-4' />
-          Mes commandes
+          {t.order.backToOrders}
         </button>
 
         {/* Alertes */}
@@ -377,7 +379,7 @@ const handlePay = async () => {
               >
                 <CheckCircle className='w-10 h-10 text-white' />
               </motion.div>
-              <h2 className='text-2xl font-black text-white mb-2'>Paiement effectué !</h2>
+              <h2 className='text-2xl font-black text-white mb-2'>{t.order.paidTitle}</h2>
               <p className='text-white/85 text-sm'>
                 Merci d'avoir utilisé DocSpace. Votre commande a bien été enregistrée.
               </p>
@@ -408,8 +410,8 @@ const handlePay = async () => {
 
               <div className='border-t border-gray-100 pt-4'>
                 <p className='text-xs text-center text-gray-400 mb-4'>
-                  📧 Une facture a été envoyée à <span className='font-semibold text-gray-600'>{commande.acheteur?.email}</span>
-                  <br />Vérifie aussi tes spams/courriers indésirables.
+                  📧 {t.order.billSentTo} <span className='font-semibold text-gray-600'>{commande.acheteur?.email}</span>
+                  <br />{t.order.checkSpam}
                 </p>
 
                 <button
@@ -420,7 +422,7 @@ const handlePay = async () => {
                   {actionLoading
                     ? <div className='w-4 h-4 border-2 border-gray-400 rounded-full border-t-transparent animate-spin' />
                     : <Mail className='w-4 h-4' />}
-                  Renvoyer la facture par email
+                  {t.order.resendBill}
                 </button>
 
                 {/* ✅ Bouton litige dans la section succès */}
@@ -430,14 +432,14 @@ const handlePay = async () => {
                     className='w-full py-3 mb-3 border-2 border-orange-200 text-orange-600 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-orange-50 transition-all text-sm'
                   >
                     <AlertCircle className='w-4 h-4' />
-                    Signaler un problème / Ouvrir un litige
+                    {t.order.openDispute}
                   </button>
                 )}
                 {/* ⭐ Noter cet achat (commande livrée/clôturée) */}
                 {isAcheteur && ['livree', 'cloturee'].includes(commande.statut) && !avisDepose && (
                   <div className='w-full p-4 mb-3 border-2 border-yellow-100 bg-yellow-50/50 rounded-xl'>
                     <p className='text-sm font-bold text-gray-800 mb-3 flex items-center gap-2'>
-                      <Star className='w-4 h-4 fill-yellow-400 text-yellow-400' /> Noter cet achat
+                      <Star className='w-4 h-4 fill-yellow-400 text-yellow-400' /> {t.order.rateTitle}
                     </p>
                     {[['Vendeur', noteVendeur, setNoteVendeur], ['Conformité produit', noteConformite, setNoteConformite]].map(([label, val, setVal]) => (
                       <div key={label} className='flex items-center justify-between mb-2'>
@@ -464,12 +466,12 @@ const handlePay = async () => {
                       disabled={actionLoading}
                       className='w-full mt-2 py-2.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl text-sm disabled:opacity-50'
                     >
-                      {actionLoading ? 'Envoi...' : 'Publier mon avis'}
+                      {actionLoading ? t.order.resending : t.order.publishReview}
                     </button>
                   </div>
                 )}
                 {isAcheteur && avisDepose && (
-                  <p className='w-full py-2 mb-3 text-center text-xs font-semibold text-green-600'>Merci, tu as déjà noté cette commande.</p>
+                  <p className='w-full py-2 mb-3 text-center text-xs font-semibold text-green-600'>{t.order.alreadyRated}</p>
                 )}
                 {isAcheteur && (
                   <Link
@@ -477,7 +479,7 @@ const handlePay = async () => {
                     className='w-full py-3 mb-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl flex items-center justify-center gap-2 hover:border-[#1DBF73]/50 hover:text-[#1DBF73] transition-all text-sm'
                   >
                     <MessageCircle className='w-4 h-4' />
-                    Contacter le vendeur
+                    {t.order.contactSeller}
                   </Link>
                 )}
                 <div className='flex gap-3'>
@@ -485,13 +487,13 @@ const handlePay = async () => {
                     to='/explore'
                     className='flex-1 py-3 text-center text-sm font-semibold text-gray-600 border-2 border-gray-200 rounded-xl hover:bg-gray-50 transition-all'
                   >
-                    Continuer mes achats
+                    {t.order.keepShopping}
                   </Link>
                   <Link
                     to='/profile'
                     className='flex-1 py-3 text-center text-sm font-semibold text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-xl hover:shadow-lg transition-all'
                   >
-                    Mes commandes
+                    {t.order.backToOrders}
                   </Link>
                 </div>
               </div>
@@ -522,7 +524,7 @@ const handlePay = async () => {
             <div className='bg-white rounded-2xl border border-gray-100 p-5'>
               <div className='flex items-center gap-3 mb-1'>
                 <Package className='w-4 h-4 text-[#1DBF73]' />
-                <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>Équipement</span>
+                <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>{t.order.equipment}</span>
               </div>
               <Link
                 to={`/equipment/${commande.annonce_id}`}
@@ -532,11 +534,11 @@ const handlePay = async () => {
               </Link>
               <div className='grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100 sm:flex sm:items-center sm:gap-6'>
                 <div>
-                  <p className='text-xs text-gray-400'>Quantité</p>
+                  <p className='text-xs text-gray-400'>{t.order.quantity}</p>
                   <p className='font-bold text-gray-800'>{commande.quantite}</p>
                 </div>
                 <div>
-                  <p className='text-xs text-gray-400'>Prix vendeur</p>
+                  <p className='text-xs text-gray-400'>{t.order.sellerPrice}</p>
                   <p className='font-bold text-gray-800'>{formatPrice(prixVendeur * quantite)}</p>
                 </div>
                 <div>
@@ -547,7 +549,7 @@ const handlePay = async () => {
                   <p className='font-bold text-[#09B1BA]'>+ {formatPrice(protection)}</p>
                 </div>
                 <div>
-                  <p className='text-xs text-gray-400'>Total</p>
+                  <p className='text-xs text-gray-400'>{t.order.total}</p>
                   <p className='font-bold text-lg text-[#1DBF73]'>{formatPrice(commande.montant)}</p>
                 </div>
               </div>
@@ -558,7 +560,7 @@ const handlePay = async () => {
               <div className='bg-white rounded-2xl border border-gray-100 p-4 min-w-0'>
                 <div className='flex items-center gap-2 mb-2'>
                   <User className='w-4 h-4 text-[#1DBF73] shrink-0' />
-                  <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>Acheteur</span>
+                  <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>{t.order.buyer}</span>
                 </div>
                 <p className='font-bold text-gray-800 text-sm truncate'>{commande.acheteur?.nom}</p>
                 <p className='text-xs text-gray-400 mt-0.5 truncate'>{commande.acheteur?.email}</p>
@@ -566,7 +568,7 @@ const handlePay = async () => {
               <div className='bg-white rounded-2xl border border-gray-100 p-4 min-w-0'>
                 <div className='flex items-center gap-2 mb-2'>
                   <Store className='w-4 h-4 text-[#09B1BA] shrink-0' />
-                  <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>Vendeur</span>
+                  <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>{t.order.seller}</span>
                 </div>
                 <p className='font-bold text-gray-800 text-sm truncate'>{commande.vendeur?.nom}</p>
                 <p className='text-xs text-gray-400 mt-0.5 truncate'>{commande.vendeur?.email}</p>
@@ -589,7 +591,7 @@ const handlePay = async () => {
                         <span className='text-base'>📍</span>
                       </div>
                       <div>
-                        <p className='text-xs text-gray-400 font-medium'>Adresse de livraison</p>
+                        <p className='text-xs text-gray-400 font-medium'>{t.order.deliveryAddress}</p>
                         <p className='text-sm font-semibold text-gray-800 mt-0.5'>
                           {commande.adresse_livraison}
                         </p>
@@ -603,7 +605,7 @@ const handlePay = async () => {
                       </div>
                       <div>
                         <p className='text-xs text-gray-400 font-medium'>
-                          {isVendeur ? 'Téléphone acheteur' : 'Votre téléphone de contact'}
+                          {isVendeur ? t.order.buyerPhone : t.order.yourPhone}
                         </p>
                         <p className='text-sm font-semibold text-gray-800 mt-0.5'>
                           {commande.telephone_livraison}
@@ -619,15 +621,15 @@ const handlePay = async () => {
             <div className='bg-white rounded-2xl border border-gray-100 p-5'>
               <div className='flex items-center gap-2 mb-3'>
                 <Clock className='w-4 h-4 text-gray-400' />
-                <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>Dates</span>
+                <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>{t.order.dates}</span>
               </div>
               <div className='space-y-2'>
                 <div className='flex justify-between text-sm'>
-                  <span className='text-gray-500'>Commandé le</span>
+                  <span className='text-gray-500'>{t.order.orderedOn}</span>
                   <span className='font-medium text-gray-800'>{formatDate(commande.created_at)}</span>
                 </div>
                 <div className='flex justify-between text-sm'>
-                  <span className='text-gray-500'>Mis à jour le</span>
+                  <span className='text-gray-500'>{t.order.updatedOn}</span>
                   <span className='font-medium text-gray-800'>{formatDate(commande.updated_at)}</span>
                 </div>
               </div>
@@ -638,29 +640,29 @@ const handlePay = async () => {
               <div className='bg-white rounded-2xl border border-gray-100 p-5'>
                 <div className='flex items-center gap-2 mb-3'>
                   <CreditCard className='w-4 h-4 text-[#1DBF73]' />
-                  <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>Paiement</span>
+                  <span className='text-xs font-semibold text-gray-400 uppercase tracking-wide'>{t.order.payment}</span>
                 </div>
                 <div className='space-y-2 text-sm'>
                   <div className='flex justify-between'>
-                    <span className='text-gray-500'>Méthode</span>
+                    <span className='text-gray-500'>{t.order.method}</span>
                     <span className='font-medium text-gray-800'>{commande.paiement.moyen ?? commande.paiement.methode ?? '—'}</span>
                   </div>
                   <div className='flex justify-between'>
-                    <span className='text-gray-500'>Statut paiement</span>
+                    <span className='text-gray-500'>{t.order.paymentStatus}</span>
                     <span className='font-medium text-gray-800 capitalize'>{commande.paiement.statut === 'bloque' ? '✅ Confirmé' : commande.paiement.statut ?? '—'}</span>
                   </div>
                   <div className='flex justify-between'>
-                    <span className='text-gray-500'>Montant</span>
+                    <span className='text-gray-500'>{t.order.amount}</span>
                     <span className='font-medium text-gray-800'>{commande.paiement.montant ? formatPrice(commande.paiement.montant) : '—'}</span>
                   </div>
                   {commande.paiement.date_paiement && (
                     <div className='flex justify-between'>
-                      <span className='text-gray-500'>Date</span>
+                      <span className='text-gray-500'>{t.order.date}</span>
                       <span className='font-medium text-gray-800'>{formatDate(commande.paiement.date_paiement)}</span>
                     </div>
                   )}
                   <div className='flex justify-between'>
-                    <span className='text-gray-500'>Référence</span>
+                    <span className='text-gray-500'>{t.order.reference}</span>
                     <span className='font-medium text-gray-800 break-all text-right max-w-[180px]'>{commande.paiement.provider_reference ?? commande.paiement.reference ?? '—'}</span>
                   </div>
                 </div>
@@ -669,7 +671,7 @@ const handlePay = async () => {
 
             {/* Actions */}
             <div className='bg-white rounded-2xl border border-gray-100 p-5 space-y-3'>
-              <p className='text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1'>Actions</p>
+              <p className='text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1'>{t.order.actions}</p>
 
               {/* Payer — acheteur + en_attente */}
               {isAcheteur && commande.statut === 'en_attente' && (
@@ -678,8 +680,8 @@ const handlePay = async () => {
                     <div className='flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-xl text-xs text-yellow-700'>
                       <AlertCircle className='w-4 h-4 shrink-0 mt-0.5' />
                       <span>
-                        Un numéro de téléphone est requis pour le paiement FedaPay.{' '}
-                        <Link to='/profile' className='underline font-semibold'>Mettre à jour le profil</Link>
+                        {t.order.phoneRequiredPay}{' '}
+                        <Link to='/profile' className='underline font-semibold'>{t.order.updateProfile}</Link>
                       </span>
                     </div>
                   )}
@@ -691,7 +693,7 @@ const handlePay = async () => {
                     className='w-full py-3.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed'
                   >
                     <CreditCard className='w-4 h-4' />
-                    Payer maintenant — {formatPrice(commande.montant)}
+                    {t.order.payNow} — {formatPrice(commande.montant)}
                   </motion.button>
                 </>
               )}
@@ -702,7 +704,7 @@ const handlePay = async () => {
                 className='w-full py-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl flex items-center justify-center gap-2 hover:border-[#1DBF73]/50 hover:text-[#1DBF73] transition-all text-sm'
               >
                 <MessageCircle className='w-4 h-4' />
-                Contacter  {isAcheteur ? 'le vendeur' : 'l\'acheteur'}
+                {t.order.contactPeer}  {isAcheteur ? t.order.theSeller : t.order.theBuyer}
               </Link>
 
               {/* Ouvrir un litige — acheteur + livraison */}
@@ -712,7 +714,7 @@ const handlePay = async () => {
                   className='w-full py-3 border-2 border-orange-200 text-orange-600 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-orange-50 transition-all text-sm'
                 >
                   <AlertCircle className='w-4 h-4' />
-                  Ouvrir un litige
+                  {t.order.openDisputeShort}
                 </button>
               )}
 
@@ -723,7 +725,7 @@ const handlePay = async () => {
                   className='w-full py-3 border-2 border-red-200 text-red-500 font-semibold rounded-xl flex items-center justify-center gap-2 hover:bg-red-50 transition-all text-sm'
                 >
                   <Ban className='w-4 h-4' />
-                  Annuler la commande
+                  {t.order.cancelOrderBtn}
                 </button>
               )}
             </div>
@@ -738,8 +740,8 @@ const handlePay = async () => {
 
       {showPay && (
         <ConfirmModal
-          title='Confirmer le paiement'
-          message={`Vous allez payer ${formatPrice(commande?.montant)} pour "${commande?.annonce?.titre}".`}
+          title={t.order.confirmPayTitle}
+          message={`${t.order.confirmPayMsg} ${formatPrice(commande?.montant)} ${t.order.pour} "${commande?.annonce?.titre}".`}
           onConfirm={handlePay}
           onCancel={() => setShowPay(false)}
           loading={actionLoading}
@@ -748,8 +750,8 @@ const handlePay = async () => {
 
       {showCancel && (
         <ConfirmModal
-          title='Annuler la commande ?'
-          message='Cette action est irréversible. La commande sera définitivement annulée.'
+          title={t.order.cancelOrderTitle}
+          message={t.order.cancelOrderMsg}
           onConfirm={handleCancel}
           onCancel={() => setShowCancel(false)}
           loading={actionLoading}
@@ -760,7 +762,7 @@ const handlePay = async () => {
       {showLitige && (
         <ConfirmModal
           title='Ouvrir un litige'
-          message='Sélectionnez le motif de votre litige. Notre équipe vous contactera sous 24h.'
+          message={t.order.disputeModalMsg}
           onConfirm={handleLitige}
           onCancel={() => { setShowLitige(false); setLitigeMotif(''); setLitigeDetails(''); }}
           loading={actionLoading}
@@ -772,17 +774,17 @@ const handlePay = async () => {
             onChange={e => setLitigeMotif(e.target.value)}
             className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100 transition-all'
           >
-            <option value=''>-- Choisir un motif --</option>
-            <option value='non_conforme'>Produit non conforme à l'annonce</option>
-            <option value='defectueux'>Produit défectueux</option>
-            <option value='perdu'>Colis perdu / non reçu</option>
+            <option value=''>{t.order.chooseReason}</option>
+            <option value='non_conforme'>{t.order.reasonNonConforme}</option>
+            <option value='defectueux'>{t.order.reasonDefectueux}</option>
+            <option value='perdu'>{t.order.reasonPerdu}</option>
           </select>
 
           {/* Zone de détails optionnelle */}
           <textarea
             value={litigeDetails}
             onChange={(e) => setLitigeDetails(e.target.value)}
-            placeholder='Détails supplémentaires (optionnel)...'
+            placeholder={t.order.ratePlaceholder}
             rows={3}
             className='w-full mt-3 px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-orange-400 transition-all resize-none'
           />

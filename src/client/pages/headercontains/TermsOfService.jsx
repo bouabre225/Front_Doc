@@ -1,76 +1,47 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useLang } from '../../context/LangContext';
 
 const TermsOfService = () => {
   const navigate = useNavigate();
-  
+  const { t } = useLang();
+  const L = t.legal;
+
   return (
     <div className="max-w-4xl mx-auto my-10 p-8 bg-white shadow-lg rounded-xl border border-gray-100 text-gray-800 leading-relaxed">
       <span onClick={() => navigate(-1)} className="cursor-pointer text-gray-600 no-underline flex items-center gap-2 pb-6">
-        <ArrowLeft size={16} /> Retour
+        <ArrowLeft size={16} /> {L.back}
       </span>
       <header className="border-b pb-6 mb-8">
-        <h1 className="text-3xl font-bold text-green-900">Conditions Générales d'Utilisation</h1>
-        <p className="text-sm text-gray-500 mt-2">Version 1.0 — En vigueur au 18 mars 2026</p>
+        <h1 className="text-3xl font-bold text-green-900">{L.termsTitle}</h1>
+        <p className="text-sm text-gray-500 mt-2">{L.termsVersion}</p>
       </header>
 
       <section className="space-y-6">
-        <div>
-          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">1. Présentation de docSpace</h2>
-          <p>
-            <strong>docSpace</strong> est une plateforme intermédiaire mettant en relation des professionnels de santé, 
-            des structures de soins et des particuliers pour la transaction d'équipements médicaux neufs ou d'occasion. 
-            docSpace n'est en aucun cas le vendeur des produits proposés sur la plateforme.
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">2. Éligibilité</h2>
-          <ul className="list-disc pl-6 space-y-2">
-            <li>L'utilisateur doit être âgé d'au moins 18 ans.</li>
-            <li>Les professionnels doivent justifier de leur identité lors de la procédure de vérification KYC.</li>
-            <li>L'utilisation de faux documents entraîne une suspension immédiate du compte.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">3. Obligations du Vendeur (docSeller)</h2>
-          <p>Le vendeur s'engage à :</p>
-          <ul className="list-disc pl-6 space-y-2">
-            <li>Garantir la conformité réglementaire (Marquage CE, normes ISO) du matériel.</li>
-            <li>Fournir des photos réelles et une description honnête de l'état (neuf, occasion ou reconditionné).</li>
-            <li>Assurer la décontamination et la désinfection du matériel d'occasion avant expédition.</li>
-          </ul>
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">4. Transactions et Paiements</h2>
-          <p>
-            Les paiements sont sécurisés via FedaPay. 
-            Les fonds sont séquestrés par docSpace et ne sont libérés au vendeur qu'après :
-          </p>
-          <ol className="list-decimal pl-6 space-y-2 mt-2">
-            <li>Confirmation de la réception par l'acheteur.</li>
-            <li>Expiration d'un délai de contestation de 48 heures.</li>
-          </ol>
-        </div>
+        {L.termsSections.map((s, i) => (
+          <div key={i}>
+            <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">{s.h}</h2>
+            {s.body && <p>{s.body}</p>}
+            {s.list && (
+              <ul className="list-disc pl-6 space-y-2">
+                {s.list.map((li, j) => <li key={j}>{li}</li>)}
+              </ul>
+            )}
+            {s.olist && (
+              <ol className="list-decimal pl-6 space-y-2 mt-2">
+                {s.olist.map((li, j) => <li key={j}>{li}</li>)}
+              </ol>
+            )}
+          </div>
+        ))}
 
         <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500 italic">
-          <strong>Note importante :</strong> docSpace décline toute responsabilité quant à l'usage clinique des dispositifs médicaux achetés. 
-          Il incombe à l'acheteur de vérifier la sécurité du matériel avant toute utilisation sur un patient.
-        </div>
-
-        <div>
-          <h2 className="text-xl font-semibold text-green-800 mb-2 font-mono uppercase tracking-wide">5. Droit Applicable</h2>
-          <p>
-            Les présentes CGU sont régies par le droit béninois. En cas de litige, et après tentative de résolution à l'amiable, 
-            compétence exclusive est attribuée aux tribunaux compétents.
-          </p>
+          <strong>{L.termsNoteTitle}</strong> {L.termsNote}
         </div>
       </section>
 
       <footer className="mt-12 pt-6 border-t text-center text-gray-400 text-sm">
-        Contact support : docspaceafrica@gmail.com
+        {L.supportContact} docspaceafrica@gmail.com
       </footer>
     </div>
   );

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Eye, Shield, ShieldOff, RefreshCw, Users, UserCheck, UserX } from 'lucide-react';
+import { useLang } from '../../client/context/LangContext';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://docspace.bj/api';
 const getToken = () => localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
 
 export default function ManageUsers() {
+  const { t } = useLang();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -67,22 +69,22 @@ export default function ManageUsers() {
         {/* En-tête */}
         <div className='flex flex-col justify-between gap-3 mb-6 sm:flex-row sm:items-center'>
           <div>
-            <h1 className='text-xl font-bold text-gray-800'>Gestion des utilisateurs</h1>
-            <p className='text-sm text-gray-500 mt-0.5'>{total} utilisateur(s) au total</p>
+            <h1 className='text-xl font-bold text-gray-800'>{t.admin.manageUsers}</h1>
+            <p className='text-sm text-gray-500 mt-0.5'>{total} {t.admin.totalUsers}</p>
           </div>
           <button onClick={fetchUsers}
             className='flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-xl hover:shadow-md transition-all self-start sm:self-auto'>
             <RefreshCw className='w-4 h-4' />
-            Actualiser
+            {t.admin.refresh}
           </button>
         </div>
 
         {/* Stats rapides */}
         <div className='grid grid-cols-3 gap-3 mb-5'>
           {[
-            { icon: Users, label: 'Total', value: total, color: 'text-gray-600', bg: 'bg-gray-50' },
-            { icon: UserCheck, label: 'Vendeurs', value: vendeurs, color: 'text-[#1DBF73]', bg: 'bg-[#1DBF73]/5' },
-            { icon: Shield, label: 'Vérifiés', value: verifies, color: 'text-[#09B1BA]', bg: 'bg-[#09B1BA]/5' },
+            { icon: Users, label: t.admin.userStats.total, value: total, color: 'text-gray-600', bg: 'bg-gray-50' },
+            { icon: UserCheck, label: t.admin.userStats.sellers, value: vendeurs, color: 'text-[#1DBF73]', bg: 'bg-[#1DBF73]/5' },
+            { icon: Shield, label: t.admin.verifiedLabel, value: verifies, color: 'text-[#09B1BA]', bg: 'bg-[#09B1BA]/5' },
           ].map(({ icon: Icon, label, value, color, bg }) => (
             <div key={label} className={`p-3 sm:p-4 rounded-xl border border-gray-100 shadow-sm ${bg} bg-white`}>
               <div className='flex items-center gap-2 mb-1'>
@@ -100,14 +102,14 @@ export default function ManageUsers() {
             <Search className='absolute w-4 h-4 text-gray-400 -translate-y-1/2 left-3 top-1/2' />
             <input type='text' value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder='Rechercher par nom ou email...'
+              placeholder={t.admin.searchUsers}
               className='w-full pl-9 pr-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] bg-white' />
           </div>
           <select value={filterRole} onChange={(e) => setFilterRole(e.target.value)}
             className='px-4 py-2.5 text-sm border-2 border-gray-200 rounded-xl focus:outline-none focus:border-[#1DBF73] bg-white cursor-pointer'>
-            <option value=''>Tous les rôles</option>
-            <option value='vendeur'>Vendeurs</option>
-            <option value='acheteur'>Acheteurs</option>
+            <option value=''>{t.admin.roles.all}</option>
+            <option value='vendeur'>{t.admin.roles.sellers}</option>
+            <option value='acheteur'>{t.admin.roles.buyers}</option>
           </select>
         </div>
 
@@ -120,7 +122,7 @@ export default function ManageUsers() {
           ) : filtered.length === 0 ? (
             <div className='flex flex-col items-center justify-center py-20'>
               <UserX className='w-12 h-12 mb-3 text-gray-200' />
-              <p className='font-medium text-gray-500'>Aucun utilisateur trouvé</p>
+              <p className='font-medium text-gray-500'>{t.admin.noUser}</p>
             </div>
           ) : (
             <>
@@ -129,12 +131,12 @@ export default function ManageUsers() {
                 <table className='w-full'>
                   <thead>
                     <tr className='border-b border-gray-100 bg-gray-50'>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Utilisateur</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Rôle</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Pays</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Statut</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Vérifié</th>
-                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>Inscrit le</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.userTable.user}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.userTable.role}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.userTable.country}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.userTable.status}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.userTable.verified}</th>
+                      <th className='px-4 py-3 text-xs font-semibold text-left text-gray-500 uppercase'>{t.admin.userTable.registered}</th>
                     </tr>
                   </thead>
                   <tbody className='divide-y divide-gray-50'>
@@ -153,7 +155,7 @@ export default function ManageUsers() {
                         </td>
                         <td className='px-4 py-3'>
                           <span className={`px-2 py-1 text-xs font-semibold rounded-lg capitalize ${roleStyle(u.role)}`}>
-                            {u.role}
+                            {t.admin.roleNames[u.role] ?? u.role}
                           </span>
                         </td>
                         <td className='px-4 py-3'>
@@ -161,7 +163,7 @@ export default function ManageUsers() {
                         </td>
                         <td className='px-4 py-3'>
                           <span className={`px-2 py-1 text-xs font-semibold rounded-lg ${statutStyle(u.statut)}`}>
-                            {u.statut || 'actif'}
+                            {t.admin.statutNames[u.statut] ?? u.statut ?? 'actif'}
                           </span>
                         </td>
                         <td className='px-4 py-3'>
@@ -198,10 +200,10 @@ export default function ManageUsers() {
                         <p className='text-xs text-gray-400 truncate mt-0.5'>{u.email}</p>
                         <div className='flex flex-wrap items-center gap-2 mt-2'>
                           <span className={`px-2 py-0.5 text-xs font-semibold rounded-lg capitalize ${roleStyle(u.role)}`}>
-                            {u.role}
+                            {t.admin.roleNames[u.role] ?? u.role}
                           </span>
                           <span className={`px-2 py-0.5 text-xs font-semibold rounded-lg ${statutStyle(u.statut)}`}>
-                            {u.statut || 'actif'}
+                            {t.admin.statutNames[u.statut] ?? u.statut ?? 'actif'}
                           </span>
                           <span className='text-xs text-gray-400'>{u.pays}</span>
                         </div>

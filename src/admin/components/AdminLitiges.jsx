@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLang } from '../../client/context/LangContext';
 
 import {
 
@@ -37,7 +38,7 @@ Number(p || 0).toLocaleString('fr-FR') + ' FCFA';
 
 
 const STATUT_CONFIG = {
-  ouvert:     { label: 'En attente', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', dot: 'bg-yellow-400' }, // ✅ ajoute
+  ouvert:     { label: 'En attente', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', dot: 'bg-yellow-400' },
   en_attente: { label: 'En attente', color: 'bg-yellow-100 text-yellow-700 border-yellow-200', dot: 'bg-yellow-400' },
   en_cours:   { label: 'En cours',   color: 'bg-blue-100 text-blue-700 border-blue-200',       dot: 'bg-blue-400'   },
   resolu:     { label: 'Résolu',     color: 'bg-green-100 text-green-700 border-green-200',    dot: 'bg-green-400'  },
@@ -48,17 +49,19 @@ const STATUT_CONFIG = {
 
 const MOTIF_LABELS = {
 
-non_conforme: 'Non conforme',
+non_conforme: 'non_conforme',
 
-non_recu: 'Non reçu',
+non_recu: 'non_recu',
 
-defectueux: 'Défectueux',
+defectueux: 'defectueux',
 
-fraude: 'Fraude',
+fraude: 'fraude',
 
-autre: 'Autre',
+autre: 'autre',
 
 };
+
+// libellés traduits via t.dispute.motifs[key] ?? MOTIF_LABELS_FR[key]
 
 
 
@@ -67,6 +70,7 @@ autre: 'Autre',
 
 
 const ResolutionModal = ({ litige, onConfirm, onClose, loading }) => {
+  const { t } = useLang();
 
 const [decision, setDecision] = useState('');
 
@@ -108,7 +112,7 @@ className='bg-white rounded-2xl shadow-2xl max-w-md w-full p-6'
 
 <div>
 
-<h3 className='text-lg font-bold text-gray-900'>Résoudre le litige</h3>
+<h3 className='text-lg font-bold text-gray-900'>{t.admin.resolveDispute}</h3>
 
 <p className='text-sm text-gray-500 truncate max-w-[220px]'>
 
@@ -128,7 +132,7 @@ className='bg-white rounded-2xl shadow-2xl max-w-md w-full p-6'
 
 <div className='flex justify-between'>
 
-<span className='text-gray-500'>Acheteur</span>
+<span className='text-gray-500'>{t.admin.buyer}</span>
 
 <span className='font-semibold text-gray-800'>{litige.commande?.acheteur?.nom}</span>
 
@@ -136,7 +140,7 @@ className='bg-white rounded-2xl shadow-2xl max-w-md w-full p-6'
 
 <div className='flex justify-between'>
 
-<span className='text-gray-500'>Vendeur</span>
+<span className='text-gray-500'>{t.admin.seller}</span>
 
 <span className='font-semibold text-gray-800'>{litige.commande?.vendeur?.nom}</span>
 
@@ -144,7 +148,7 @@ className='bg-white rounded-2xl shadow-2xl max-w-md w-full p-6'
 
 <div className='flex justify-between'>
 
-<span className='text-gray-500'>Montant</span>
+<span className='text-gray-500'>{t.admin.amount}</span>
 
 <span className='font-bold text-[#1DBF73]'>{formatPrice(litige.commande?.montant)}</span>
 
@@ -152,9 +156,9 @@ className='bg-white rounded-2xl shadow-2xl max-w-md w-full p-6'
 
 <div className='flex justify-between'>
 
-<span className='text-gray-500'>Motif</span>
+<span className='text-gray-500'>{t.admin.reason}</span>
 
-<span className='font-semibold text-gray-800'>{MOTIF_LABELS[litige.motif] ?? litige.motif}</span>
+<span className='font-semibold text-gray-800'>{t.dispute.motifs[litige.motif] ?? litige.motif}</span>
 
 </div>
 
@@ -164,7 +168,7 @@ className='bg-white rounded-2xl shadow-2xl max-w-md w-full p-6'
 
 {/* Décision */}
 
-<p className='text-sm font-semibold text-gray-700 mb-3'>Décision :</p>
+<p className='text-sm font-semibold text-gray-700 mb-3'>{t.admin.decision}</p>
 
 <div className='grid grid-cols-2 gap-3 mb-5'>
 
@@ -186,9 +190,9 @@ decision === 'rembourse'
 
 <CheckCircle className='w-6 h-6' />
 
-Rembourser
+{t.admin.refund}
 
-<span className='text-[10px] font-normal opacity-70'>En faveur de l'acheteur</span>
+<span className='text-[10px] font-normal opacity-70'>{t.admin.refundFor}</span>
 
 </button>
 
@@ -210,9 +214,9 @@ decision === 'rejete'
 
 <XCircle className='w-6 h-6' />
 
-Rejeter
+{t.admin.reject}
 
-<span className='text-[10px] font-normal opacity-70'>En faveur du vendeur</span>
+<span className='text-[10px] font-normal opacity-70'>{t.admin.rejectFor}</span>
 
 </button>
 
@@ -338,7 +342,7 @@ className='bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md
 
 <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
 
-{cfg.label}
+{t.dispute.status[litige.statut] ?? cfg.label}
 
 </span>
 
@@ -346,7 +350,7 @@ className='bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md
 
 <span className='px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full'>
 
-{MOTIF_LABELS[litige.motif] ?? litige.motif}
+{t.dispute.motifs[litige.motif] ?? litige.motif}
 
 </span>
 
@@ -428,7 +432,7 @@ className='overflow-hidden'
 
 <User className='w-3.5 h-3.5 text-[#1DBF73]' />
 
-<span className='text-[10px] font-bold text-gray-400 uppercase'>Acheteur</span>
+<span className='text-[10px] font-bold text-gray-400 uppercase'>{t.admin.buyer}</span>
 
 </div>
 
@@ -444,7 +448,7 @@ className='overflow-hidden'
 
 <User className='w-3.5 h-3.5 text-[#09B1BA]' />
 
-<span className='text-[10px] font-bold text-gray-400 uppercase'>Vendeur</span>
+<span className='text-[10px] font-bold text-gray-400 uppercase'>{t.admin.seller}</span>
 
 </div>
 
@@ -468,7 +472,7 @@ className='overflow-hidden'
 
 <MessageSquare className='w-3.5 h-3.5 text-orange-500' />
 
-<span className='text-xs font-bold text-orange-700'>Preuves / Description</span>
+<span className='text-xs font-bold text-orange-700'>{t.admin.proof}</span>
 
 </div>
 
@@ -486,7 +490,7 @@ className='overflow-hidden'
 
 <div className='p-3 bg-gray-50 rounded-xl text-center'>
 
-<p className='text-[10px] text-gray-400 mb-0.5'>Montant</p>
+<p className='text-[10px] text-gray-400 mb-0.5'>{t.admin.amount}</p>
 
 <p className='font-bold text-[#1DBF73]'>{formatPrice(litige.commande?.montant)}</p>
 
@@ -494,7 +498,7 @@ className='overflow-hidden'
 
 <div className='p-3 bg-gray-50 rounded-xl text-center'>
 
-<p className='text-[10px] text-gray-400 mb-0.5'>Commande</p>
+<p className='text-[10px] text-gray-400 mb-0.5'>{t.admin.order}</p>
 
 <p className='font-bold text-gray-700 text-xs truncate'>{litige.commande?.statut}</p>
 
@@ -502,7 +506,7 @@ className='overflow-hidden'
 
 <div className='p-3 bg-gray-50 rounded-xl text-center'>
 
-<p className='text-[10px] text-gray-400 mb-0.5'>Signalé le</p>
+<p className='text-[10px] text-gray-400 mb-0.5'>{t.admin.reportedOn}</p>
 
 <p className='font-bold text-gray-700 text-xs'>
 
@@ -601,6 +605,7 @@ Traité
 
 
 export default function AdminLitiges() {
+  const { t } = useLang();
 
 const [litiges, setLitiges] = useState([]);
 
@@ -634,7 +639,7 @@ setLitiges(res?.data?.data ?? res?.data ?? res ?? []);
 
 } catch {
 
-setError('Erreur lors du chargement des litiges.');
+setError(t.admin.loadError);
 
 } finally {
 
@@ -710,15 +715,15 @@ setModalLoad(false);
 
 const FILTERS = [
 
-{ key: 'tous', label: 'Tous' },
+{ key: 'tous', label: t.admin.filters.all },
 
-{ key: 'en_attente', label: 'En attente' },
+{ key: 'en_attente', label: t.admin.disputeFilters.pending },
 
-{ key: 'en_cours', label: 'En cours' },
+{ key: 'en_cours', label: t.admin.disputeFilters.inProgress },
 
-{ key: 'resolu', label: 'Résolus' },
+{ key: 'resolu', label: t.admin.disputeFilters.resolved },
 
-{ key: 'rejete', label: 'Rejetés' },
+{ key: 'rejete', label: t.admin.disputeFilters.rejected },
 
 ];
 
@@ -766,15 +771,15 @@ return (
 
 <div>
 
-<h1 className='text-2xl font-bold text-gray-900'>Gestion des litiges</h1>
+<h1 className='text-2xl font-bold text-gray-900'>{t.admin.manageDisputes}</h1>
 
 <p className='text-sm text-gray-500 mt-0.5'>
 
-{litiges.length} litige{litiges.length > 1 ? 's' : ''} au total
+{litiges.length} {t.admin.disputesCount}
 
-{counts.en_attente > 0 && ` · ${counts.en_attente} en attente`}
+{counts.en_attente > 0 && ` · ${counts.en_attente} ${t.admin.pendingLabel}`}
 
-{counts.en_cours > 0 && ` · ${counts.en_cours} en cours`}
+{counts.en_cours > 0 && ` · ${counts.en_cours} ${t.admin.inProgressLabel}`}
 
 </p>
 
@@ -792,7 +797,7 @@ className='flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rou
 
 <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
 
-Actualiser
+{t.admin.refresh}
 
 </button>
 
@@ -856,7 +861,7 @@ value={search}
 
 onChange={e => setSearch(e.target.value)}
 
-placeholder='Rechercher par annonce, acheteur, vendeur...'
+placeholder={t.admin.searchDisputes}
 
 className='w-full pl-11 pr-4 py-3 bg-white border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
 
