@@ -18,6 +18,7 @@ import { getAnnonces, searchAnnonces, getImageUrl } from '../../../services/api'
 import ImageViewer from '../../components/common/ImageViewer';
 import { useImageViewer } from '../../../hooks/useImageViewer';
 import { useFavoris } from '../../hooks/useFavoris';
+import { useTracking } from '../../hooks/useTracking';
 
 // ─── Constantes ──────────────────────────────────────────────────────────────
 
@@ -170,6 +171,7 @@ const Explore = () => {
     const [total, setTotal] = useState(0);
     // ─── Favoris (serveur si connecté, local sinon) ────────────────────────
     const { favorites, isFavorite, toggle: handleFavorite } = useFavoris();
+    useTracking({ page: '/explore' });
 
     const { viewer, openViewer, closeViewer } = useImageViewer();
 

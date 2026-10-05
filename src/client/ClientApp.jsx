@@ -23,6 +23,7 @@ import Cart from './components/cart/Cart';
 import TermsOfService from './pages/headercontains/TermsOfService';
 import PrivacyPolicy from './pages/headercontains/PrivacyPolicy';
 import ScrollTop from './components/common/ScrollTop';
+import ConsentBanner from './components/common/ConsentBanner';
 
 // ─── Guard : déconnecte automatiquement un admin qui accède au client ─────────
 
@@ -49,6 +50,7 @@ function ClientApp() {
       <div className='min-h-screen bg-gray-50'>
         <AdminGuard />
         <ScrollTop />
+        <ConsentBanner />
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/explore' element={<Explore />} />

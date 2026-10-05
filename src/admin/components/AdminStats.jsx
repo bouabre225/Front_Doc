@@ -113,6 +113,38 @@ export default function AdminStats() {
               <Kpi label='Paiements' value={data.paiements.delai_moyen_heures != null ? `${data.paiements.delai_moyen_heures}h` : '—'} sub={`délai moyen • ${data.paiements.echoues}/${data.paiements.total} échoués`} />
             </div>
 
+            {data.audience && (
+              <Section title='Audience & tunnel de conversion' icon={Users}>
+                <div className='grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4'>
+                  <div className='p-3 bg-gray-50 rounded-xl text-center'><p className='text-xl font-black'>{fmt(data.audience.visiteurs_uniques)}</p><p className='text-xs text-gray-400'>Visiteurs uniques</p></div>
+                  <div className='p-3 bg-gray-50 rounded-xl text-center'><p className='text-xl font-black'>{fmt(data.audience.vues_total)}</p><p className='text-xs text-gray-400'>Vues produit</p></div>
+                  <div className='p-3 bg-gray-50 rounded-xl text-center'><p className='text-xl font-black'>{fmt(k.commandes_total)}</p><p className='text-xs text-gray-400'>Commandes</p></div>
+                  <div className='p-3 bg-gray-50 rounded-xl text-center'><p className='text-xl font-black'>{data.audience.taux_vue_commande}%</p><p className='text-xs text-gray-400'>Vues → commandes</p></div>
+                </div>
+                {(data.audience.serie || []).length > 0 && (
+                  <div className='h-52 mb-4'>
+                    <ResponsiveContainer width='100%' height='100%'>
+                      <AreaChart data={data.audience.serie}>
+                        <CartesianGrid strokeDasharray='3 3' />
+                        <XAxis dataKey='date' tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Area type='monotone' dataKey='visiteurs' name='Visiteurs' stroke='#8b5cf6' fill='#8b5cf6' fillOpacity={0.2} />
+                        <Area type='monotone' dataKey='vues' name='Vues' stroke='#f59e0b' fill='#f59e0b' fillOpacity={0.2} />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+                <p className='text-xs font-bold text-gray-400 uppercase mb-2'>Top annonces vues</p>
+                {(data.audience.top_vues || []).length ? (
+                  <table className='w-full text-sm'>
+                    <tbody>{data.audience.top_vues.map((v) => <tr key={v.id} className='border-t border-gray-50 first:border-0'><td className='py-1.5 font-medium'>{v.titre}</td><td className='text-right'>{v.vues} vues • {v.visiteurs} visiteurs</td></tr>)}</tbody>
+                  </table>
+                ) : <p className='text-sm text-gray-400'>Pas encore de données de visite.</p>}
+              </Section>
+            )}
+
             <Section title='CA & commandes par jour' icon={TrendingUp}>
               <div className='h-64'>
                 <ResponsiveContainer width='100%' height='100%'>

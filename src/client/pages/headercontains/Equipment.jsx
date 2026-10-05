@@ -14,6 +14,7 @@ import { useCart } from '../../context/CartContext';
 import ImageViewer from '../../components/common/ImageViewer';
 import { useImageViewer } from '../../../hooks/useImageViewer';
 import { useFavoris } from '../../hooks/useFavoris';
+import { useTracking } from '../../hooks/useTracking';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -43,6 +44,7 @@ function Equipment() {
   const [addedToCart,   setAddedToCart]   = useState(false);
   const { isFavorite: isFav, toggle: toggleFav } = useFavoris();
   const isFavorite = isFav(id);
+  useTracking({ annonce_id: id });
 
   const currentUser = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
   const isOwnAnnonce = currentUser.id === annonce?.vendeur_id;    
