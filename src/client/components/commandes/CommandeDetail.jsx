@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import Header from '../../components/layout/Header';
 import Footer from '../../components/layout/Footer';
-import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande, createAvis } from '../../../services/api';
+import { getCommandeById, cancelCommande, payCommande, createLitige, verifyCommande, renvoyerFacture, createAvis } from '../../../services/api';
 import { useLang } from '../../context/LangContext';
 import { getLocale } from '../../i18n/format';
 
@@ -332,7 +332,17 @@ const handlePay = async () => {
     }
   };
 
-
+  const handleResendFacture = async () => {    setActionLoading(true);
+    setError('');
+    try {
+      const res = await renvoyerFacture(id);
+      setSuccess(res.message || t.order.billResent);
+    } catch (err) {
+      setError(err.message || t.order.billError);
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   const handleLitige = async () => {    if (!litigeMotif.trim()) {
       setError(t.order.disputeNeedReason);
@@ -477,6 +487,17 @@ const handlePay = async () => {
                   📧 {t.order.billSentTo} <span className='font-semibold text-gray-600'>{commande.acheteur?.email}</span>
                   <br />{t.order.checkSpam}
                 </p>
+
+                <button
+                  onClick={handleResendFacture}
+                  disabled={actionLoading}
+                  className='w-full py-3 mb-3 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl flex items-center justify-center gap-2 hover:border-[#1DBF73]/50 hover:text-[#1DBF73] transition-all text-sm disabled:opacity-50'
+                >
+                  {actionLoading
+                    ? <div className='w-4 h-4 border-2 border-gray-400 rounded-full border-t-transparent animate-spin' />
+                    : <Mail className='w-4 h-4' />}
+                  {t.order.resendBill}
+                </button>
 
                 {isAcheteur && (
                   <Link
