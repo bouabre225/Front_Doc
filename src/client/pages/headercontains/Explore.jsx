@@ -94,7 +94,7 @@ const SkeletonCard = () => (
 
 // ─── Pagination ───────────────────────────────────────────────────────────────
 
-const Pagination = ({ current, last, onChange }) => {
+const Pagination = ({ current, last, onChange, t }) => {
     if (last <= 1) return null;
 
     // Affiche max 5 pages autour de la page courante
@@ -640,6 +640,7 @@ const Explore = () => {
                                     current={currentPage}
                                     last={lastPage}
                                     onChange={goToPage}
+                                    t={t}
                                 />
                             </>
                         )}

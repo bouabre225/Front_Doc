@@ -59,6 +59,7 @@ const ConfirmModal = ({ type, user, onConfirm, onCancel, loading }) => {
 // ─── Carte utilisateur ────────────────────────────────────────────────────────
 
 const UserCard = ({ user, onAction }) => {
+  const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
   const isVendeur  = user.role === 'vendeur';
   const isSuspendu = user.statut === 'suspendu';

@@ -143,7 +143,7 @@ const conditionStyle = (etat) => {
 
 // ─── Carte annonce ───────────────────────────────────────────────────────────
 
-const AnnonceCard = ({ annonce, index }) => (
+const AnnonceCard = ({ annonce, index, t }) => (
     <motion.div
         initial={{ opacity: 0, y: 25 }}
         animate={{ opacity: 1, y: 0 }}
@@ -536,7 +536,7 @@ const CategoryDetail = ({ slug, category }) => {
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
                             <AnimatePresence>
                                 {displayed.map((annonce, index) => (
-                                    <AnnonceCard key={annonce.id} annonce={annonce} index={index} />
+                                    <AnnonceCard key={annonce.id} annonce={annonce} index={index} t={t} />
                                 ))}
                             </AnimatePresence>
                         </div>
@@ -601,6 +601,7 @@ const CategoryDetail = ({ slug, category }) => {
 // ─── Composant racine ────────────────────────────────────────────────────────
 
 const Categories = () => {
+    const { t } = useLang();
     const { slug } = useParams();
     const [counts, setCounts] = useState({});
 
