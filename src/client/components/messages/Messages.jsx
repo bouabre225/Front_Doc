@@ -130,7 +130,7 @@ const Messages = () => {
     const channel = echo.private(`conversation.${currentUser.id}`);
 
     channel.listen('.nouveau.message', (e) => {
-      console.log('[WS] message reçu :', e);
+
 
       const conv = selectedConvRef.current;
 
@@ -292,7 +292,7 @@ const Messages = () => {
                 <MessageCircle className='w-7 h-7 text-gray-300' />
               </div>
               <p className='text-sm font-semibold text-gray-500'>
-                {search ? 'Aucun résultat' : 'Aucune conversation'}
+                {search ? t.messages.tryOther : t.messages.empty}
               </p>
               <p className='text-xs text-gray-400 mt-1'>
                 {search ? t.messages.tryOther : t.messages.contactSeller}
@@ -523,7 +523,7 @@ const Messages = () => {
                 </motion.button>
               </div>
               <p className='text-[10px] text-gray-400 mt-1.5 text-center'>
-                Entrée pour envoyer · Maj+Entrée pour nouvelle ligne
+                {t.messages.enterHint}
               </p>
             </div>
           </>

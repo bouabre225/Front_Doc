@@ -182,7 +182,7 @@ const Cart = () => {
             open={confirmClear}
             title={t.cart.clearTitle}
             message={t.cart.clearMsg}
-            confirmLabel='Vider'
+            confirmLabel={t.cart.clearOk}
             tone='danger'
             onConfirm={() => { clearCart(); setConfirmClear(false); }}
             onCancel={() => setConfirmClear(false)}

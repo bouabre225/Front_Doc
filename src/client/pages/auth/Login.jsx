@@ -70,7 +70,7 @@ const Login = () => {
         <div className='mb-6 text-center'>
           <span className='inline-flex items-center gap-2 px-4 py-2 bg-[#1DBF73]/10 border border-[#1DBF73]/20 rounded-full text-sm font-medium text-[#1DBF73]'>
             <span className='w-2 h-2 bg-[#1DBF73] rounded-full animate-pulse'></span>
-            Plateforme N°1 d'équipements médicaux
+            {t.auth.platform}
           </span>
         </div>
 

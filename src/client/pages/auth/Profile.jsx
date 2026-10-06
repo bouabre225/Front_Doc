@@ -402,10 +402,10 @@ function Profile() {
                             </div>
                             <div className='flex flex-col gap-2 shrink-0'>
                               <Link to={`/equipment/${annonce.id}`} className='flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-all'>
-                                <Eye className='w-3.5 h-3.5' /> Voir
+                                <Eye className='w-3.5 h-3.5' /> {t.common.see}
                               </Link>
                               <button onClick={() => handleDeleteAnnonce(annonce.id)} className='flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-red-500 bg-red-50 rounded-lg hover:bg-red-100 transition-all'>
-                                <Trash2 className='w-3.5 h-3.5' /> Suppr.
+                                <Trash2 className='w-3.5 h-3.5' /> {t.common.deleteShort}
                               </button>
                             </div>
                           </motion.div>
@@ -510,7 +510,7 @@ function Profile() {
                                     className='flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white text-xs font-bold rounded-xl shadow hover:shadow-md transition-all'
                                   >
                                     <Truck className='w-3.5 h-3.5' />
-                                    Marquer livrée
+                                    {t.profil.markDelivered}
                                   </motion.button>
                                 )}
                               </div>
@@ -680,7 +680,7 @@ function Profile() {
                     value={editForm.nom}
                     onChange={(e) => setEditForm(prev => ({ ...prev, nom: e.target.value }))}
                     className='w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
-                    placeholder='Votre nom complet'
+                    placeholder={t.auth.fullNamePlaceholder}
                   />
                 </div>
               </div>
@@ -734,7 +734,7 @@ function Profile() {
                     onChange={(e) => setEditForm(prev => ({ ...prev, adresse: e.target.value }))}
                     rows={2}
                     className='w-full pl-10 pr-4 py-2.5 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all resize-none'
-                    placeholder='Votre adresse'
+                    placeholder={t.profil.addressPh}
                   />
                 </div>
               </div>

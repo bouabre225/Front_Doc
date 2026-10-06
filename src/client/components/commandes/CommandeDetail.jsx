@@ -53,7 +53,7 @@ const AvisForm = ({ noteVendeur, setNoteVendeur, noteConformite, setNoteConformi
     <p className='text-sm font-bold text-gray-800 mb-3 flex items-center gap-2'>
       <Star className='w-4 h-4 fill-yellow-400 text-yellow-400' /> {t.order.rateTitle}
     </p>
-    {[[t.order.ratingSeller, noteVendeur, setNoteVendeur], [t.order.ratingConformity, noteConformite, setNoteConformite]].map(([label, val, setVal]) => (
+    {[[t.equipment.ratingSeller, noteVendeur, setNoteVendeur], [t.equipment.ratingConformity, noteConformite, setNoteConformite]].map(([label, val, setVal]) => (
       <div key={label} className='flex items-center justify-between mb-2'>
         <span className='text-xs text-gray-600'>{label}</span>
         <div className='flex gap-1' role='radiogroup' aria-label={label}>
@@ -138,7 +138,7 @@ const formatPrice = (p) =>
 
 // ─── Modal confirmation ───────────────────────────────────────────────────────
 
-const ConfirmModal = ({ title, message, onConfirm, onCancel, loading, danger = false, children }) => (
+const ConfirmModal = ({ title, message, onConfirm, onCancel, loading, danger = false, children, t }) => (
   <AnimatePresence>
     <motion.div
       initial={{ opacity: 0 }}
@@ -796,6 +796,7 @@ const handlePay = async () => {
           onConfirm={handlePay}
           onCancel={() => setShowPay(false)}
           loading={actionLoading}
+          t={t}
         />
       )}
 
@@ -807,6 +808,7 @@ const handlePay = async () => {
           onCancel={() => setShowCancel(false)}
           loading={actionLoading}
           danger
+          t={t}
         />
       )}
 
@@ -818,6 +820,7 @@ const handlePay = async () => {
           onCancel={() => { setShowLitige(false); setLitigeMotif(''); setLitigeDetails(''); }}
           loading={actionLoading}
           danger
+          t={t}
         >
           {/*Select au lieu de textarea */}
           <select

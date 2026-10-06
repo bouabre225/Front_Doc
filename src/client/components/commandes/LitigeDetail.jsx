@@ -62,7 +62,7 @@ const LitigeDetail = () => {
       const res = await getLitigeById(id);
       setLitige(res.data ?? res);
     } catch (err) {
-      setError('Impossible de charger les détails du litige.');
+      setError(t.dispute.notFound);
     } finally {
       setLoading(false);
     }

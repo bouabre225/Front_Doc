@@ -306,7 +306,7 @@ const Contact = () => {
                         name='sujet'
                         value={form.sujet}
                         onChange={handleChange}
-                        placeholder={t.contact.subjectPlaceholder}
+                        placeholder={t.contact.subjectPh}
                         className='w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-sm focus:outline-none focus:border-[#1DBF73] focus:ring-2 focus:ring-[#1DBF73]/20 transition-all'
                       />
                     </div>

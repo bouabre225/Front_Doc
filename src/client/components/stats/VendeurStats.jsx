@@ -42,7 +42,7 @@ export default function VendeurStats() {
   if (error) return <div className='p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl'>{error}</div>;
   if (!data) return null;
 
-  const k = data.kpis;
+  const k = data.kpis ?? {};
   const serie = (data.serie || []).map((s) => ({ ...s, ca: Number(s.ca), commandes: Number(s.commandes) }));
 
   return (
@@ -92,8 +92,8 @@ export default function VendeurStats() {
                 <XAxis dataKey='date' tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} />
                 <Tooltip />
-                <Area type='monotone' dataKey='ca' name='CA (FCFA)' stroke='#1DBF73' fill='#1DBF73' fillOpacity={0.2} />
-                <Area type='monotone' dataKey='commandes' name='Commandes' stroke='#09B1BA' fill='#09B1BA' fillOpacity={0.2} />
+                <Area type='monotone' dataKey='ca' name={t.admin.caFcfa} stroke='#1DBF73' fill='#1DBF73' fillOpacity={0.2} />
+                <Area type='monotone' dataKey='commandes' name={t.admin.orders} stroke='#09B1BA' fill='#09B1BA' fillOpacity={0.2} />
               </AreaChart>
             </ResponsiveContainer>
           </div>

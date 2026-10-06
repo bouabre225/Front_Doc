@@ -52,7 +52,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.acceptTerms) {
-      setError("Veuillez accepter les conditions d'utilisation et la politique de confidentialité.");
+      setError(t.auth.acceptTerms);
       return;
     }
     setLoading(true);
@@ -87,7 +87,7 @@ const Register = () => {
         navigate('/');
       }
     } catch (err) {
-      setError(err.message || 'Une erreur est survenue lors de l\'inscription.');
+      setError(err.message || t.admin.genericError);
     } finally {
       setLoading(false);
     }
@@ -315,7 +315,7 @@ const Register = () => {
                 <span className='text-sm text-gray-600'>
                   {t.auth.acceptCgu}{' '}
                   <Link to='/terms' className='text-[#1DBF73] hover:no-underline font-medium'>{t.auth.termsLink}</Link>
-                  {' '}et la{' '}
+                  {' '}{t.auth.andLink}{' '}
                   <Link to='/privacy' className='text-[#1DBF73] hover:no-underline font-medium'>{t.auth.privacyLink}</Link>
                 </span>
               </label>

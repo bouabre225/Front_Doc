@@ -470,18 +470,18 @@ const Header = () => {
                   {currentUser.role === 'vendeur' && (
                     <Link to='/publish-equipment' onClick={() => setMobileMenuOpen(false)}
                       className='w-full py-2.5 text-sm font-semibold text-center text-white bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] rounded-xl hover:shadow-lg transition-all'>
-                      + Publier une annonce
+                      {t.layoutMenu.publish}
                     </Link>
                   )}
                   {currentUser.role === 'admin' && (
                     <Link to='/admin' onClick={() => setMobileMenuOpen(false)}
                       className='w-full py-2.5 text-sm font-semibold text-center text-white bg-gradient-to-r from-purple-500 to-indigo-500 rounded-xl hover:shadow-lg transition-all'>
-                      Dashboard Admin
+                      {t.layoutMenu.adminDash}
                     </Link>
                   )}
                   <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
                     className='w-full py-2.5 text-sm font-semibold text-red-500 border-2 border-red-200 rounded-xl hover:bg-red-50 transition-all'>
-                    Se déconnecter
+                    {t.layoutMenu.logout}
                   </button>
                 </>
               ) : (

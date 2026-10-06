@@ -176,21 +176,21 @@ const Commandes = () => {
               </div>
               <p className='font-semibold text-gray-600 mb-1'>{t.commandes.empty}</p>
               <p className='text-sm text-gray-400 mb-6'>
-                {filter === 'tous' ? 'Vous n\'avez pas encore passé de commande.' : `${t.commandes.emptyFilter}`}
+                {filter === 'tous' ? t.commandes.emptyHint : t.commandes.emptyFilter}
               </p>
               {filter !== 'tous' ? (
                 <button
                   onClick={() => setFilter('tous')}
                   className='px-5 py-2.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl text-sm'
                 >
-                  Voir toutes les commandes
+                  {t.commandes.seeAllOrders}
                 </button>
               ) : (
                 <Link
                   to='/explore'
                   className='px-5 py-2.5 bg-gradient-to-r from-[#1DBF73] to-[#09B1BA] text-white font-semibold rounded-xl text-sm'
                 >
-                  Explorer les équipements
+                  {t.cart.explore}
                 </Link>
               )}
             </motion.div>
@@ -223,8 +223,8 @@ const Commandes = () => {
                               {commande.annonce?.titre ?? 'Équipement'}
                             </p>
                             <p className='text-xs text-gray-400'>
-                              {isVendeur ? 'Acheteur' : 'Vendeur'} : <span className='font-medium text-gray-600'>{interlocuteur?.nom}</span>
-                              {' · '}Qté : <span className='font-medium text-gray-600'>{commande.quantite}</span>
+                              {isVendeur ? t.admin.buyer : t.admin.seller} : <span className='font-medium text-gray-600'>{interlocuteur?.nom}</span>
+                              {' · '}{t.commandes.qty} : <span className='font-medium text-gray-600'>{commande.quantite}</span>
                               {' · '}{formatDate(commande.created_at)}
                             </p>
                             <p className='text-sm font-bold text-[#1DBF73] mt-1'>
@@ -264,17 +264,17 @@ const Commandes = () => {
               disabled={page === 1}
               className='px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-[#1DBF73] disabled:opacity-40 disabled:cursor-not-allowed transition-all'
             >
-              Précédent
+              {t.admin.prev}
             </button>
             <span className='text-sm text-gray-500 px-2'>
-              Page {page} / {lastPage}
+              {t.admin.pageOf} {page} / {lastPage}
             </span>
             <button
               onClick={() => setPage(p => Math.min(lastPage, p + 1))}
               disabled={page === lastPage}
               className='px-4 py-2 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:border-[#1DBF73] disabled:opacity-40 disabled:cursor-not-allowed transition-all'
             >
-              Suivant
+              {t.admin.next}
             </button>
           </div>
         )}

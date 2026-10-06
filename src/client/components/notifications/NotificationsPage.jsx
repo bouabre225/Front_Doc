@@ -67,7 +67,7 @@ const timeAgo = (dateStr, t, lang = getLocale()) => {
 // ─── Composant carte notification ────────────────────────────────────────────
 
 const NotificationCard = ({ notif, onRead, onDelete }) => {
-  const { t } = useLang();
+  const { t, currentLang } = useLang();
   const cfg = getTypeConfig(notif.type);
   const Icon = cfg.icon;
 
@@ -104,7 +104,7 @@ const NotificationCard = ({ notif, onRead, onDelete }) => {
         <div className='flex items-start justify-between gap-2'>
           <div className='flex-1'>
             <span className={`inline-block px-2 py-0.5 text-xs font-semibold rounded-full mb-1 ${cfg.color}`}>
-              {cfg.label}
+              {t.notifs.types[notif.type] ?? cfg.label}
             </span>
             <p className={`text-sm leading-snug ${notif.lu ? 'text-gray-600' : 'text-gray-900 font-medium'}`}>
               {notif.message || notif.contenu}

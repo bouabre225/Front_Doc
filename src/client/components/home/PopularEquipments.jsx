@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLang } from '../../context/LangContext';
 import { motion } from 'framer-motion';
-import { Star, MapPin, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Star, MapPin, ArrowRight, ShieldCheck, ZoomIn } from 'lucide-react';
 import Card from '../common/Card';
 import { Link } from 'react-router-dom';
 import { getAnnonces, getImageUrl } from '../../../services/api';
@@ -141,32 +141,33 @@ const PopularEquipments = () => {
                     {/* Image */}
                     <div className='relative h-56 overflow-hidden bg-gray-100'>
                       {equipment.images?.[0] ? (
+                        <>
                         <img
                           src={getImageUrl(equipment.images[0].image_url)}
                           alt={equipment.titre}
-                          className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110 cursor-zoom-in'
-                          onClick={() => openViewer(equipment.images, 0, equipment.titre)}
+                          loading="lazy"
+                          className='object-cover w-full h-full transition-transform duration-500 group-hover:scale-110'
                         />
+                        <button
+                          type="button"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); openViewer(equipment.images, 0, equipment.titre); }}
+                          aria-label={t.explore.zoom}
+                          className='absolute bottom-3 right-3 w-11 h-11 hidden md:flex items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm hover:bg-black/70 transition-all'
+                        >
+                          <ZoomIn className='w-5 h-5' />
+                        </button>
+                        </>
                       ) : (
                         <div className='flex items-center justify-center w-full h-full bg-gradient-to-br from-gray-100 to-gray-200'>
                           <span className='text-5xl'>🏥</span>
                         </div>
                       )}
 
-                      {viewer.open && (
-                        <ImageViewer
-                          images={viewer.images}
-                          initialIndex={viewer.index}
-                          titre={viewer.titre}
-                          onClose={closeViewer}
-                        />
-                      )}
-
                       {/* Badges haut gauche */}
                       <div className='absolute top-3 left-3 flex flex-col gap-1.5'>
                         {equipment.etat && (
                           <span className={`px-2.5 py-1 rounded-full text-xs flex items-center gap-1 font-bold shadow-sm capitalize ${conditionStyle(equipment.etat)}`}>
-                            <ShieldCheck className='w-3 h-3' />  {equipment.etat}  
+                            <ShieldCheck className='w-3 h-3' />  {t.etats[equipment.etat] ?? equipment.etat}  
                           </span>
                         )}
                         {equipment.vendeur?.verifie_kyc && (
@@ -249,6 +250,14 @@ const PopularEquipments = () => {
           </Link>
         </div>
       </div>
+      {viewer.open && (
+        <ImageViewer
+          images={viewer.images}
+          initialIndex={viewer.index}
+          titre={viewer.titre}
+          onClose={closeViewer}
+        />
+      )}
     </section>
   );
 };

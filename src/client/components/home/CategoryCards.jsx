@@ -3,7 +3,7 @@ import { useLang } from '../../context/LangContext';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Card from '../common/Card';
-import { getAnnonces } from '../../../services/api';
+import { getAnnonces, getCountsParCategorie } from '../../../services/api';
 
 const CATEGORIES = [
     {
