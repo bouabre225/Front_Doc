@@ -228,6 +228,7 @@ const DocumentModal = ({ kyc, onClose }) => {
 // ─── Carte KYC ────────────────────────────────────────────────────────────────
 
 const KycCard = ({ kyc, onDecide }) => {
+  const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
   const [docModal, setDocModal] = useState(false);
   const user = kyc.user || {};
@@ -298,12 +299,12 @@ const KycCard = ({ kyc, onDecide }) => {
             <div className='px-5 pb-5 border-t border-gray-100 pt-4'>
               <div className='grid grid-cols-2 gap-3 mb-4'>
                 {[
-                  { icon: User,     label: 'Nom',       value: user.nom },
-                  { icon: Mail,     label: 'Email',     value: user.email },
-                  { icon: Phone,    label: 'Téléphone', value: user.telephone || '—' },
-                  { icon: MapPin,   label: 'Pays',      value: user.pays || '—' },
-                  { icon: Calendar, label: 'Inscrit le', value: formatDate(user.created_at) },
-                  { icon: Shield,   label: 'Type',      value: user.type_compte || '—' },
+                  { icon: User,     label: t.auth.fullName,       value: user.nom },
+                  { icon: Mail,     label: t.auth.email,     value: user.email },
+                  { icon: Phone,    label: t.auth.phone,  value: user.telephone || '—' },
+                  { icon: MapPin,   label: t.auth.country,       value: user.pays || '—' },
+                  { icon: Calendar, label: t.admin.registeredOn, value: formatDate(user.created_at) },
+                  { icon: Shield,   label: t.auth.accountType,      value: user.type_compte || '—' },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className='flex items-start gap-2 p-3 bg-gray-50 rounded-xl'>
                     <Icon className='w-4 h-4 text-[#1DBF73] mt-0.5 shrink-0' />
