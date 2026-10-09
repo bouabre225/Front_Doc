@@ -25,6 +25,11 @@ const PrivacyPolicy = () => {
         </div>
 
         <div>
+          <h2 className="text-xl font-bold border-b-2 border-green-200 inline-block mb-4">{L.ctrlT}</h2>
+          <p>{L.ctrlD}</p>
+        </div>
+
+        <div>
           <h2 className="text-xl font-bold border-b-2 border-green-200 inline-block mb-4">{L.p1}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 border rounded-lg">
@@ -44,6 +49,21 @@ const PrivacyPolicy = () => {
             {L.p2items.map(([b, txt], i) => (
               <li key={i}><strong>{b}</strong> {txt}</li>
             ))}
+          </ul>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-bold border-b-2 border-green-200 inline-block mb-4">{L.destT}</h2>
+          <ul className="list-disc pl-6 space-y-2">
+            {L.destList.map((d, i) => <li key={i}>{d}</li>)}
+          </ul>
+          <p className="mt-2 font-semibold">{L.destNoSale}</p>
+        </div>
+
+        <div>
+          <h2 className="text-xl font-bold border-b-2 border-green-200 inline-block mb-4">{L.cookT}</h2>
+          <ul className="list-disc pl-6 space-y-2">
+            {L.cookList.map((c, i) => <li key={i}>{c}</li>)}
           </ul>
         </div>
 
@@ -73,6 +93,15 @@ const PrivacyPolicy = () => {
           <p className="mt-2 font-semibold">
             {L.p4dpo} <span className="text-blue-600 underline">docspaceafrica@gmail.com</span>
           </p>
+        </div>
+
+        <div className="p-4 bg-gray-100 rounded-lg text-sm text-gray-600">
+          <strong>{L.breachT} : </strong>{L.breachD}
+        </div>
+
+        <div>
+          <h2 className="text-xl font-bold border-b-2 border-green-200 inline-block mb-4">{L.minorT}</h2>
+          <p>{L.minorD}</p>
         </div>
 
         <div className="p-4 bg-gray-100 rounded-lg text-sm text-gray-600">
