@@ -40,7 +40,7 @@ const ResetPassword = () => {
         token,
         email,
         mot_de_passe:              form.mot_de_passe,
-        password_confirmation: form.password_confirmation,
+        mot_de_passe_confirmation: form.password_confirmation,
       });
       setSuccess(true);
       setTimeout(() => navigate('/login'), 3000);
