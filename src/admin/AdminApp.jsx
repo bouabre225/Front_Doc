@@ -16,23 +16,31 @@ function AdminApp() {
   const { t } = useLang();
   const location = useLocation();
   const [checking, setChecking] = React.useState(true);
+  const [checked, setChecked] = React.useState(false);
   const [isAdmin, setIsAdmin] = React.useState(false);
 
   const checkAdmin = React.useCallback(async (signal) => {
     try {
       const token = localStorage.getItem('auth_token');
-      if (!token) { if (!signal?.aborted) { setIsAdmin(false); setChecking(false); } return; }
+      if (!token) {
+        if (!signal?.aborted) { setIsAdmin(false); setChecked(true); setChecking(false); }
+        return;
+      }
       const me = await getMe();
       const user = me?.user ?? me?.data ?? me;
       if (!signal?.aborted) setIsAdmin(user?.role === 'admin');
-    } catch { if (!signal?.aborted) { setIsAdmin(false); setChecking(false); return; } }
-    finally { if (!signal?.aborted) setChecking(false); }
+    } catch {
+      if (!signal?.aborted) { setIsAdmin(false); setChecked(true); setChecking(false); return; }
+    } finally {
+      if (!signal?.aborted) { setChecked(true); setChecking(false); }
+    }
   }, []);
 
   // Re-vérifie à chaque navigation (login → dashboard) + changement de token
   React.useEffect(() => {
     const controller = new AbortController();
     setChecking(true);
+    setChecked(false);
     checkAdmin(controller.signal);
     const onStorage = () => checkAdmin(controller.signal);
     window.addEventListener('storage', onStorage);
@@ -40,7 +48,9 @@ function AdminApp() {
   }, [location.pathname, checkAdmin]);
 
   const ProtectedRoute = ({ children }) => {
-    if (checking) return <div className='p-10 text-center'>{t.admin.checking}</div>;
+    // Tant que la vérification n'est pas terminée, on attend (évite la course
+    // entre la navigation post-OTP et la vérification serveur).
+    if (checking || !checked) return <div className='p-10 text-center'>{t.admin.checking}</div>;
     return isAdmin
       ? <AdminLayout>{children}</AdminLayout>
       : <Navigate to="/admin/login" replace />;

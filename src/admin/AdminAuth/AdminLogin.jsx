@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Eye, EyeOff, Lock, Mail, Shield, Stethoscope, KeyRound, ArrowLeft } from 'lucide-react';
-import { loginAdmin, login2fa } from '../../services/api';
+import { loginAdmin, login2fa, getMe } from '../../services/api';
 import { useLang } from '../../client/context/LangContext';
 
 // ─── Étape 1 : Formulaire email/password ─────────────────────────────────────
@@ -163,10 +163,28 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
       });
       //console.log('RES 2fa:', res); // ← ajoute ça
       if (res.success && res.token && res.user) {
+        // Vérifie le rôle côté serveur avant d'entrer dans le panel
+        try {
+          const me = await getMe();
+          const user = me?.user ?? me?.data ?? me;
+          if (user?.role !== 'admin') {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+            setError(t.admin.adminOnly);
+            setCodes(['', '', '', '', '', '']);
+            return;
+          }
+        } catch {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('user');
+          setError(t.admin.adminOnly);
+          setCodes(['', '', '', '', '', '']);
+          return;
+        }
+
         localStorage.setItem('auth_token', res.token);
         localStorage.setItem('user', JSON.stringify(res.user));
         window.dispatchEvent(new Event('storage'));
-        //console.log('Redirect vers /admin/dashboard'); // ← et ça
         // ← attendre que le storage soit propagé
         setTimeout(() => {
           navigate('/admin/dashboard', { replace: true });
