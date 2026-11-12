@@ -163,27 +163,29 @@ const Step2FA = ({ challengeId, onBack, loading, setLoading, error, setError }) 
       });
       //console.log('RES 2fa:', res); // ← ajoute ça
       if (res.success && res.token && res.user) {
-        // Vérifie le rôle côté serveur avant d'entrer dans le panel
-        try {
-          const me = await getMe();
-          const user = me?.user ?? me?.data ?? me;
-          if (user?.role !== 'admin') {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user');
-            setError(t.admin.adminOnly);
-            setCodes(['', '', '', '', '', '']);
-            return;
+        // 1. On enregistre d'abord le token (sinon /me répond 401)
+        localStorage.setItem('auth_token', res.token);
+        localStorage.setItem('user', JSON.stringify(res.user));
+
+        // 2. Contrôle du rôle : d'abord la réponse du back, sinon /me
+        let role = res.user?.role;
+        if (!role) {
+          try {
+            const me = await getMe();
+            role = (me?.user ?? me?.data ?? me)?.role;
+          } catch {
+            role = null;
           }
-        } catch {
+        }
+        if (role !== 'admin') {
           localStorage.removeItem('auth_token');
           localStorage.removeItem('user');
           setError(t.admin.adminOnly);
           setCodes(['', '', '', '', '', '']);
+          inputsRef.current[0]?.focus();
           return;
         }
 
-        localStorage.setItem('auth_token', res.token);
-        localStorage.setItem('user', JSON.stringify(res.user));
         window.dispatchEvent(new Event('storage'));
         // ← attendre que le storage soit propagé
         setTimeout(() => {
